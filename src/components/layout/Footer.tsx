@@ -14,7 +14,6 @@ const Footer: React.FC = () => {
                 <MapPin className="w-5 h-5 mt-1 text-blue-400" />
                 <div>
                   <p className="text-sm">
-                    Department of Electrical and Electronic Engineering<br />
                     Faculty of Engineering<br />
                     University of Jaffna<br />
                     Ariviyal Nagar, Kilinochchi 44000<br />
@@ -37,9 +36,6 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <div className="space-y-2">
-              <a href="https://www.eng.jfn.ac.lk/electrical-and-electronic-eng/" className="block text-sm hover:text-blue-400 transition-colors duration-200">
-                About EEE Department
-              </a>
               <a href="https://www.eng.jfn.ac.lk/" className="block text-sm hover:text-blue-400 transition-colors duration-200">
                 Faculty of Engineering
               </a>
@@ -78,10 +74,10 @@ const Footer: React.FC = () => {
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
           <p className="text-sm text-gray-400">
-            © 2025 Department of Electrical and Electronic Engineering, University of Jaffna. All rights reserved.
+            © 2025 Faculty of Engineering, University of Jaffna. All rights reserved.
           </p>
           <p className="text-sm text-gray-400 mt-2">
-            Made with ❤️ by <a href="https://avidzverse.vercel.app" className="text-blue-400 font-semibold">Avidu Witharana</a>
+            Made with ❤️ by <a href="https://avidzverse.vercel.app" className="text-blue-400 font-semibold">Avidu Witharana</a> & Aakil Ahamed 
           </p>
         </div>
       </div>

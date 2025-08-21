@@ -20,7 +20,7 @@ const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Department of Electrical and Electronic Engineering
+              Faculty of Engineering
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Excellence in engineering education and research at the University of Jaffna's Faculty of Engineering.
@@ -31,10 +31,10 @@ const HomePage: React.FC = () => {
             <div>
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Our Mission</h3>
               <p className="text-gray-600 mb-6">
-                The Department of Electrical and Electronic Engineering is committed to providing world-class 
-                education and fostering innovation in electrical and electronic engineering. We prepare our 
-                students to become leaders in their fields through comprehensive academic programs and 
-                hands-on research opportunities.
+                The Faculty of Engineering is committed to providing world-class education and fostering 
+                innovation in Electrical and Electronic Engineering, Computer Engineering, Mechanical Engineering 
+                and Civil Engineering. We prepare our students to become leaders in their fields through 
+                comprehensive academic programs and hands-on research opportunities.
               </p>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">

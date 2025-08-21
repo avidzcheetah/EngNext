@@ -48,7 +48,6 @@ const Contact: React.FC = () => {
       icon: MapPin,
       title: 'Address',
       details: [
-        'Department of Electrical and Electronic Engineering,',
         'Faculty of Engineering,',
         'University of Jaffna,',
         'Ariviyal Nagar, Kilinochchi 44000',

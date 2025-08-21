@@ -7,7 +7,7 @@ const slidesData = [
   { id: 1, 
     bg: 'https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/486325587_648294061476471_8869992137619792909_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_ohc=75MtE5CB81QQ7kNvwGkDqyg&_nc_oc=Adn4J89gMIXDjWhm1OycafrjPt5bm3wGzI3U3bdoZGVn_CgSZeLmdHA_rdITaTbUDyfueOVV2jn6itQZBSQqcRuZ&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=4UHpPPuxO1s_IMSQAXBMlA&oh=00_AfV4oNqCvqrWFDZkdyybJgUPNcHAwdiMHZ04itWqgk7XBA&oe=689CFC49', 
     text: 'Welcome to Inturnix',
-    desc: 'Bridging the gap between talented EEE students and industry leaders. Your gateway to exceptional internship opportunities.' },
+    desc: 'Bridging the gap between talented Engineering students and industry leaders. Your gateway to exceptional internship opportunities.' },
   { id: 2, 
     bg: 'https://scontent.fcmb1-2.fna.fbcdn.net/v/t1.6435-9/83194792_2564087017052186_6078193925812649984_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=833d8c&_nc_ohc=DnQnt2GVtQkQ7kNvwFYNsdi&_nc_oc=Adky8xLPYnm5JGH4kT_E8i2W5fc7wuctK1a0ptGvpEm7Vm5dEYxNatMd2ym7FeToygTk00yRI2MuaGHgNW_mTziv&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=Xe11MWaNnjzssngan3QdZA&oh=00_AfWUhGeFe0wBH3_u20O0HclH1J6RCDWgFO1ungBTzJxY-g&oe=68BEAF10', 
     text: 'Excellence in Solar Technologies',

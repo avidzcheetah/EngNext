@@ -4,7 +4,7 @@ export const lecturers: Lecturer[] = [
   {
     id: '1',
     name: 'Prof. T. Thiruvaran',
-    title: 'Professor & Head of Department',
+    title: 'Professor & HOD of EEE',
     photo: 'https://www.eng.jfn.ac.lk/wp-content/uploads/Staff_photos/Tharmarajah_Thiruvaran.png',
     specialization: 'Automatic speaker recognition, Speech signal processing, Pattern recognition'
   },

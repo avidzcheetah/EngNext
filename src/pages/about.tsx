@@ -22,7 +22,7 @@ const About: React.FC = () => {
           <div>
             <h2 className="text-3xl font-extrabold text-gray-900 mb-4">Our Mission</h2>
             <p className="text-gray-600 mb-6">
-              The Department of Electrical and Electronic Engineering, University of Jaffna,
+              The Faculty of Engineering, University of Jaffna,
               developed Inturnix to create a seamless online connection between EEE students
               and industry partners. We aim to streamline the internship search, application,
               and recruitment processes with an intuitive, secure, and interactive platform.

@@ -1,1 +1,0 @@
-export type UserRole = 'student' | 'company' | 'admin';
