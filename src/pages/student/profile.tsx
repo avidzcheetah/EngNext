@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { 
   User, 
   Camera, 
@@ -29,7 +30,9 @@ interface StudentProfile {
   address?: string;
   city?: string;
   postalCode?: string;
-  profilePicture?: string;
+ profilePicture?: File | null
+
+
   bio?: string;
   skills: string[];
   gpa?: number;
@@ -60,17 +63,18 @@ const StudentProfile: React.FC = () => {
   // Form states
   const [isEditing, setIsEditing] = useState(false);
   const [newSkill, setNewSkill] = useState('');
+
   const [profileData, setProfileData] = useState<StudentProfile>({
-    id: user?.id || '',
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
-    email: user?.email || '',
+    id:  '',
+    firstName:  '',
+    lastName:  '',
+    email: '',
     phone: '',
     dateOfBirth: '',
     address: '',
     city: '',
     postalCode: '',
-    profilePicture: user?.profilePicture || '',
+    profilePicture: null ,
     bio: '',
     skills: [],
     gpa: 0,
@@ -79,12 +83,28 @@ const StudentProfile: React.FC = () => {
     portfolio: '',
     linkedin: '',
     github: '',
-    availability: true
+    availability: true,
+   
   });
 
+  
+  const [cv, setCV] = useState<File | null>(null)
+  const [cvPreview, setCvPreview] = useState<string | null>(null);
+  const [CVPreview, setCVPreview] = useState<{
+  filename: string;
+  uploadDate: string;
+  size: string;
+} | null>(null);
+  const location = useLocation();
+  const { id } = location.state || {};
+  const [profilepreview,setProfilePreview]=useState<string | null>(null);
+  
+  console.log(id);
   // Load profile data on component mount
   useEffect(() => {
     fetchProfile();
+    fetchCV();
+    fetchProfilePicture();
   }, []);
 
   const fetchProfile = async () => {
@@ -92,11 +112,11 @@ const StudentProfile: React.FC = () => {
     setError(null);
     
     try {
-      // Replace with actual API call to MongoDB
-      const response = await fetch(`/api/students/profile/${user?.id}`, {
+      
+      const response = await fetch(`http://localhost:5000/api/studentRoutes/getStudentById/${id}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          
           'Content-Type': 'application/json'
         }
       });
@@ -106,34 +126,64 @@ const StudentProfile: React.FC = () => {
       }
 
       const data = await response.json();
+      console.log(data);
       setProfileData(data);
     } catch (err) {
-      // For now, use mock data when API is not available
-      console.log('Using mock data - API not yet implemented');
-      setProfileData({
-        ...profileData,
-        phone: '+94 77 123 4567',
-        dateOfBirth: '1999-05-15',
-        address: '123 University Road',
-        city: 'Jaffna',
-        postalCode: '40000',
-        bio: 'Passionate EEE student with interests in renewable energy and automation systems.',
-        skills: ['Python', 'Arduino', 'MATLAB', 'Circuit Design', 'Power Systems'],
-        gpa: 3.45,
-        registrationNumber: '2021ENG001',
-        portfolio: 'https://johndoe.portfolio.com',
-        linkedin: 'https://linkedin.com/in/johndoe',
-        github: 'https://github.com/johndoe',
-        cv: {
-          filename: 'John_Doe_CV.pdf',
-          uploadDate: '2024-12-01',
-          size: '2.3 MB'
-        }
-      });
+      console.log("Error fetching data")
+     
     } finally {
       setIsLoading(false);
     }
   };
+
+  const fetchProfilePicture = async () => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/studentRoutes/getProfilePicture/${id}`
+    );
+    if (!response.ok) throw new Error("Failed to fetch image");
+
+    const blob = await response.blob();
+    const imageUrl = URL.createObjectURL(blob); // create a temporary URL
+    setProfilePreview( imageUrl );
+   
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
+
+  const fetchCV = async () => {
+  setIsLoading(true);
+  setError(null);
+
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/studentRoutes/getCV/${id}`,
+      {
+        method: "GET",
+        // No need for 'Content-Type' when getting a file
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch CV");
+    }
+
+    const blob = await response.blob(); // get the file as a Blob
+    const fileUrl = URL.createObjectURL(blob); // create temporary URL
+    setCvPreview(fileUrl); // store in state
+  } catch (err) {
+    console.log("Error fetching CV:", err);
+    setError("Failed to fetch CV");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -146,46 +196,23 @@ const StudentProfile: React.FC = () => {
 
   const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
       setError('Profile picture must be less than 5MB');
       return;
     }
-
-    const formData = new FormData();
-    formData.append('profilePicture', file);
-
-    try {
-      // Replace with actual API call
-      const response = await fetch(`/api/students/profile/${user?.id}/picture`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: formData
-      });
-
-      if (!response.ok) throw new Error('Failed to upload image');
-
-      const data = await response.json();
-      setProfileData(prev => ({
-        ...prev,
-        profilePicture: data.profilePictureUrl
-      }));
-      setSuccess('Profile picture updated successfully!');
-    } catch (err) {
-      // Mock implementation for now
-      const reader = new FileReader();
-      reader.onload = (e) => {
         setProfileData(prev => ({
           ...prev,
-          profilePicture: e.target?.result as string
+          profilePicture: file as File
         }));
+
+         const previewUrl = URL.createObjectURL(file);
+         setProfilePreview(previewUrl);
         setSuccess('Profile picture updated successfully!');
-      };
-      reader.readAsDataURL(file);
-    }
+     
+    
   };
 
   const handleCVUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -201,44 +228,20 @@ const StudentProfile: React.FC = () => {
       setError('CV must be less than 5MB');
       return;
     }
+    const newCV = {
+    filename: file.name,
+    uploadDate: new Date().toISOString(),
+    size: `${(file.size / 1024).toFixed(2)} KB`,
+  };
+  setCV(file);
+  setCVPreview(newCV);
+  setProfileData(prev => ({
+    ...prev,
+    cv: newCV,
+  }));
+    
 
-    const formData = new FormData();
-    formData.append('cv', file);
-
-    try {
-      // Replace with actual API call
-      const response = await fetch(`/api/students/profile/${user?.id}/cv`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: formData
-      });
-
-      if (!response.ok) throw new Error('Failed to upload CV');
-
-      const data = await response.json();
-      setProfileData(prev => ({
-        ...prev,
-        cv: {
-          filename: file.name,
-          uploadDate: new Date().toISOString().split('T')[0],
-          size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`
-        }
-      }));
-      setSuccess('CV updated successfully!');
-    } catch (err) {
-      // Mock implementation for now
-      setProfileData(prev => ({
-        ...prev,
-        cv: {
-          filename: file.name,
-          uploadDate: new Date().toISOString().split('T')[0],
-          size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`
-        }
-      }));
-      setSuccess('CV updated successfully!');
-    }
+   
   };
 
   const addSkill = () => {
@@ -258,45 +261,69 @@ const StudentProfile: React.FC = () => {
     }));
   };
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    setError(null);
-    setSuccess(null);
 
-    try {
-      // Replace with actual API call to MongoDB
-      const response = await fetch(`/api/students/profile/${user?.id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(profileData)
-      });
 
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
+const handleSave = async () => {
+  setIsSaving(true);
+  setError(null);
+  setSuccess(null);
+
+  try {
+    const formData = new FormData();
+
+    // Append text fields
+ (Object.keys(profileData) as (keyof StudentProfile)[]).forEach(key => {
+      if (key !== "cv" && key !== "profilePicture" && key!=="skills") {
+        const value = profileData[key];
+        if (Array.isArray(value)) {
+          formData.append(key, JSON.stringify(value));
+        } else if (typeof value === "boolean") {
+          formData.append(key, value ? "true" : "false");
+        } else if (value !== null && value !== undefined) {
+          formData.append(key, value.toString());
+        }
       }
+    });
+    if(profileData.skills){
+      formData.append("skills", JSON.stringify(profileData.skills));
 
-      const updatedData = await response.json();
-      setProfileData(updatedData);
-      setSuccess('Profile updated successfully!');
-      setIsEditing(false);
-    } catch (err) {
-      // Mock implementation for now
-      console.log('Profile data to save:', profileData);
-      setSuccess('Profile updated successfully! (Mock implementation)');
-      setIsEditing(false);
-    } finally {
-      setIsSaving(false);
     }
 
-    // Clear messages after 3 seconds
-    setTimeout(() => {
-      setSuccess(null);
-      setError(null);
-    }, 3000);
-  };
+    // Append CV file if selected
+    if (cv) {
+      formData.append("cv", cv);
+    }
+
+    // Append profile picture if selected
+    if (profileData.profilePicture) {
+      formData.append("profilePicture", profileData.profilePicture);
+    }
+
+    const response = await fetch(`http://localhost:5000/api/studentRoutes/updatestudents/${id}`, {
+      method: "PUT",
+      headers: {
+      },
+      body:formData
+    });
+
+    if (!response.ok) throw new Error("Failed to update profile ");
+
+    fetchCV();
+    fetchProfilePicture();
+    fetchProfile();
+  
+  } catch (err) {
+    console.error(err);
+    setError("Failed to update profile");
+  } finally {
+    setIsSaving(false);
+  }
+
+  setTimeout(() => {
+    setSuccess(null);
+    setError(null);
+  }, 5000);
+};
 
   if (isLoading) {
     return (
@@ -356,16 +383,17 @@ const StudentProfile: React.FC = () => {
                 <div className="relative">
                   <div className="w-32 h-32 rounded-full border-4 border-white bg-white overflow-hidden">
                     {profileData.profilePicture ? (
-                      <img
-                        src={profileData.profilePicture}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                        <User className="w-12 h-12 text-blue-600" />
-                      </div>
-                    )}
+                 <img
+                  src={profilepreview ?? undefined} // ✅ blob URL from state, never null
+                 alt="Profile"
+                 className="w-full h-full object-cover"
+                />
+             ) : (
+              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+               <User className="w-12 h-12 text-blue-600" />
+             </div>
+              )}
+
                   </div>
                   {isEditing && (
                     <button
@@ -474,7 +502,11 @@ const StudentProfile: React.FC = () => {
                   <input
                     type="date"
                     name="dateOfBirth"
-                    value={profileData.dateOfBirth}
+                    value={
+                   profileData.dateOfBirth
+                   ? new Date(profileData.dateOfBirth).toISOString().split("T")[0] // ✅ convert to YYYY-MM-DD
+                  : ""
+                  }
                     onChange={handleInputChange}
                     disabled={!isEditing}
                     className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
@@ -590,24 +622,23 @@ const StudentProfile: React.FC = () => {
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Skills & Expertise</h3>
             
-            <div className="flex flex-wrap gap-2 mb-4">
-              {profileData.skills.map((skill, index) => (
-                <div
-                  key={index}
-                  className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center space-x-2"
-                >
-                  <span>{skill}</span>
-                  {isEditing && (
-                    <button
-                      onClick={() => removeSkill(skill)}
-                      className="text-blue-500 hover:text-red-500 transition-colors"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
+         <div className="mb-4 text-blue-700">
+     {profileData.skills.map((skill, index) => (
+    <span key={index} className="inline-flex items-center">
+      <span>{skill}</span>
+      {isEditing && (
+        <button
+          onClick={() => removeSkill(skill)}
+          className="ml-1 text-blue-500 hover:text-red-500 transition-colors"
+        >
+          <X className="w-3 h-3" />
+        </button>
+      )}
+      {index < profileData.skills.length - 1 && <span>,&nbsp;</span>}
+    </span>
+  ))}
+</div>
+
 
             {isEditing && (
               <div className="flex gap-2">

@@ -17,38 +17,56 @@ const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setError('');
 
-    // Mock authentication - In real app, this would be an API call
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock user data
-      const mockUser = {
-        id: '1',
-        email,
-        role: userType,
-        firstName: userType === 'student' ? 'John' : undefined,
-        lastName: userType === 'student' ? 'Doe' : undefined,
-        companyName: userType === 'company' ? 'TechCorp Lanka' : undefined,
-        isApproved: true,
-        createdAt: new Date()
-      };
+  try {
+    const url =
+      userType === 'company'
+        ? 'http://localhost:5000/api/companyRoutes/verifyCompany'
+        : 'http://localhost:5000/api/studentRoutes/loginStudent';
 
-      login(mockUser);
-      
-      // Redirect based on user type
-      const redirectPath = userType === 'student' ? '/student/dashboard' : '/company/dashboard';
-      navigate(redirectPath);
-    } catch (err) {
-      setError('Invalid credentials. Please try again.');
-    } finally {
-      setLoading(false);
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    // Check if response is Ok
+    if (!response.ok) {
+      const text = await response.text(); // get HTML or error message
+      console.error('Server response:', text);
+      setError('Incorrect Password.');
+      return;
     }
-  };
+
+    const data = await response.json(); // parse JSON only if ok
+
+    if (!data.exists) {
+      setError(`${userType === 'company' ? 'Company' : 'Student'} not found or invalid password.`);
+      return;
+    }
+
+    
+   
+
+    // Redirect
+   const redirectPath =
+  userType === "student" ? "/student/dashboard" : "/company/dashboard";
+
+navigate(redirectPath, { state: { id: data.id } });
+
+  } catch (err) {
+    console.error(err);
+    setError('Server error. Please try again later.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

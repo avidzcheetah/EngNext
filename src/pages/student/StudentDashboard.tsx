@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import { Link } from 'react-router-dom';
 import {
   Search,
@@ -15,12 +15,31 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { mockInternships, mockCompanies } from '../../data/mockData';
+import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
 
 const StudentDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [selectedInternship, setSelectedInternship] = useState<string | null>(null);
+  const location = useLocation();
+  const { id } = location.state || {};
+ const navigate=useNavigate()
+
+useEffect(() => {
+  if (!id) {
+    navigate("/login");
+  }
+  console.log(id);
+}, [id, navigate]);
+
+const handleUpdateprofile =()=>{
+    navigate("/student/profile",{ state: { id:id } });
+
+}
+
 
   const filteredInternships = mockInternships.filter((internship) => {
     const company = mockCompanies.find((c) => c.id === internship.companyId);
@@ -186,11 +205,11 @@ const StudentDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <Link to="../student/profile"><Button fullWidth className="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+              <Button fullWidth className="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white" onClick={handleUpdateprofile}>
                 <User className="w-4 h-4 mr-2" />
                 Update Profile
               </Button>
-              </Link>
+              
             </Card>
 
             {/* Notifications */}

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
+
 import {
   Plus, Users, Eye, Download, MessageCircle,
   Edit, Trash2, MapPin, Clock
@@ -6,10 +7,138 @@ import {
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { mockInternships } from '../../data/mockData';
+import { useLocation } from 'react-router-dom';
+
 
 const CompanyDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'applications' | 'positions' | 'company'>('applications');
   const [showJobModal, setShowJobModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [companyProfile, setCompanyProfile] = useState<{ 
+  id?: string;
+  description?: string;
+  website?: string;
+  email?: string;
+  role?: string;
+  logo?: string;
+  logoType?:string;
+  logoUrl ?:string
+  companyName?:string
+} | null>(null);
+  
+  const location = useLocation();
+  const { id } = location.state || {};
+  console.log(id);
+  
+  console.log("Hellow world");
+const fetchCompanyDetails = async () => {
+  try {
+    setLoading(true);
+    setError("");
+
+    const res = await fetch(
+      `http://localhost:5000/api/companyRoutes/getById/${id}`
+    );
+
+    if (!res.ok) {
+      throw new Error(`Error: ${res.status}`);
+    }
+
+    const data = await res.json();
+    console.log("API response:", data);
+
+    // Convert Base64 logo to data URL for <img>
+    if (data.company.logo) {
+      const logoDataUrl = `data:${data.company.logoType || "image/png"};base64,${data.company.logo}`;
+      data.company.logoUrl = logoDataUrl; // attach a new field for rendering
+    }
+
+    setCompanyProfile(data.company);
+  } catch (err: any) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  // Fetch automatically on mount
+  useEffect(() => {
+    fetchCompanyDetails();   
+  }, []);
+
+  
+  
+ const [formData, setFormData] = useState({
+  companyName: companyProfile?.companyName || "",
+  website: companyProfile?.website || "",
+  email: companyProfile?.email || "",
+  description: companyProfile?.description || "",
+  logoFile: null as File | null, // For new logo upload
+});
+
+
+useEffect(() => {
+  if (companyProfile) {
+    setFormData(prev =>({
+      companyName: companyProfile.companyName || "",
+      website: companyProfile.website || "",
+      email: companyProfile.email || "",
+      description: companyProfile.description || "",
+      logoFile: prev.logoFile || null,
+    }));
+  }
+}, [companyProfile]);
+
+
+
+const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const { name, value } = e.target;
+  setFormData(prev => ({ ...prev, [name]: value }));
+};
+
+const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (e.target.files && e.target.files[0]) {
+    const file = e.target.files[0];
+    setFormData(prev => ({ ...prev, logoFile: file }));
+
+    // Optional: preview immediately
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCompanyProfile(prev => ({ ...prev, logoUrl: reader.result as string ,id: prev?.id,}));
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+
+const handleSaveChanges = async () => {
+  try {
+    const formToSend = new FormData();
+    formToSend.append("companyName", formData.companyName);
+    formToSend.append("website", formData.website);
+    formToSend.append("email", formData.email);
+    formToSend.append("description", formData.description);
+    if (formData.logoFile) formToSend.append("logo", formData.logoFile);
+
+    const res = await fetch(`http://localhost:5000/api/companyRoutes/updateCompany/${companyProfile?.id}`, {
+      method: "PUT",
+      body: formToSend,
+    });
+
+    if (!res.ok) throw new Error(`Error: ${res.status}`);
+
+    const data = await res.json();
+    console.log("Updated company:", data);
+    fetchCompanyDetails();
+    setCompanyProfile(data.company); // update local state
+  } catch (err: any) {
+    console.error(err);
+  }
+};
+
+ 
 
   const mockApplications = [
     {
@@ -196,54 +325,118 @@ const CompanyDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Company Profile Tab */}
-        {activeTab === 'company' && (
-          <Card className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition">
-            <h2 className="text-xl font-semibold mb-6">Company Profile</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Left */}
-              <div className="space-y-4">
-                {[
-                  { label: 'Company Name', value: 'TechCorp Lanka', type: 'text' },
-                  { label: 'Website', value: 'https://techcorp.lk', type: 'url' },
-                  { label: 'Email', value: 'hr@techcorp.lk', type: 'email' }
-                ].map((field, idx) => (
-                  <div key={idx}>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
-                    <input
-                      type={field.type}
-                      value={field.value}
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-                    />
-                  </div>
-                ))}
-              </div>
-              {/* Right */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Logo</label>
-                  <div className="border-2 border-dashed rounded-lg p-4 text-center hover:border-blue-400 transition">
-                    <img src="https://images.pexels.com/photos/248515/pexels-photo-248515.jpeg?w=200" alt="Company Logo" className="w-20 h-20 mx-auto mb-2 rounded object-cover" />
-                    <Button variant="outline" size="sm">Change Logo</Button>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <textarea
-                    rows={4}
-                    value="Leading technology company specializing in electronics and software solutions."
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="mt-6">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-105 transition">Save Changes</Button>
-            </div>
-          </Card>
-        )}
+{/* Company Profile Tab */}
+{activeTab === 'company' && (
+  <Card className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition">
+    <h2 className="text-xl font-semibold mb-6">Company Profile</h2>
+    <div className="grid md:grid-cols-2 gap-6">
+      {/* Left Column */}
+      <div className="space-y-4">
+        {/* Company Name */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Company Name
+          </label>
+          <input
+            type="text"
+            name="companyName"
+            value={formData.companyName}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+          />
+        </div>
 
+        {/* Website */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Website
+          </label>
+          <input
+            type="url"
+            name="website"
+            value={formData.website}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+          />
+        </div>
+
+        {/* Email */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Email
+          </label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+          />
+        </div>
       </div>
+
+      {/* Right Column */}
+      <div className="space-y-4">
+        {/* Company Logo */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Company Logo
+          </label>
+          <div className="border-2 border-dashed rounded-lg p-4 text-center hover:border-blue-400 transition">
+            {companyProfile?.logoUrl ? (
+              <img
+                src={companyProfile.logoUrl}
+                alt={formData.description || "Company Logo"}
+                className="w-40 h-40 mx-auto mb-2 rounded object-cover"
+              />
+            ) : (
+              <div className="w-40 h-40 mx-auto mb-2 bg-gray-200 rounded flex items-center justify-center">
+                No Logo
+              </div>
+            )}
+
+            <Button variant="outline" size="sm">
+              <label className="cursor-pointer">
+                Change Logo
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleLogoChange}
+                />
+              </label>
+            </Button>
+          </div>
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Description
+          </label>
+          <textarea
+            name="description"
+            rows={4}
+            value={formData.description}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+          />
+        </div>
+      </div>
+    </div>
+
+    {/* Save Changes Button */}
+    <div className="mt-6">
+      <Button
+        className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-105 transition"
+        onClick={handleSaveChanges}
+      >
+        Save Changes
+      </Button>
+    </div>
+  </Card>
+)}
+
 
       {/* Add Job Modal */}
       {showJobModal && (
@@ -285,8 +478,9 @@ const CompanyDashboard: React.FC = () => {
           </Card>
         </div>
       )}
-    </div>
-  );
-};
+        </div>
+      </div>
+      );
+    }
 
 export default CompanyDashboard;
