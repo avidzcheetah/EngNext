@@ -14,6 +14,7 @@ import StudentProfile from './pages/student/profile';
 import CompanyDashboard from './pages/company/CompanyDashboard';
 import CompanyProfile from './pages/company/profile';
 import Companies from './pages/companies';
+import PublicStudentProfile from './pages/student/PublicProfile';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
               <Route path="/student/profile" element={<StudentProfile />} />
               <Route path="/company/dashboard" element={<CompanyDashboard />} />
               <Route path="/company/profile" element={<CompanyProfile />} />
+              <Route path="/student/profile/:studentId" element={<PublicStudentProfile />} />
             </Routes>
           </main>
           <Footer />
