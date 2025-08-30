@@ -1,0 +1,49 @@
+import InternshipSchema from "../models/InternshipSchema.js";
+
+// ✅ Create new internship
+export const createInternship = async (req, res) => {
+  try {
+    const internship = new InternshipSchema(req.body);
+    const savedInternship = await internship.save();
+    res.status(201).json(savedInternship);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// ✅ Get all internships
+export const getAllInternships = async (req, res) => {
+  try {
+    const internships = await InternshipSchema.find();
+    res.status(200).json(internships);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ✅ Get internships by CompanyId
+export const getInternshipsByCompanyId = async (req, res) => {
+  try {
+    const { companyId } = req.params;
+    const internships = await InternshipSchema.find({ companyId });
+    res.status(200).json(internships);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ✅ Get internship by ID
+export const getInternshipById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const internship = await InternshipSchema.findById(id);
+
+    if (!internship) {
+      return res.status(404).json({ message: "Internship not found" });
+    }
+
+    res.status(200).json(internship);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
