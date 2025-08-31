@@ -3,11 +3,15 @@ import InternshipSchema from "../models/InternshipSchema.js";
 // ✅ Create new internship
 export const createInternship = async (req, res) => {
   try {
+    
     const internship = new InternshipSchema(req.body);
+    console.log("done")
     const savedInternship = await internship.save();
+    
     res.status(201).json(savedInternship);
   } catch (error) {
     res.status(400).json({ message: error.message });
+    console.log("Not done")
   }
 };
 
@@ -31,6 +35,24 @@ export const getInternshipsByCompanyId = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Controller: delete internship by ID
+export const deleteInternshipById = async (req, res) => {
+  try {
+    const { id } = req.params; // get the internship id from URL
+
+    const deleted = await InternshipSchema.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Internship not found" });
+    }
+
+    res.status(200).json({ message: "Internship deleted successfully", deleted });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 // ✅ Get internship by ID
 export const getInternshipById = async (req, res) => {

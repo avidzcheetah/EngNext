@@ -37,6 +37,28 @@ const CompanyDashboard: React.FC = () => {
     companyName?: string;
   } | null>(null);
 
+const [Job, setJob] = useState<
+  Array<{
+    _id?: string;
+    companyName?: string;
+    title?: string;
+    description?: string;
+    requirements?: string[];
+    duration?: string;
+    location?: string;
+    isActive?: boolean;
+  }>
+>([]);
+
+  const [fData, setFdata] = useState<{
+  companyName?:string
+  title?: string;
+  description?: string;
+  requirements?: string[];
+  duration?: string;
+  location?: string;
+} | null>(null);
+
   const location = useLocation();
   const { id } = location.state || {};
   console.log(id);
@@ -46,6 +68,32 @@ const CompanyDashboard: React.FC = () => {
   const handleViewProfile = (studentId: string) => {
     navigate(`/student/profile/${studentId}`);
   };
+
+
+  const fetchJobs = async ()=>{
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await fetch(
+        `http://localhost:5000/api/InternshipRoutes/getInternshipsByCompanyId/${id}`
+      );
+
+      const data = await res.json();
+      console.log("API response:", data);
+
+      // If your API returns { internships: [...] }, adjust accordingly
+      setJob(Array.isArray(data) ? data : data.internships || []);
+      
+      
+
+      setJob(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const fetchCompanyDetails = async () => {
     try {
@@ -82,6 +130,7 @@ const CompanyDashboard: React.FC = () => {
   // Fetch automatically on mount
   useEffect(() => {
     fetchCompanyDetails();
+    fetchJobs();
   }, []);
 
   const [formData, setFormData] = useState({
@@ -156,6 +205,81 @@ const CompanyDashboard: React.FC = () => {
       console.error(err);
     }
   };
+
+  const handleAddPosition =()=>{
+     setShowJobModal(true);
+
+  }
+
+ const handleDelete = async (ID: string) => {
+  try {
+    const res = await fetch(
+      `http://localhost:5000/api/InternshipRoutes/deleteInternshipById/${ID}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert("Error deleting internship: " + data.message);
+      return;
+    }
+
+    // Optional: remove deleted internship from local state if you have a list
+    
+
+    alert("Internship deleted successfully!");
+     fetchJobs();
+  } catch (error) {
+    console.error("Delete error:", error);
+    alert("Something went wrong while deleting.");
+  }
+};
+
+
+const handleJobPosition = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault();
+
+  try {
+    console.log({
+  companyId: id,
+  companyName: companyProfile?.companyName,
+  duration: fData?.duration,
+  requirements: fData?.requirements,
+  description: fData?.description,
+  title: fData?.title,
+  location: fData?.location,
+});
+
+    const response = await fetch("http://localhost:5000/api/InternshipRoutes/createInternship", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        
+        companyId: id,
+        companyName:companyProfile?.companyName,
+        duration: fData?.duration,
+        requirements: fData?.requirements,
+        description: fData?.description,
+        title: fData?.title,
+        location: fData?.location,
+      }),
+    });
+
+    if (!response.ok) throw new Error("Failed to  create internship");
+
+    const data = await response.json();
+   alert("Internship created Succesfully")
+    console.log("Internship created:", data);
+    setShowJobModal(false)
+    fetchJobs();
+
+  } catch (error) {
+    console.error("Error creating internship:", error);
+  }
+};
 
   const mockApplications = [
     {
@@ -380,7 +504,8 @@ const CompanyDashboard: React.FC = () => {
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold">Job Positions</h2>
               <Button
-                onClick={() => setShowJobModal(true)}
+                onClick={handleAddPosition}
+
                 className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-105 transition"
               >
                 <Plus className="w-4 h-4 mr-2" /> Add New Position
@@ -388,9 +513,9 @@ const CompanyDashboard: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-              {mockInternships.map((internship) => (
+              {Job.map((internship) => (
                 <Card
-                  key={internship.id}
+                  key={internship._id}
                   className="p-6 hover:shadow-lg transition bg-white rounded-xl"
                 >
                   <div className="flex items-start justify-between mb-4">
@@ -429,7 +554,11 @@ const CompanyDashboard: React.FC = () => {
                     <Button variant="outline" size="sm">
                       <Eye className="w-4 h-4 mr-1" /> View Applications (5)
                     </Button>
-                    <Button variant="danger" size="sm">
+                    <Button
+                                   variant="danger"
+                                  size="sm"
+                                  onClick={() => handleDelete(internship._id||"")}
+                                     >
                       <Trash2 className="w-4 h-4 mr-1" /> Delete
                     </Button>
                   </div>
@@ -564,31 +693,55 @@ const CompanyDashboard: React.FC = () => {
                     <label className="block text-sm font-medium mb-1">
                       Position Title
                     </label>
-                    <input
-                      type="text"
-                      placeholder="e.g., Software Engineering Intern"
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-                    />
+                     <input
+                    type="text"
+                    placeholder="e.g., Software Engineering Intern"
+                    value={fData?.title || ""}   // ✅ controlled value
+                    onChange={(e) =>
+                    setFdata((prev) => ({
+                     ...prev,
+                    title: e.target.value,     // ✅ update title
+                  }))
+                    } 
+  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+/>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Duration
-                    </label>
-                    <select className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500">
-                      <option>3 months</option>
-                      <option>6 months</option>
-                      <option>12 months</option>
-                    </select>
-                  </div>
+                 <div>
+  <label className="block text-sm font-medium mb-1">
+    Duration
+  </label>
+  <select
+    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+    value={fData?.duration || ""}  // ✅ controlled value
+    onChange={(e) =>
+      setFdata((prev) => ({
+        ...prev,
+        duration: e.target.value,   // ✅ update duration
+      }))
+    }
+  >
+    <option value="">Select duration</option>
+    <option value="3 months">3 months</option>
+    <option value="6 months">6 months</option>
+    <option value="12 months">12 months</option>
+  </select>
+</div>
+
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">
                     Location
                   </label>
                   <input
+                    value={fData?.location}
                     type="text"
                     placeholder="e.g., Colombo, Remote, Hybrid"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                    onChange={(e)=> setFdata((prev) => ({
+                     ...prev,
+                    location: e.target.value,     // ✅ update location
+                  }))
+                }
                   />
                 </div>
                 <div>
@@ -596,9 +749,14 @@ const CompanyDashboard: React.FC = () => {
                     Description
                   </label>
                   <textarea
+                    value={fData?.description}
                     rows={4}
                     placeholder="Describe the internship role..."
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                    onChange={(e)=>setFdata((prev) => ({
+                     ...prev,
+                    description: e.target.value,     // ✅ update title
+                  }))}
                   />
                 </div>
                 <div>
@@ -606,9 +764,14 @@ const CompanyDashboard: React.FC = () => {
                     Requirements
                   </label>
                   <input
+                    value={fData?.requirements}
                     type="text"
                     placeholder="e.g., JavaScript, React, Node.js"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                    onChange={(e)=>setFdata((prev) => ({
+                     ...prev,
+                    requirements: e.target.value.split(",").map(req => req.trim()), // convert to string[]
+                  }))}
                   />
                 </div>
                 <div className="flex gap-3">
@@ -622,6 +785,7 @@ const CompanyDashboard: React.FC = () => {
                   <Button
                     fullWidth
                     className="bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                    onClick={handleJobPosition}
                   >
                     Create Position
                   </Button>

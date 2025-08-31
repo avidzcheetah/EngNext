@@ -1,13 +1,13 @@
 import { Schema, model } from 'mongoose';
 
 const InternshipSchema = new Schema({
-  id: {
-    type: String,
-    required: true,
-  },
+
   companyId: {
     type: String,
     required: true,
+  },
+  companyName:{
+    type:String
   },
   title: {
     type: String,
