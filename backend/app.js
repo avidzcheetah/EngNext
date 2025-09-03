@@ -3,6 +3,7 @@ dotenv.config(); // Load .env variables
 import studentRoutes from "./routes/studentRoutes.js";
 import companyRoutes from "./routes/companyRoutes.js";
 import InternshipRoutes from "./routes/InternshipRoutes.js";
+import applicationRoutes from "./routes/applicationRoutes.js"
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/studentRoutes", studentRoutes);
 app.use("/api/companyRoutes", companyRoutes);
 app.use("/api/InternshipRoutes", InternshipRoutes);
+app.use("/api/applicationRoutes",applicationRoutes)
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,

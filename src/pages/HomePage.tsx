@@ -5,8 +5,75 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Slider from '../components/ui/slider';
 import { lecturers, partners } from '../data/mockData';
+import { useState,useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 
 const HomePage: React.FC = () => {
+
+const navigate = useNavigate();
+
+  const [error, setError] = useState<string | null>(null);
+  const [loading,setLoading]=useState(false);
+ const [companyProfiles, setCompanyProfiles] = useState<
+  {
+    id?: string;
+    description?: string;
+    website?: string;
+    email?: string;
+    role?: string;
+    logo?: string;
+    logoType?: string;
+    logoUrl?: string;
+    companyName?: string;
+  }[]
+>([]);
+
+const fetchCompanyDetails = async () => {
+  try {
+    setLoading(true);
+    setError("");
+
+    const res = await fetch(`http://localhost:5000/api/companyRoutes/getAll`);
+    if (!res.ok) throw new Error(`Error: ${res.status}`);
+
+    const data = await res.json();
+    console.log("API response:", data);
+
+    const companies = data.companies.map((company: any) => {
+      const logoBase64 = company.logo || null;  // Already Base64 from backend
+      const contentType = company.logoType || "image/png"; // Use backend type or fallback
+
+      return {
+        ...company,
+        logoUrl: logoBase64 ? `data:${contentType};base64,${logoBase64}` : null,
+        companyName: company.companyName || company.name,
+      };
+    });
+
+    setCompanyProfiles(companies);
+  } catch (err: any) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+useEffect(() => {
+    fetchCompanyDetails();
+ 
+  }, []);
+
+
+  const handleNavigate = () => {
+  navigate("/companies", { state: { companies: companyProfiles } });
+};
+
+
+
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Slider Section */}
@@ -125,24 +192,24 @@ const HomePage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {partners.map((partner) => (
-              <Card key={partner.id} className="p-6 text-center">
+            {companyProfiles?.slice(0, 4).map((profile) => (
+              <Card key={profile.id} className="p-6 text-center">
                 <img
-                  src={partner.logo}
-                  alt={partner.name}
+                  src={profile.logoUrl}
+                  alt={profile.companyName}
                   className="h-16 w-auto mx-auto mb-4 object-contain"
                 />
-                <h3 className="text-lg font-semibold text-gray-900">{partner.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{profile.companyName}</h3>
               </Card>
             ))}
           </div>
 
           <div className="text-center mt-12">
-            <Link to="/companies">
-              <Button size="lg">
+           
+              <Button size="lg" onClick={handleNavigate}>
                 View All Partners <ChevronRight className="ml-2 w-5 h-5" />
               </Button>
-            </Link>
+           
           </div>
         </div>
       </section>
