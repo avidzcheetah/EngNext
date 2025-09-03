@@ -547,7 +547,7 @@ const handleReject = async (ID: string) => {
     console.log("Application status updated:", data);
     alert("Status updated successfully!");
     fetchApplication();
-   // sendRejectemail(ID);
+    sendRejectemail(ID);
     
     sendMessageToStudent(ID,`${companyProfile?.companyName}  has been rejected your application check you mail`)
     // Optional: update local state if needed, e.g.,
