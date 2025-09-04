@@ -384,7 +384,7 @@ const handleSave = async () => {
                   <div className="w-32 h-32 rounded-full border-4 border-white bg-white overflow-hidden">
                     {profileData.profilePicture ? (
                  <img
-                  src={profilepreview ?? undefined} // ✅ blob URL from state, never null
+                 src={profilepreview ?? undefined} // ✅ blob URL from state, never null
                  alt="Profile"
                  className="w-full h-full object-cover"
                 />

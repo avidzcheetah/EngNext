@@ -132,6 +132,38 @@ static async updateStudent(req, res) {
     }
   }
 
+  // Assuming Student is your Mongoose model
+static async addRecentNotification(req, res) {
+  try {
+    const { notification } = req.body; // notification string from frontend
+
+    if (!notification) {
+      return res.status(400).json({ message: "Notification is required" });
+    }
+   
+    // Find student by ID and push notification
+    const student = await Student.findByIdAndUpdate(
+      req.params.studentId,
+      { $push: { RecentNotifications: notification } },
+      { new: true } // return the updated document
+    );
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+  
+    res.status(200).json({
+      message: "Notification added successfully",
+      RecentNotifications: student.RecentNotifications,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error });
+  }
+}
+
+
+
   static async getProfilePicture(req, res) {
     try {
       const student = await Student.findById(req.params.id);
@@ -184,6 +216,55 @@ static async loginStudent(req, res) {
   }
 }
 
+static async incrementApplicationsSent(req, res) {
+  try {
+    const id = req.params.id;
+   
+    const updatedStudent = await Student.findByIdAndUpdate(
+      id,
+      { $inc: { ApplicationsSent: 1 } },
+      { new: true } // return updated document
+    );
+     
+    if (!updatedStudent) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+     
+    res.status(200).json({
+      
+      message: "ApplicationsSent updated successfully",
+      ApplicationsSent: updatedStudent.ApplicationsSent,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error });
+  }
+}
+
+static async incrementProfileView(req, res) {
+  try {
+    const id = req.params.studentId;
+   
+    const updatedStudent = await Student.findByIdAndUpdate(
+      id,
+      { $inc: {  ProfileViews: 1 } },
+      { new: true } // return updated document
+    );
+     
+    if (!updatedStudent) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+     
+    res.status(200).json({
+      
+      message: "ApplicationsSent updated successfully",
+      ApplicationsSent: updatedStudent.ApplicationsSent,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error });
+  }
+}
 
 
 

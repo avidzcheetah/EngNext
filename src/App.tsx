@@ -35,7 +35,7 @@ function App() {
               <Route path="/student/profile" element={<StudentProfile />} />
               <Route path="/company/dashboard" element={<CompanyDashboard />} />
               <Route path="/company/profile" element={<CompanyProfile />} />
-              <Route path="/student/profile/:studentId" element={<PublicStudentProfile />} />
+              <Route path="/student/PublicProfile" element={<PublicStudentProfile />} />
             </Routes>
           </main>
           <Footer />

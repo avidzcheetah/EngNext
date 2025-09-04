@@ -89,18 +89,37 @@ const RegisterStudentPage: React.FC = () => {
       return;
     }
 
-    try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Show email verification message
+
+  try {
+    // Send data to your API
+    const response = await fetch('http://localhost:5000/api/studentRoutes/createStudent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // If backend sends an error
+      setErrors({ submit: data.message || 'Registration failed' });
+    } else {
+      // Success
       setEmailSent(true);
-    } catch (error) {
-      setErrors({ submit: 'Registration failed. Please try again.' });
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    setErrors({ submit: 'Registration failed. Please try again.' });
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (emailSent) {
     return (
@@ -216,29 +235,7 @@ const RegisterStudentPage: React.FC = () => {
               </button>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Profile Picture (Optional)
-              </label>
-              <div className="flex items-center space-x-4">
-                <label className="flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Choose File
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </label>
-                {profilePicture && (
-                  <span className="text-sm text-green-600">{profilePicture.name}</span>
-                )}
-              </div>
-              {errors.profilePicture && (
-                <p className="text-red-500 text-sm mt-1">{errors.profilePicture}</p>
-              )}
-            </div>
+          
 
             <Button type="submit" fullWidth loading={loading}>
               Create Student Account

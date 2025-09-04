@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import emailjs from "emailjs-com";
 
 import {
   Plus,
@@ -35,19 +36,262 @@ const CompanyDashboard: React.FC = () => {
     logoType?: string;
     logoUrl?: string;
     companyName?: string;
+    location?:string;
+    industry?:string;
+    employees?:string;
   } | null>(null);
+
+const [Job, setJob] = useState<
+  Array<{
+    _id?: string;
+    companyName?: string;
+    title?: string;
+    description?: string;
+    requirements?: string[];
+    duration?: string;
+    location?: string;
+    isActive?: boolean;
+  }>
+>([]);
+
+const sendAcceptmail = (studentid: string) => {
+  // find the student details first
+  const studentName = applications.find(app => app._id === studentid)?.studentName;
+  const position = applications.find(app => app._id === studentid)?.internshipTitle;
+  const email =applications.find(app=>app._id===studentid)?.email
+  emailjs
+    .send(
+      "service_yeke3la",     // ✅ Your Service ID
+      "template_mogx38j",     // ✅ Your Template ID
+      { toemail:email,
+        applicat_name: studentName,
+        title: position,
+        hr_email: companyProfile?.email,
+        organization_name: companyProfile?.companyName,
+        time: new Date().toLocaleDateString(),
+        email:companyProfile?.email,
+      },
+      "xoBLJNkyjseJaPApW"     // ✅ Your Public Key (from EmailJS dashboard)
+    )
+    .then(
+      (result) => {
+        console.log("✅ Email sent:", result.text);
+        alert("Application email sent successfully!");
+      },
+      (error) => {
+        console.error("❌ Email failed:", error.text);
+        alert("Failed to send email. Please try again.");
+      }
+    );
+};
+
+
+const sendRejectemail = (studentid: string) => {
+  // find the student details first
+  const studentName = applications.find(app => app._id === studentid)?.studentName;
+  const position = applications.find(app => app._id === studentid)?.internshipTitle;
+  const email =applications.find(app=>app._id===studentid)?.email
+  emailjs
+    .send(
+      "service_yeke3la",     // ✅ Your Service ID
+      "template_06tm1fa",     // ✅ Your Template ID
+      { toemail:email,
+        Applicant_Name: studentName,
+        Position: position,
+        hr_email: companyProfile?.email,
+        Organization_Name: companyProfile?.companyName,
+        time: new Date().toLocaleDateString(),
+        email:companyProfile?.email,
+        name:companyProfile?.companyName,
+      },
+      "xoBLJNkyjseJaPApW"     // ✅ Your Public Key (from EmailJS dashboard)
+    )
+    .then(
+      (result) => {
+        console.log("✅ Email sent:", result.text);
+        alert("Application email sent successfully!");
+      },
+      (error) => {
+        console.error("❌ Email failed:", error.text);
+        alert("Failed to send email. Please try again.");
+      }
+    );
+};
+
+
+  const [fData, setFdata] = useState<{
+  companyName?:string
+  title?: string;
+  description?: string;
+  requirements?: string[];
+  duration?: string;
+  location?: string;
+} | null>(null);
 
   const location = useLocation();
   const { id } = location.state || {};
   console.log(id);
 
-  console.log("Hellow world");
+  
 
-  const handleViewProfile = (studentId: string) => {
-    navigate(`/student/profile/${studentId}`);
+  const handleViewProfile = (id: string,ID:string) => {
+    
+    sendMessageToStudent(
+    ID,
+    `Your account has been viewed by ${companyProfile?.companyName}`
+  );
+    navigate("/student/PublicProfile",{ state: { id: id } });
+    incrementProfileView(ID)
+
   };
 
+
+
+  interface Application {
+  _id: string;
+  studentId: string;
+  companyId: string;
+  studentName: string;
+  email: string;
+  internshipTitle: string;
+  appliedDate: string;
+  status: string;
+  skills: string[];
+  gpa: number;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+const [applications, setApplications] = useState<Application[]>([
+  {
+    _id: "",
+    studentId: "",
+    companyId: "",
+    studentName: "",
+    email: "",
+    internshipTitle: "",
+    appliedDate: "",
+    status: "",
+    skills: [], // ✅ corrected from [string]
+    gpa: 0,     // start with 0 or any default
+    createdAt: "",
+    updatedAt: "",
+    __v: 0,
+  },
+]);
+
+  const fetchJobs = async ()=>{
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await fetch(
+        `http://localhost:5000/api/InternshipRoutes/getInternshipsByCompanyId/${id}`
+      );
+
+      const data = await res.json();
+      console.log("API response:", data);
+
+      // If your API returns { internships: [...] }, adjust accordingly
+      setJob(Array.isArray(data) ? data : data.internships || []);
+      
+      useEffect(() => {
+        if (!id) {
+          navigate("/login");
+        }
+        console.log(id);
+      }, [id, navigate]);
+
+      setJob(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const fetchApplication = async () => {
+  try {
+    setLoading(true);
+    setError("");
+
+    const res = await fetch(
+      `http://localhost:5000/api/applicationRoutes/fetchByCompanyId/${id}`
+    );
+
+    if (!res.ok) {
+      throw new Error(`Error: ${res.status} ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    console.log("API response:", data);
+
+    // ✅ if you want to set applications to state
+    setApplications(data); 
+  } catch (error: any) {
+    console.error("Failed to fetch applications:", error);
+    setError(error.message || "Something went wrong");
+  } finally {
+    setLoading(false);
+  }
+};
+  
+
+
+
+// Helper to increment profile view
+const incrementProfileView = async (ID: string) => {
+  const studentID = applications.find(app => app._id === ID)?.studentId;
+  try {
+    const res = await fetch(
+      `http://localhost:5000/api/studentRoutes/incrementProfileView/${studentID}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Error incrementing profile view: ${res.status}`);
+    }
+
+    console.log("Profile view incremented successfully");
+  } catch (error) {
+    console.error("Error in incrementProfileView:", error);
+  }
+};
+
+// Helper to send a message
+const sendMessageToStudent = async (ID: string, message: string) => {
+ const studentID = applications.find(app => app._id === ID)?.studentId;
+
+  try {
+    const res = await fetch(
+      `http://localhost:5000/api/studentRoutes/addRecentNotification/${studentID}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+         body: JSON.stringify({ notification: message }),
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Error sending message: ${res.status}`);
+    }
+
+    console.log("Message sent successfully");
+  } catch (error) {
+    console.error("Error in sendMessageToStudent:", error);
+  }
+};
+
   const fetchCompanyDetails = async () => {
+    
     try {
       setLoading(true);
       setError("");
@@ -82,6 +326,8 @@ const CompanyDashboard: React.FC = () => {
   // Fetch automatically on mount
   useEffect(() => {
     fetchCompanyDetails();
+    fetchJobs();
+    fetchApplication();
   }, []);
 
   const [formData, setFormData] = useState({
@@ -90,6 +336,9 @@ const CompanyDashboard: React.FC = () => {
     email: companyProfile?.email || "",
     description: companyProfile?.description || "",
     logoFile: null as File | null, // For new logo upload
+    location:companyProfile?.location ||"",
+    industry:companyProfile?.industry ||"",
+    employees:companyProfile?.employees ||""
   });
 
   useEffect(() => {
@@ -100,6 +349,9 @@ const CompanyDashboard: React.FC = () => {
         email: companyProfile.email || "",
         description: companyProfile.description || "",
         logoFile: prev.logoFile || null,
+        location:companyProfile.location ||"",
+        industry:companyProfile.industry ||"",
+        employees:companyProfile.employees||""
       }));
     }
   }, [companyProfile]);
@@ -136,6 +388,9 @@ const CompanyDashboard: React.FC = () => {
       formToSend.append("website", formData.website);
       formToSend.append("email", formData.email);
       formToSend.append("description", formData.description);
+      formToSend.append("industry", formData.industry);
+      formToSend.append("employees", formData.employees);
+      formToSend.append("location", formData.location);
       if (formData.logoFile) formToSend.append("logo", formData.logoFile);
 
       const res = await fetch(
@@ -157,28 +412,194 @@ const CompanyDashboard: React.FC = () => {
     }
   };
 
-  const mockApplications = [
-    {
-      id: "1",
-      studentName: "John Doe",
-      email: "john.doe@eng.jfn.ac.lk",
-      internshipTitle: "Electronics Engineering Intern",
-      appliedDate: "2025-01-15",
-      status: "pending",
-      skills: ["Circuit Design", "MATLAB", "PCB Design"],
-      gpa: "3.75",
-    },
-    {
-      id: "2",
-      studentName: "Jane Smith",
-      email: "jane.smith@eng.jfn.ac.lk",
-      internshipTitle: "Software Development Intern",
-      appliedDate: "2025-01-14",
-      status: "reviewed",
-      skills: ["Python", "JavaScript", "React"],
-      gpa: "3.85",
-    },
-  ];
+  const handleAddPosition =()=>{
+     setShowJobModal(true);
+
+  }
+
+ const handleDelete = async (ID: string) => {
+  try {
+    const res = await fetch(
+      `http://localhost:5000/api/InternshipRoutes/deleteInternshipById/${ID}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert("Error deleting internship: " + data.message);
+      return;
+    }
+
+    // Optional: remove deleted internship from local state if you have a list
+    
+
+    alert("Internship deleted successfully!");
+     fetchJobs();
+  } catch (error) {
+    console.error("Delete error:", error);
+    alert("Something went wrong while deleting.");
+  }
+};
+
+
+const handleJobPosition = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault();
+
+  try {
+  console.log({
+  companyId: id,
+  companyName: companyProfile?.companyName,
+  duration: fData?.duration,
+  requirements: fData?.requirements,
+  description: fData?.description,
+  title: fData?.title,
+  location: fData?.location,
+});
+
+    const response = await fetch("http://localhost:5000/api/InternshipRoutes/createInternship", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        
+        companyId: id,
+        companyName:companyProfile?.companyName,
+        duration: fData?.duration,
+        requirements: fData?.requirements,
+        description: fData?.description,
+        title: fData?.title,
+        location: fData?.location,
+      }),
+    });
+
+    if (!response.ok) throw new Error("Failed to  create internship");
+
+    const data = await response.json();
+    alert("Internship created Succesfully")
+    console.log("Internship created:", data);
+    setShowJobModal(false)
+    fetchJobs();
+
+  } catch (error) {
+    console.error("Error creating internship:", error);
+  }
+};
+
+
+const handleAccept = async (ID: string) => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/applicationRoutes/acceptApplication/${ID}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      alert(errorData.message || "Failed to update the status. Try again.");
+      throw new Error(errorData.message || "Failed to update the status");
+    }
+
+    const data = await response.json();
+    console.log("Application status updated:", data);
+    alert("Status updated successfully!");
+    sendAcceptmail(ID)
+    fetchApplication();
+    
+    sendMessageToStudent(ID,`${companyProfile?.companyName} has accepted your application. Check your mail`)
+    // Optional: update local state if needed, e.g.,
+    // setApplications(prev => prev.map(app => app._id === ID ? { ...app, status: "rejected" } : app));
+
+  } catch (error) {
+    console.error(error);
+    alert(error instanceof Error ? error.message : "Something went wrong");
+  }
+};
+
+
+const handleReject = async (ID: string) => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/applicationRoutes/rejectApplication/${ID}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      alert(errorData.message || "Failed to update the status. Try again.");
+      throw new Error(errorData.message || "Failed to update the status");
+    }
+
+
+
+    const data = await response.json();
+    console.log("Application status updated:", data);
+    alert("Status updated successfully!");
+    fetchApplication();
+    sendRejectemail(ID);
+    
+    sendMessageToStudent(ID,`${companyProfile?.companyName}  has been rejected your application check you mail`)
+    // Optional: update local state if needed, e.g.,
+    // setApplications(prev => prev.map(app => app._id === ID ? { ...app, status: "rejected" } : app));
+
+  } catch (error) {
+    console.error(error);
+    alert(error instanceof Error ? error.message : "Something went wrong");
+  }
+};
+
+const handleDownloadCV = async (id:string) => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/studentRoutes/getCV/${id}`
+    );
+
+    if (!response.ok) {
+      throw new Error("CV download failed");
+    }
+
+    // Get the file as a blob
+    const blob = await response.blob();
+
+    // Create a temporary URL for the blob
+    const url = window.URL.createObjectURL(blob);
+
+    // Create a temporary <a> element to trigger download
+    const a = document.createElement("a");
+    a.href = url;
+
+    // Optionally, get the filename from Content-Disposition header
+    const disposition = response.headers.get("Content-Disposition");
+    let filename = "CV.pdf"; // default
+    if (disposition && disposition.includes("filename=")) {
+      filename = disposition.split("filename=")[1].replace(/"/g, "");
+    }
+    a.download = filename;
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error(error);
+    alert(error instanceof Error ? error.message : String(error));
+  }
+};
+
+
+  
 
   const getStatusBadge = (status: string) => {
     const colors = {
@@ -208,25 +629,25 @@ const CompanyDashboard: React.FC = () => {
           {[
             {
               icon: <Users className="w-6 h-6 text-blue-600" />,
-              value: 24,
+              value: applications.length,
               label: "Total Applications",
               color: "bg-blue-100",
             },
             {
               icon: <Eye className="w-6 h-6 text-teal-600" />,
-              value: 3,
+              value: Job.length,
               label: "Active Positions",
               color: "bg-teal-100",
             },
             {
               icon: <MessageCircle className="w-6 h-6 text-orange-600" />,
-              value: 12,
+              value: applications.filter(app => app.status === "pending").length,
               label: "Pending Reviews",
               color: "bg-orange-100",
             },
             {
               icon: <Download className="w-6 h-6 text-green-600" />,
-              value: 8,
+              value: applications.filter(app => app.status === "accepted").length,
               label: "Interviews Scheduled",
               color: "bg-green-100",
             },
@@ -254,11 +675,11 @@ const CompanyDashboard: React.FC = () => {
             {[
               {
                 key: "applications",
-                label: `Applications (${mockApplications.length})`,
+                label: `Applications (${applications.length})`,
               },
               {
                 key: "positions",
-                label: `Job Positions (${mockInternships.length})`,
+                label: `Job Positions (${Job.length})`,
               },
               { key: "company", label: "Company Profile" },
             ].map((tab) => (
@@ -277,102 +698,112 @@ const CompanyDashboard: React.FC = () => {
           </nav>
         </div>
 
-        {/* Applications Tab */}
-        {activeTab === "applications" && (
-          <div className="space-y-6">
-            {mockApplications.map((application) => (
-              <Card
-                key={application.id}
-                className="p-6 hover:shadow-lg transition rounded-xl bg-white"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center text-blue-700 font-semibold">
-                      {application.studentName
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {application.studentName}
-                      </h3>
-                      <p className="text-gray-600">{application.email}</p>
-                      <p className="text-sm text-blue-600">
-                        {application.internshipTitle}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm ${getStatusBadge(
-                        application.status
-                      )}`}
-                    >
-                      {application.status.charAt(0).toUpperCase() +
-                        application.status.slice(1)}
-                    </span>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Applied on {application.appliedDate}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">
-                      Skills:
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {application.skills.map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-sm hover:bg-blue-100 transition"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">
-                      GPA:
-                    </h4>
-                    <p className="text-lg font-semibold text-green-600">
-                      {application.gpa}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="hover:scale-105 transition"
-                    onClick={() => handleViewProfile(application.id)}
-                  >
-                    <Eye className="w-4 h-4 mr-1" /> View Profile
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-1" /> Download CV
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <MessageCircle className="w-4 h-4 mr-1" /> Message
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    Accept
-                  </Button>
-                  <Button variant="danger" size="sm">
-                    Reject
-                  </Button>
-                </div>
-              </Card>
-            ))}
+      {/* Applications Tab */}
+{activeTab === "applications" && (
+  <div className="space-y-6">
+    {[
+      ...applications.filter((app) => app.status === "pending"),
+      ...applications.filter((app) => app.status === "accepted"),
+      ...applications.filter((app) => app.status === "rejected"),
+    ].map((forms) => (
+      <Card
+        key={forms._id}
+        className="p-6 hover:shadow-lg transition rounded-xl bg-white"
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center text-blue-700 font-semibold">
+              {forms.studentName
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {forms.studentName}
+              </h3>
+              <p className="text-gray-600">{forms.email}</p>
+              <p className="text-sm text-blue-600">{forms.internshipTitle}</p>
+            </div>
           </div>
-        )}
+          <div className="text-right">
+            <span
+              className={`px-3 py-1 rounded-full text-sm ${getStatusBadge(
+                forms.status
+              )}`}
+            >
+              {forms.status.charAt(0).toUpperCase() + forms.status.slice(1)}
+            </span>
+            <p className="text-xs text-gray-500 mt-1">
+              Applied on{" "}
+              {new Date(forms.appliedDate).toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <h4 className="text-sm font-medium text-gray-900 mb-2">Skills:</h4>
+            <div className="flex flex-wrap gap-2">
+              {forms.skills.map((skill, idx) => (
+                <span
+                  key={idx}
+                  className="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-sm hover:bg-blue-100 transition"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div>
+            <h4 className="text-sm font-medium text-gray-900 mb-2">GPA:</h4>
+            <p className="text-lg font-semibold text-green-600">{forms.gpa}</p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="hover:scale-105 transition"
+            onClick={() => handleViewProfile(forms.studentId, forms._id)}
+          >
+            <Eye className="w-4 h-4 mr-1" /> View Profile
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleDownloadCV(forms.studentId)}
+          >
+            <Download className="w-4 h-4 mr-1" /> Download CV
+          </Button>
+
+          <Button
+            size="sm"
+            className="bg-green-600 hover:bg-green-700 text-white"
+            onClick={() => handleAccept(forms._id)}
+          >
+            Accept
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={() => handleReject(forms._id)}
+          >
+            Reject
+          </Button>
+        </div>
+      </Card>
+    ))}
+  </div>
+)}
+
 
         {/* Positions Tab */}
         {activeTab === "positions" && (
@@ -380,7 +811,8 @@ const CompanyDashboard: React.FC = () => {
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold">Job Positions</h2>
               <Button
-                onClick={() => setShowJobModal(true)}
+                onClick={handleAddPosition}
+
                 className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-105 transition"
               >
                 <Plus className="w-4 h-4 mr-2" /> Add New Position
@@ -388,9 +820,9 @@ const CompanyDashboard: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-              {mockInternships.map((internship) => (
+              {Job.map((internship) => (
                 <Card
-                  key={internship.id}
+                  key={internship._id}
                   className="p-6 hover:shadow-lg transition bg-white rounded-xl"
                 >
                   <div className="flex items-start justify-between mb-4">
@@ -429,7 +861,11 @@ const CompanyDashboard: React.FC = () => {
                     <Button variant="outline" size="sm">
                       <Eye className="w-4 h-4 mr-1" /> View Applications (5)
                     </Button>
-                    <Button variant="danger" size="sm">
+                    <Button
+                                   variant="danger"
+                                  size="sm"
+                                  onClick={() => handleDelete(internship._id||"")}
+                                     >
                       <Trash2 className="w-4 h-4 mr-1" /> Delete
                     </Button>
                   </div>
@@ -474,8 +910,21 @@ const CompanyDashboard: React.FC = () => {
                   />
                 </div>
 
-                {/* Email */}
+                  {/*Location */}
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                  />
+                </div>
+                      {/* Email */}
+               <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Email
                   </label>
@@ -487,7 +936,37 @@ const CompanyDashboard: React.FC = () => {
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
                   />
                 </div>
+
+                    {/*Employee count */}
+               <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Employee count
+                  </label>
+                  <input
+                    type="text"
+                    name="employees"
+                    value={formData.employees}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                  />
+                </div>
+
+                    {/*Industry */}
+               <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    industry
+                  </label>
+                  <input
+                    type="text"
+                    name="industry"
+                    value={formData.industry}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                  />
+                </div>
               </div>
+            
+              
 
               {/* Right Column */}
               <div className="space-y-4">
@@ -564,31 +1043,55 @@ const CompanyDashboard: React.FC = () => {
                     <label className="block text-sm font-medium mb-1">
                       Position Title
                     </label>
-                    <input
-                      type="text"
-                      placeholder="e.g., Software Engineering Intern"
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-                    />
+                     <input
+                    type="text"
+                    placeholder="e.g., Software Engineering Intern"
+                    value={fData?.title || ""}   // ✅ controlled value
+                    onChange={(e) =>
+                    setFdata((prev) => ({
+                     ...prev,
+                    title: e.target.value,     // ✅ update title
+                  }))
+                    } 
+  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+/>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Duration
-                    </label>
-                    <select className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500">
-                      <option>3 months</option>
-                      <option>6 months</option>
-                      <option>12 months</option>
-                    </select>
-                  </div>
+                 <div>
+  <label className="block text-sm font-medium mb-1">
+    Duration
+  </label>
+  <select
+    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+    value={fData?.duration || ""}  // ✅ controlled value
+    onChange={(e) =>
+      setFdata((prev) => ({
+        ...prev,
+        duration: e.target.value,   // ✅ update duration
+      }))
+    }
+  >
+    <option value="">Select duration</option>
+    <option value="3 months">3 months</option>
+    <option value="6 months">6 months</option>
+    <option value="12 months">12 months</option>
+  </select>
+</div>
+
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">
                     Location
                   </label>
                   <input
+                    value={fData?.location}
                     type="text"
                     placeholder="e.g., Colombo, Remote, Hybrid"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                    onChange={(e)=> setFdata((prev) => ({
+                     ...prev,
+                    location: e.target.value,     // ✅ update location
+                  }))
+                }
                   />
                 </div>
                 <div>
@@ -596,9 +1099,14 @@ const CompanyDashboard: React.FC = () => {
                     Description
                   </label>
                   <textarea
+                    value={fData?.description}
                     rows={4}
                     placeholder="Describe the internship role..."
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                    onChange={(e)=>setFdata((prev) => ({
+                     ...prev,
+                    description: e.target.value,     // ✅ update title
+                  }))}
                   />
                 </div>
                 <div>
@@ -606,9 +1114,14 @@ const CompanyDashboard: React.FC = () => {
                     Requirements
                   </label>
                   <input
+                    value={fData?.requirements}
                     type="text"
                     placeholder="e.g., JavaScript, React, Node.js"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                    onChange={(e)=>setFdata((prev) => ({
+                     ...prev,
+                    requirements: e.target.value.split(",").map(req => req.trim()), // convert to string[]
+                  }))}
                   />
                 </div>
                 <div className="flex gap-3">
@@ -622,6 +1135,7 @@ const CompanyDashboard: React.FC = () => {
                   <Button
                     fullWidth
                     className="bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                    onClick={handleJobPosition}
                   >
                     Create Position
                   </Button>

@@ -1,181 +1,67 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink, MapPin, Users, Calendar, Search, Filter, Building2, Globe, Mail } from 'lucide-react';
-
+import { useLocation } from "react-router-dom";
 // Mock company data (will be replaced with API calls later)
-const mockCompanies = [
-  {
-    id: '1',
-    email: 'hr@techcorp.lk',
-    companyName: 'TechCorp Lanka',
-    role: 'company',
-    website: 'https://techcorp.lk',
-    description: 'Leading technology company specializing in electronics and software solutions. We provide cutting-edge technology solutions for businesses across Sri Lanka.',
-    logo: 'https://images.pexels.com/photos/248515/pexels-photo-248515.jpeg?auto=compress&cs=tinysrgb&w=200',
-    isApproved: true,
-    createdAt: new Date('2024-12-01'),
-    location: 'Colombo, Sri Lanka',
-    employees: '50-100',
-    industry: 'Technology',
-    internships: [
-      {
-        id: 101,
-        title: 'Software Engineering Intern',
-        duration: '6 months',
-        stipend: 'Rs. 30,000/month',
-        requirements: 'Computer Science or EEE students'
-      },
-      {
-        id: 102,
-        title: 'Network Engineering Intern',
-        duration: '4 months',
-        stipend: 'Rs. 25,000/month',
-        requirements: 'EEE students preferred'
-      }
-    ]
-  },
-  {
-    id: '2',
-    email: 'careers@innovationlabs.com',
-    companyName: 'Innovation Labs',
-    role: 'company',
-    website: 'https://innovationlabs.com',
-    description: 'Research and development company focused on emerging technologies. We work on AI, IoT, and renewable energy solutions.',
-    logo: 'https://images.pexels.com/photos/159888/pexels-photo-159888.jpeg?auto=compress&cs=tinysrgb&w=200',
-    isApproved: true,
-    createdAt: new Date('2024-12-02'),
-    location: 'Kandy, Sri Lanka',
-    employees: '20-50',
-    industry: 'Research & Development',
-    internships: [
-      {
-        id: 103,
-        title: 'AI Research Intern',
-        duration: '6 months',
-        stipend: 'Rs. 35,000/month',
-        requirements: 'Final year EEE/CS students'
-      }
-    ]
-  },
-  {
-    id: '3',
-    email: 'hr@powergen.lk',
-    companyName: 'PowerGen Solutions',
-    role: 'company',
-    website: 'https://powergen.lk',
-    description: 'Renewable energy company specializing in solar and wind power generation systems across Sri Lanka.',
-    logo: 'https://images.pexels.com/photos/433308/pexels-photo-433308.jpeg?auto=compress&cs=tinysrgb&w=200',
-    isApproved: true,
-    createdAt: new Date('2024-11-28'),
-    location: 'Galle, Sri Lanka',
-    employees: '100-200',
-    industry: 'Renewable Energy',
-    internships: [
-      {
-        id: 104,
-        title: 'Electrical Systems Intern',
-        duration: '5 months',
-        stipend: 'Rs. 28,000/month',
-        requirements: 'EEE students with power systems knowledge'
-      },
-      {
-        id: 105,
-        title: 'Project Management Intern',
-        duration: '4 months',
-        stipend: 'Rs. 26,000/month',
-        requirements: '3rd/4th year engineering students'
-      }
-    ]
-  },
-  {
-    id: '4',
-    email: 'internships@digitalsolutions.lk',
-    companyName: 'Digital Solutions Hub',
-    role: 'company',
-    website: 'https://digitalsolutions.lk',
-    description: 'Digital transformation company helping businesses modernize their operations through technology.',
-    logo: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=200',
-    isApproved: true,
-    createdAt: new Date('2024-12-05'),
-    location: 'Negombo, Sri Lanka',
-    employees: '30-50',
-    industry: 'Digital Services',
-    internships: [
-      {
-        id: 106,
-        title: 'Full Stack Development Intern',
-        duration: '6 months',
-        stipend: 'Rs. 32,000/month',
-        requirements: 'Computer Science or EEE students'
-      }
-    ]
-  },
-  {
-    id: '5',
-    email: 'careers@manufacturetech.lk',
-    companyName: 'ManufactureTech Industries',
-    role: 'company',
-    website: 'https://manufacturetech.lk',
-    description: 'Industrial automation and manufacturing technology company serving both local and international markets.',
-    logo: 'https://images.pexels.com/photos/1108101/pexels-photo-1108101.jpeg?auto=compress&cs=tinysrgb&w=200',
-    isApproved: true,
-    createdAt: new Date('2024-11-30'),
-    location: 'Kurunegala, Sri Lanka',
-    employees: '150-300',
-    industry: 'Manufacturing',
-    internships: [
-      {
-        id: 107,
-        title: 'Automation Engineering Intern',
-        duration: '6 months',
-        stipend: 'Rs. 27,000/month',
-        requirements: 'EEE students with control systems knowledge'
-      },
-      {
-        id: 108,
-        title: 'Quality Control Intern',
-        duration: '4 months',
-        stipend: 'Rs. 24,000/month',
-        requirements: '2nd/3rd year engineering students'
-      }
-    ]
-  },
-  {
-    id: '6',
-    email: 'hr@telecomsri.lk',
-    companyName: 'TelecomSri Networks',
-    role: 'company',
-    website: 'https://telecomsri.lk',
-    description: 'Telecommunications infrastructure company providing network solutions and mobile services.',
-    logo: 'https://images.pexels.com/photos/4439901/pexels-photo-4439901.jpeg?auto=compress&cs=tinysrgb&w=200',
-    isApproved: true,
-    createdAt: new Date('2024-12-03'),
-    location: 'Matara, Sri Lanka',
-    employees: '200-500',
-    industry: 'Telecommunications',
-    internships: [
-      {
-        id: 109,
-        title: 'Network Operations Intern',
-        duration: '5 months',
-        stipend: 'Rs. 29,000/month',
-        requirements: 'EEE students with networking knowledge'
-      }
-    ]
-  }
-];
+
 
 const Companies: React.FC = () => {
-  const [companies, setCompanies] = useState(mockCompanies);
-  const [filteredCompanies, setFilteredCompanies] = useState(mockCompanies);
+ ;
+ const [filteredCompanies, setFilteredCompanies] = useState<
+  {
+    id?: string;
+    description?: string;
+    website?: string;
+    email?: string;
+    role?: string;
+    logo?: string;
+    logoType?: string;
+    logoUrl?: string;
+    companyName?: string;
+    employees?:number;
+    location?:string;
+    industry?:string
+  }[]
+>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState('all');
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [loading, setLoading] = useState(true);
 
-  // Get unique industries and locations for filters
-  const industries = [...new Set(companies.map(company => company.industry))];
-  const locations = [...new Set(companies.map(company => company.location))];
+ 
+
+
+ const [error, setError] = useState<string | null>(null);
+ const [companyProfiles, setCompanyProfiles] = useState<
+  {
+    id?: string;
+    description?: string;
+    website?: string;
+    email?: string;
+    role?: string;
+    logo?: string;
+    logoType?: string;
+    logoUrl?: string;
+    companyName?: string;
+    employees?:number;
+    location?:string
+    industry?:string;
+  }[]
+>([]);
+ // Get unique industries and locations for filters
+  const industries = [...new Set(companyProfiles.map(company => company.industry))];
+  const locations = [...new Set(companyProfiles.map(company => company.location))];
+  
+  const location = useLocation();
+
+
+
+
+ useEffect(() => {
+    if (location.state?.companies) {
+      setCompanyProfiles(location.state.companies);
+    }
+  }, [location.state]);
 
   // Simulate loading state
   useEffect(() => {
@@ -187,20 +73,20 @@ const Companies: React.FC = () => {
 
   // Filter companies based on search and filters
   useEffect(() => {
-    let filtered = companies;
+    let filtered = companyProfiles;
 
     // Search filter
     if (searchTerm) {
       filtered = filtered.filter(company =>
-        company.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.industry.toLowerCase().includes(searchTerm.toLowerCase())
+        company.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        company.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        company.role?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Industry filter
     if (selectedIndustry !== 'all') {
-      filtered = filtered.filter(company => company.industry === selectedIndustry);
+      filtered = filtered.filter(company => company.industry=== selectedIndustry);
     }
 
     // Location filter
@@ -209,11 +95,9 @@ const Companies: React.FC = () => {
     }
 
     setFilteredCompanies(filtered);
-  }, [searchTerm, selectedIndustry, selectedLocation, companies]);
+  }, [searchTerm, selectedIndustry, selectedLocation, companyProfiles]);
 
-  const getTotalInternships = () => {
-    return companies.reduce((total, company) => total + company.internships.length, 0);
-  };
+  
 
   if (loading) {
     return (
@@ -261,13 +145,10 @@ const Companies: React.FC = () => {
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
             <div className="bg-white/10 backdrop-blur-md rounded-lg p-4">
-              <div className="text-2xl md:text-3xl font-bold">{companies.length}</div>
+              <div className="text-2xl md:text-3xl font-bold">{companyProfiles.length}</div>
               <div className="text-blue-100 text-sm">Companies</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-4">
-              <div className="text-2xl md:text-3xl font-bold">{getTotalInternships()}</div>
-              <div className="text-blue-100 text-sm">Internships</div>
-            </div>
+           
             <div className="bg-white/10 backdrop-blur-md rounded-lg p-4">
               <div className="text-2xl md:text-3xl font-bold">{industries.length}</div>
               <div className="text-blue-100 text-sm">Industries</div>
@@ -351,8 +232,8 @@ const Companies: React.FC = () => {
                     <div className="flex items-start space-x-4">
                       <div className="flex-shrink-0">
                         <img
-                          src={company.logo}
-                          alt={`${company.companyName} logo`}
+                          src={company.logoUrl || company.logo}
+                          alt={`${company.companyName}  logo`}
                           className="w-16 h-16 rounded-lg object-cover border border-gray-200"
                         />
                       </div>
@@ -383,25 +264,7 @@ const Companies: React.FC = () => {
                   </div>
 
                   {/* Internships Preview */}
-                  <div className="px-6 pb-4">
-                    <div className="bg-blue-50 rounded-lg p-3">
-                      <h4 className="font-semibold text-blue-900 text-sm mb-2">
-                        Available Internships ({company.internships.length})
-                      </h4>
-                      <div className="space-y-1">
-                        {company.internships.slice(0, 2).map((internship) => (
-                          <div key={internship.id} className="text-xs text-blue-700">
-                            • {internship.title}
-                          </div>
-                        ))}
-                        {company.internships.length > 2 && (
-                          <div className="text-xs text-blue-600 font-medium">
-                            +{company.internships.length - 2} more positions
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                
 
                   {/* Company Actions */}
                   <div className="px-6 pb-6">

@@ -82,11 +82,11 @@ static async updateCompany(req, res) {
 }
 
 
-  static async getAllCompanies(req, res) {
+  
+static async getAllCompanies(req, res) {
   try {
     const companies = await companySchema.find();
 
-    // Convert logos from Buffer → Base64
     const formattedCompanies = companies.map(c => ({
       id: c._id,
       name: c.name,
@@ -94,7 +94,17 @@ static async updateCompany(req, res) {
       website: c.website,
       email: c.email,
       role: c.role,
-      logo: c.logo ? c.logo.toString("base64") : null
+      companyName: c.companyName,
+      location: c.location,
+      employees: c.employees,
+      industry: c.industry,
+      logo: c.logo?.data ? c.logo.data.toString("base64") : null,
+      logoType: c.logo?.contentType || "image/png",
+      logoFilename: c.logo?.filename || null,
+      isApproved: c.isApproved,
+      internships: c.internships || [],
+      createdAt: c.createdAt,
+      updatedAt: c.updatedAt,
     }));
 
     res.status(200).json({ companies: formattedCompanies });
@@ -103,6 +113,7 @@ static async updateCompany(req, res) {
     res.status(500).json({ message: "Server error", error });
   }
 }
+
 
   
 // Fetch a company by ID

@@ -12,9 +12,10 @@ const RegisterCompanyPage: React.FC = () => {
     website: '',
     description: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+     logo: null,
   });
-  const [logo, setLogo] = useState<File | null>(null);
+  const [Logo, setLogo] = useState<File | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -94,19 +95,36 @@ const RegisterCompanyPage: React.FC = () => {
       setLoading(false);
       return;
     }
-
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Show approval pending message
-      setSubmitted(true);
-    } catch (error) {
-      setErrors({ submit: 'Registration failed. Please try again.' });
-    } finally {
-      setLoading(false);
+    // Create FormData
+    const fd = new FormData();
+    fd.append('companyName', formData.companyName);
+    fd.append('email', formData.email);
+    fd.append('description', formData.description);
+    if (formData.website) fd.append('website', formData.website);
+    fd.append('password', formData.password);
+    // If you have a file (logo, etc.), you can append it as well:
+    if (Logo) fd.append('logo', Logo );
+
+    const response = await fetch('http://localhost:5000/api/companyRoutes/createCompany', {
+      method: 'POST',
+      body: fd, // send FormData directly
+      // DO NOT set 'Content-Type', fetch will set it automatically for FormData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setErrors({ submit: data.message || 'Registration failed' });
+    } else {
+      setSubmitted(true); // success
     }
-  };
+  } catch (error) {
+    setErrors({ submit: 'Registration failed. Please try again.' });
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (submitted) {
     return (
@@ -219,12 +237,12 @@ const RegisterCompanyPage: React.FC = () => {
                     className="hidden"
                   />
                 </label>
-                {logo && (
-                  <span className="text-sm text-green-600">{logo.name}</span>
+                {Logo && (
+                  <span className="text-sm text-green-600">{Logo.name}</span>
                 )}
               </div>
               {errors.logo && (
-                <p className="text-red-500 text-sm mt-1">{errors.logo}</p>
+                <p className="text-red-500 text-sm mt-1">{errors.Logo}</p>
               )}
             </div>
 

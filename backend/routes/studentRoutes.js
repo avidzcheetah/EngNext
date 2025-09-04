@@ -32,4 +32,14 @@ router.get("/getProfilePicture/:id", StudentController.getProfilePicture);
 
 //verifies student
 router.post("/loginStudent",StudentController.loginStudent);
+
+//add inccrement
+router.put("/incrementApplicationsSent/:id",StudentController.incrementApplicationsSent)
+
+//add notification
+router.put("/addRecentNotification/:studentId", StudentController.addRecentNotification);
+
+// increment profile views
+router.put("/incrementProfileView/:studentId", StudentController.incrementProfileView);
+
 export default router;
