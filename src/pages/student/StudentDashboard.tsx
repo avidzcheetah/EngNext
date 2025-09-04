@@ -17,7 +17,7 @@ import Input from '../../components/ui/Input';
 import { mockInternships, mockCompanies } from '../../data/mockData';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-
+import { useAuth } from '../../contexts/AuthContext';
 
 const StudentDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,10 +25,10 @@ const StudentDashboard: React.FC = () => {
   const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [selectedInternship, setSelectedInternship] = useState<string | null>(null);
   const location = useLocation();
-  const { id } = location.state || {};
+  
   const [isLoading,setIsLoading]=useState(false)
   const [error,setError]=useState("")
- const navigate=useNavigate()
+  const navigate=useNavigate()
 
  
 
@@ -49,7 +49,8 @@ interface Application {
 
 // Initialize with empty array, will populate later with setApplications
 const [applications, setApplications] = useState<Application[]>([]);
-
+ const { user, isAuthenticated, logout } = useAuth();
+  let id =user?.id;
 
    const [profileData, setProfileData] = useState({
      id:  '',

@@ -5,9 +5,9 @@ export const createInternship = async (req, res) => {
   try {
     
     const internship = new InternshipSchema(req.body);
-    console.log("done")
+  
     const savedInternship = await internship.save();
-    
+      console.log("done")
     res.status(201).json(savedInternship);
   } catch (error) {
     res.status(400).json({ message: error.message });

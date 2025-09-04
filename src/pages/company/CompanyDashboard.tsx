@@ -442,6 +442,8 @@ const sendMessageToStudent = async (ID: string, message: string) => {
       console.log("Updated company:", data);
       fetchCompanyDetails();
       setCompanyProfile(data.company); // update local state
+    
+    
     } catch (err: any) {
       console.error(err);
     }
@@ -516,6 +518,13 @@ const handleJobPosition = async (e: React.MouseEvent<HTMLButtonElement>) => {
     console.log("Internship created:", data);
     setShowJobModal(false)
     fetchJobs();
+     setFdata({
+      title:  "",
+      description:  "",
+      requirements:  [],
+      duration:  "",
+      location:  "",
+    });
 
   } catch (error) {
     console.error("Error creating internship:", error);
@@ -558,6 +567,14 @@ const handleEditPosition = async (e: React.MouseEvent<HTMLButtonElement>) => {
     console.log("Internship Edited Succesfully:", data);
     setEdit(false)
     fetchJobs();
+     setFdata({
+      title:  "",
+      description:  "",
+      requirements:  [],
+      duration:  "",
+      location:  "",
+    });
+
 
   } catch (error) {
     console.error("Error creating internship:", error);
