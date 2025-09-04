@@ -35,7 +35,7 @@ const About: React.FC = () => {
           </div>
           <div className="relative">
             <img
-              src="https://www.eng.jfn.ac.lk/wp-content/uploads/slider/s3.jpg"
+              src="https://i.ibb.co/C3bM032v/78774494-117352396407464-1797319693116112896-n.jpg"
               alt="University of Jaffna Engineering"
               className="rounded-xl shadow-lg border border-gray-200"
             />
@@ -78,8 +78,8 @@ const About: React.FC = () => {
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
           <div className="order-2 md:order-1 relative">
             <img
-              src="https://tamildiplomat.com/wp-content/uploads/2020/01/2.png"
-              alt="EEE Exhibition"
+              src="https://i.ibb.co/gFcTTpXv/480217173-605054155817425-3641545989452124133-n.jpg"
+              alt="Kilinochchi Premises"
               className="rounded-xl shadow-lg border border-gray-200"
             />
           </div>
