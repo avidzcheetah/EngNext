@@ -24,6 +24,8 @@ const CompanyDashboard: React.FC = () => {
     "applications" | "positions" | "company"
   >("applications");
   const [showJobModal, setShowJobModal] = useState(false);
+  const [edit,setEdit]=useState(false);
+  const [editId,setEditId]=useState("")
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [companyProfile, setCompanyProfile] = useState<{
@@ -41,6 +43,26 @@ const CompanyDashboard: React.FC = () => {
     employees?:string;
   } | null>(null);
 
+const handleEdit = (internshipId: string) => {
+  const foundJob = Job.find(j => j._id === internshipId) || null;
+  setEditJob(foundJob);
+  setEdit(true);
+  setEditId(internshipId);
+
+  if (foundJob) {
+    setFdata({
+      title: foundJob.title || "",
+      description: foundJob.description || "",
+      requirements: foundJob.requirements || [],
+      duration: foundJob.duration || "",
+      location: foundJob.location || "",
+    });
+  }
+};
+
+const handleViewApplication=(internshipId:string)=>{
+   navigate("/company/application",{state:{internshipId}})
+}
 const [Job, setJob] = useState<
   Array<{
     _id?: string;
@@ -53,6 +75,19 @@ const [Job, setJob] = useState<
     isActive?: boolean;
   }>
 >([]);
+
+const [editJob, setEditJob] = useState<{
+  _id?: string;
+  companyName?: string;
+  title?: string;
+  description?: string;
+  requirements?: string[];
+  duration?: string;
+  location?: string;
+  isActive?: boolean;
+} | null>(null);
+
+
 
 const sendAcceptmail = (studentid: string) => {
   // find the student details first
@@ -487,6 +522,47 @@ const handleJobPosition = async (e: React.MouseEvent<HTMLButtonElement>) => {
   }
 };
 
+const handleEditPosition = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault();
+
+  try {
+  console.log({
+  companyId: id,
+  companyName: companyProfile?.companyName,
+  duration: fData?.duration,
+  requirements: fData?.requirements,
+  description: fData?.description,
+  title: fData?.title,
+  location: fData?.location,
+});
+   
+    const response = await fetch(`http://localhost:5000/api/InternshipRoutes/editInternshipById/${editId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        
+        companyId: id,
+        companyName:companyProfile?.companyName,
+        duration: fData?.duration,
+        requirements: fData?.requirements,
+        description: fData?.description,
+        title: fData?.title,
+        location: fData?.location,
+      }),
+    });
+
+    if (!response.ok) throw new Error("Failed to  Edit the internship");
+
+    const data = await response.json();
+    alert("Changes saved")
+    console.log("Internship Edited Succesfully:", data);
+    setEdit(false)
+    fetchJobs();
+
+  } catch (error) {
+    console.error("Error creating internship:", error);
+  }
+};
 
 const handleAccept = async (ID: string) => {
   try {
@@ -855,11 +931,11 @@ const handleDownloadCV = async (id:string) => {
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-3">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={()=>handleEdit(internship._id||"")}>
                       <Edit className="w-4 h-4 mr-1" /> Edit
                     </Button>
-                    <Button variant="outline" size="sm">
-                      <Eye className="w-4 h-4 mr-1" /> View Applications (5)
+                    <Button variant="outline" size="sm"onClick={()=>handleViewApplication(internship._id||"")}>
+                      <Eye className="w-4 h-4 mr-1" /> View Applications
                     </Button>
                     <Button
                                    variant="danger"
@@ -1144,6 +1220,110 @@ const handleDownloadCV = async (id:string) => {
             </Card>
           </div>
         )}
+
+
+        {/*Edit job Model*/}
+        {edit && (
+  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
+      <h3 className="text-xl font-bold mb-6">Edit Internship Position</h3>
+      <div className="space-y-4">
+        {/* Position & Duration */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Position Title</label>
+            <input
+              type="text"
+              value={fData?.title || ""}
+              onChange={(e) =>
+                setFdata(prev => ({ ...prev, title: e.target.value }))
+              }
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Duration</label>
+            <select
+              value={fData?.duration || ""}
+              onChange={(e) =>
+                setFdata(prev => ({ ...prev, duration: e.target.value }))
+              }
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+            >
+              <option value="">Select duration</option>
+              <option value="3 months">3 months</option>
+              <option value="6 months">6 months</option>
+              <option value="12 months">12 months</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Location */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Location</label>
+          <input
+            type="text"
+            value={fData?.location || ""}
+            onChange={(e) =>
+              setFdata(prev => ({ ...prev, location: e.target.value }))
+            }
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+          />
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Description</label>
+          <textarea
+            rows={4}
+            value={fData?.description || ""}
+            onChange={(e) =>
+              setFdata(prev => ({ ...prev, description: e.target.value }))
+            }
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+          />
+        </div>
+
+        {/* Requirements */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Requirements</label>
+          <input
+            type="text"
+            value={fData?.requirements?.join(", ") || ""}
+            onChange={(e) =>
+              setFdata(prev => ({
+                ...prev,
+                requirements: e.target.value
+                  .split(",")
+                  .map(req => req.trim())
+                  .filter(req => req.length > 0),
+              }))
+            }
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Enter multiple requirements separated by commas
+          </p>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-3">
+          <Button variant="outline" fullWidth onClick={() => setEdit(false)}>
+            Cancel
+          </Button>
+          <Button
+            fullWidth
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+            onClick={ handleEditPosition} // call your save/update function
+          >
+            Save Changes
+          </Button>
+        </div>
+      </div>
+    </Card>
+  </div>
+)}
       </div>
     </div>
   );

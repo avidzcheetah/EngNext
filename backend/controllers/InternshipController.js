@@ -69,3 +69,27 @@ export const getInternshipById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Controller: Edit internship by ID
+export const editInternshipById = async (req, res) => {
+  try {
+    const {editId}  = req.params; // ID of the internship to edit
+    const updateData = req.body; // Fields to update
+    console.log(editId)
+    // Find the internship and update it
+    const updatedInternship = await InternshipSchema.findByIdAndUpdate(
+      editId,
+      updateData,
+      { new: true, runValidators: true } // return updated document
+    );
+
+    if (!updatedInternship) {
+      return res.status(404).json({ message: "Internship not found" });
+    }
+
+    res.status(200).json(updatedInternship);
+  } catch (error) {
+    console.error("Error updating internship:", error);
+    res.status(400).json({ message: error.message });
+  }
+};

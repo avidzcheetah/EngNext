@@ -6,6 +6,15 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { useAuth } from '../../contexts/AuthContext';
 
+interface LoginResponse {
+  exists: boolean;
+  id: string;
+  email: string;
+  profilePicture?: string | null;
+  companyName?: string | null;
+  createdAt: string;
+}
+
 const LoginPage: React.FC = () => {
   const [userType, setUserType] = useState<'student' | 'company'>('student');
   const [email, setEmail] = useState('');
@@ -13,60 +22,62 @@ const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  setError('');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
-  try {
-    const url =
-      userType === 'company'
-        ? 'http://localhost:5000/api/companyRoutes/verifyCompany'
-        : 'http://localhost:5000/api/studentRoutes/loginStudent';
+    try {
+      const url =
+        userType === 'company'
+          ? 'http://localhost:5000/api/companyRoutes/verifyCompany'
+          : 'http://localhost:5000/api/studentRoutes/loginStudent';
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-    // Check if response is Ok
-    if (!response.ok) {
-      const text = await response.text(); // get HTML or error message
-      console.error('Server response:', text);
-      setError('Incorrect Password.');
-      return;
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('Server response:', text);
+        setError('Incorrect email or password.');
+        return;
+      }
+
+      const data: LoginResponse = await response.json();
+
+      if (!data.exists) {
+        setError(
+          `${userType === 'company' ? 'Company' : 'Student'} not found or invalid password.`
+        );
+        return;
+      }
+
+      // Login with complete User object
+      login({
+        id: data.id,
+        email: data.email,
+        role: userType,
+        profilePicture: data.profilePicture || "",
+        companyName: data.companyName || "",
+        createdAt: new Date() // set current time
+      });
+
+      const redirectPath = userType === 'student' ? '/student/dashboard' : '/company/dashboard';
+      navigate(redirectPath, { state: { id: data.id } })
+    } catch (err) {
+      console.error(err);
+      setError('Server error. Please try again later.');
+    } finally {
+      setLoading(false);
     }
-
-    const data = await response.json(); // parse JSON only if ok
-
-    if (!data.exists) {
-      setError(`${userType === 'company' ? 'Company' : 'Student'} not found or invalid password.`);
-      return;
-    }
-
-    
-   
-
-    // Redirect
-   const redirectPath =
-  userType === "student" ? "/student/dashboard" : "/company/dashboard";
-
-navigate(redirectPath, { state: { id: data.id } });
-
-  } catch (err) {
-    console.error(err);
-    setError('Server error. Please try again later.');
-  } finally {
-    setLoading(false);
-  }
-};
-
-
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -82,7 +93,6 @@ navigate(redirectPath, { state: { id: data.id } });
         </div>
 
         <Card className="p-8">
-          {/* User Type Toggle */}
           <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
             <button
               type="button"
@@ -141,7 +151,7 @@ navigate(redirectPath, { state: { id: data.id } });
                 className="pl-10 pr-10"
               />
               <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-              
+
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -153,7 +163,10 @@ navigate(redirectPath, { state: { id: data.id } });
 
             <div className="flex items-center justify-between">
               <label className="flex items-center">
-                <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                <input
+                  type="checkbox"
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
                 <span className="ml-2 text-sm text-gray-600">Remember me</span>
               </label>
               <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
