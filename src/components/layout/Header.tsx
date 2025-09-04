@@ -67,8 +67,8 @@ const Header: React.FC = () => {
             {isAuthenticated ? (
               <div className="relative">
                 <button
-  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-  className="flex items-center bg-blue-50 rounded-full p-1 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 border border-transparent hover:border-blue-200 transition-all duration-300 shadow-sm"
+            onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+           className="flex items-center bg-blue-50 rounded-full p-1 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 border border-transparent hover:border-blue-200 transition-all duration-300 shadow-sm"
 >
   {user?.profilePicture ? (
     <img
