@@ -144,6 +144,7 @@ static async getAllCompanies(req, res) {
         internships: company.internships || [],
         createdAt: company.createdAt,
         updatedAt: company.updatedAt,
+        
       };
 
       res.status(200).json({ company: formattedCompany });
@@ -169,31 +170,40 @@ static async getAllCompanies(req, res) {
     }
   }
 
-// Check company login / verification
+// Company login / verification
 static async verifyCompany(req, res) {
   try {
-    const { email, companyName } = req.body;
+    const { email, password } = req.body; // use password for login
 
-    if (!email && !companyName) {
-      return res.status(400).json({ message: "Provide email or companyName" });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
     }
 
-    // Find company by email or companyName
-    const company = await companySchema.findOne({
-      $or: [
-        { email: email || null },
-        { companyName: companyName || null }
-      ]
-    });
-
+    // Find company by email
+    const company = await companySchema.findOne({ email });
     if (!company) {
-      return res.status(200).json({ exists: false });
+      return res.status(401).json({ exists: false, message: "Invalid email or password" });
     }
 
-    // Company exists → return true with ID
+    // Compare password directly (plain text)
+    if (company.password !== password) {
+      return res.status(401).json({ exists: false, message: "Invalid email or password" });
+    }
+
+    // Convert profile picture to Base64 if exists
+    let profilePictureBase64 = null;
+    if (company.profilePicture && company.profilePicture.data) {
+      profilePictureBase64 = `data:${company.profilePicture.contentType};base64,${company.profilePicture.data.toString('base64')}`;
+    }
+
+    // Send all necessary info to frontend
     return res.status(200).json({
       exists: true,
-      id: company._id
+      id: company._id,
+      email: company.email,
+      role: 'company',
+      companyName: company.companyName,
+      profilePicture: profilePictureBase64 || null,
     });
 
   } catch (error) {
@@ -201,6 +211,7 @@ static async verifyCompany(req, res) {
     res.status(500).json({ message: "Server error", error });
   }
 }
+
 
 
 

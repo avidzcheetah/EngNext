@@ -13,7 +13,7 @@ const RegisterCompanyPage: React.FC = () => {
     description: '',
     password: '',
     confirmPassword: '',
-     logo: null,
+    logo: null,
   });
   const [Logo, setLogo] = useState<File | null>(null);
   const [showPassword, setShowPassword] = useState(false);

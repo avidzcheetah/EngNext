@@ -12,6 +12,7 @@ import RegisterCompanyPage from './pages/auth/RegisterCompanyPage';
 import StudentDashboard from './pages/student/StudentDashboard';
 import StudentProfile from './pages/student/profile';
 import CompanyDashboard from './pages/company/CompanyDashboard';
+import ApplicationsPage from './pages/company/application';
 import CompanyProfile from './pages/company/profile';
 import Companies from './pages/companies';
 import PublicStudentProfile from './pages/student/PublicProfile';
@@ -34,7 +35,8 @@ function App() {
               <Route path="/student/dashboard" element={<StudentDashboard />} />
               <Route path="/student/profile" element={<StudentProfile />} />
               <Route path="/company/dashboard" element={<CompanyDashboard />} />
-              <Route path="/company/profile" element={<CompanyProfile />} />
+              <Route path="/company/profile" element={<CompanyProfile  />} />
+              <Route path="/company/application" element={<ApplicationsPage/>} />
               <Route path="/student/PublicProfile" element={<PublicStudentProfile />} />
             </Routes>
           </main>

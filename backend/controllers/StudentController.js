@@ -201,13 +201,16 @@ static async loginStudent(req, res) {
     // Convert profile picture to Base64 if exists
     let profilePictureBase64 = null;
     if (student.profilePicture && student.profilePicture.data) {
-      profilePictureBase64 = student.profilePicture.data.toString('base64');
+      profilePictureBase64 = `data:${student.profilePicture.contentType};base64,${student.profilePicture.data.toString('base64')}`;
     }
 
+    // Send all necessary info to frontend
     return res.status(200).json({
       exists: true,
       id: student._id,
-    
+      email: student.email,
+      role: 'student',
+      profilePicture: profilePictureBase64 || null,
     });
 
   } catch (error) {
@@ -215,6 +218,7 @@ static async loginStudent(req, res) {
     res.status(500).json({ message: "Server error", error });
   }
 }
+
 
 static async incrementApplicationsSent(req, res) {
   try {

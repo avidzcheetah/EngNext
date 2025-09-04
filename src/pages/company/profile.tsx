@@ -1,78 +1,147 @@
-import React, { useEffect, useState } from 'react';
-import { Upload, Save, Loader2 } from 'lucide-react';
-import Card from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
-import axios from 'axios';
-
-interface Company {
-  _id: string;
-  companyName: string;
-  email: string;
-  website?: string;
+import React, { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import { useAuth } from '../../contexts/AuthContext';
+interface CompanyProfileData {
+  id?: string;
   description?: string;
+  website?: string;
+  email?: string;
+  role?: string;
   logo?: string;
-  address?: string;
-  contactNumber?: string;
+  logoType?: string;
+  logoUrl?: string;
+  companyName?: string;
+  location?: string;
   industry?: string;
-  founded?: string;
+  employees?: string;
 }
 
-const CompanyProfile: React.FC = () => {
-  const [company, setCompany] = useState<Company | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [logoFile, setLogoFile] = useState<File | null>(null);
+const CompanyProfile: React.FC<{}> = () => {
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfileData | null>(
+    null
+  );
+  const { user, isAuthenticated, logout } = useAuth();
+  let id =user?.id;
+  const [formData, setFormData] = useState({
+    companyName: "",
+    website: "",
+    email: "",
+    description: "",
+    logoFile: null as File | null,
+    location: "",
+    industry: "",
+    employees: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Fetch company details
+  const fetchCompanyDetails = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await fetch(
+        `http://localhost:5000/api/companyRoutes/getById/${id}`
+      );
+
+      if (!res.ok) {
+        throw new Error(`Error: ${res.status}`);
+      }
+
+      const data = await res.json();
+      console.log("API response:", data);
+
+      // Convert Base64 logo to data URL
+      if (data.company.logo) {
+        const logoDataUrl = `data:${
+          data.company.logoType || "image/png"
+        };base64,${data.company.logo}`;
+        data.company.logoUrl = logoDataUrl;
+      }
+
+      setCompanyProfile(data.company);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const { data } = await axios.get<Company>('/api/company/profile', {
-          withCredentials: true
-        });
-        setCompany(data);
-      } catch (err) {
-        console.error('Error fetching company profile', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
-  }, []);
+    fetchCompanyDetails();
+  }, [id]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (company) {
-      setCompany({ ...company, [e.target.name]: e.target.value });
+  // Sync formData when companyProfile updates
+  useEffect(() => {
+    if (companyProfile) {
+      setFormData((prev) => ({
+        companyName: companyProfile.companyName || "",
+        website: companyProfile.website || "",
+        email: companyProfile.email || "",
+        description: companyProfile.description || "",
+        logoFile: prev.logoFile || null,
+        location: companyProfile.location || "",
+        industry: companyProfile.industry || "",
+        employees: companyProfile.employees || "",
+      }));
     }
+  }, [companyProfile]);
+
+  // Handlers
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      setLogoFile(e.target.files[0]);
-      setCompany({ ...company!, logo: URL.createObjectURL(e.target.files[0]) });
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setFormData((prev) => ({ ...prev, logoFile: file }));
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        setCompanyProfile((prev) => ({
+          ...prev,
+          logoUrl: reader.result as string,
+          id: prev?.id,
+        }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleSave = async () => {
-    if (!company) return;
-    setSaving(true);
+  const handleSaveChanges = async () => {
     try {
-      const formData = new FormData();
-      Object.entries(company).forEach(([key, value]) => {
-        if (value) formData.append(key, value);
-      });
-      if (logoFile) {
-        formData.append('logo', logoFile);
-      }
-      await axios.put(`/api/company/profile/${company._id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        withCredentials: true
-      });
-      alert('Profile updated successfully');
-    } catch (err) {
-      console.error('Error updating company profile', err);
-      alert('Error saving profile');
-    } finally {
-      setSaving(false);
+      const formToSend = new FormData();
+      formToSend.append("companyName", formData.companyName);
+      formToSend.append("website", formData.website);
+      formToSend.append("email", formData.email);
+      formToSend.append("description", formData.description);
+      formToSend.append("industry", formData.industry);
+      formToSend.append("employees", formData.employees);
+      formToSend.append("location", formData.location);
+      if (formData.logoFile) formToSend.append("logo", formData.logoFile);
+
+      const res = await fetch(
+        `http://localhost:5000/api/companyRoutes/updateCompany/${companyProfile?.id}`,
+        {
+          method: "PUT",
+          body: formToSend,
+        }
+      );
+
+      if (!res.ok) throw new Error(`Error: ${res.status}`);
+
+      const data = await res.json();
+      console.log("Updated company:", data);
+      setCompanyProfile(data.company);
+    } catch (err: any) {
+      console.error(err);
     }
   };
 
@@ -84,142 +153,152 @@ const CompanyProfile: React.FC = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-6 px-4">
-      <div className="max-w-5xl mx-auto">
-        <Card className="p-6 bg-white rounded-xl shadow-sm">
-          <h2 className="text-2xl font-bold mb-6">Company Profile</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Left - Text Fields */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium">Company Name</label>
-                <input
-                  type="text"
-                  name="companyName"
-                  value={company?.companyName || ''}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={company?.email || ''}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Website</label>
-                <input
-                  type="url"
-                  name="website"
-                  value={company?.website || ''}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Contact Number</label>
-                <input
-                  type="text"
-                  name="contactNumber"
-                  value={company?.contactNumber || ''}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-                />
-              </div>
-            </div>
+  if (error) {
+    return <div className="text-red-600 text-center py-6">{error}</div>;
+  }
 
-            {/* Right - Logo Upload & Other Details */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium">Company Logo</label>
-                <div className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:border-blue-400 transition">
-                  {company?.logo ? (
-                    <img
-                      src={company.logo}
-                      alt="Company Logo"
-                      className="w-24 h-24 mx-auto rounded object-cover mb-2"
-                    />
-                  ) : (
-                    <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                  )}
+  return (
+    <Card className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition">
+      <h2 className="text-xl font-semibold mb-6">Company Profile</h2>
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Left Column */}
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Company Name
+            </label>
+            <input
+              type="text"
+              name="companyName"
+              value={formData.companyName}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Website
+            </label>
+            <input
+              type="url"
+              name="website"
+              value={formData.website}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Location
+            </label>
+            <input
+              type="text"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Employee Count
+            </label>
+            <input
+              type="text"
+              name="employees"
+              value={formData.employees}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Industry
+            </label>
+            <input
+              type="text"
+              name="industry"
+              value={formData.industry}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+            />
+          </div>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Company Logo
+            </label>
+            <div className="border-2 border-dashed rounded-lg p-4 text-center hover:border-blue-400 transition">
+              {companyProfile?.logoUrl ? (
+                <img
+                  src={companyProfile.logoUrl}
+                  alt={formData.description || "Company Logo"}
+                  className="w-40 h-40 mx-auto mb-2 rounded object-cover"
+                />
+              ) : (
+                <div className="w-40 h-40 mx-auto mb-2 bg-gray-200 rounded flex items-center justify-center">
+                  No Logo
+                </div>
+              )}
+
+              <Button variant="outline" size="sm">
+                <label className="cursor-pointer">
+                  Change Logo
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={handleLogoChange}
                     className="hidden"
-                    id="logo-upload"
+                    onChange={handleLogoChange}
                   />
-                  <label htmlFor="logo-upload" className="text-blue-600 cursor-pointer">
-                    Change Logo
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Industry</label>
-                <input
-                  type="text"
-                  name="industry"
-                  value={company?.industry || ''}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Founded</label>
-                <input
-                  type="text"
-                  name="founded"
-                  value={company?.founded || ''}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-                  placeholder="e.g., 2015"
-                />
-              </div>
+                </label>
+              </Button>
             </div>
           </div>
 
-          {/* Full-width fields */}
-          <div className="mt-6">
-            <label className="block text-sm font-medium">Address</label>
-            <input
-              type="text"
-              name="address"
-              value={company?.address || ''}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-            />
-          </div>
-          <div className="mt-4">
-            <label className="block text-sm font-medium">Description</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
             <textarea
               name="description"
               rows={4}
-              value={company?.description || ''}
+              value={formData.description}
               onChange={handleChange}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
             />
           </div>
-
-          {/* Save Button */}
-          <div className="mt-6 flex justify-end">
-            <Button
-              onClick={handleSave}
-              disabled={saving}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white"
-            >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-              Save Changes
-            </Button>
-          </div>
-        </Card>
+        </div>
       </div>
-    </div>
+
+      <div className="mt-6">
+        <Button
+          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-105 transition"
+          onClick={handleSaveChanges}
+        >
+          Save Changes
+        </Button>
+      </div>
+    </Card>
   );
 };
 

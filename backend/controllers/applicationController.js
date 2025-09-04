@@ -72,3 +72,18 @@ export const fetchByStudentId = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Controller function to fetch applications by internshipId
+export const fetchByInternshipId = async (req, res) => {
+  try {
+    const { internshipId } = req.params;
+
+    // Find all applications that have this internshipId
+    const apps = await Application.find({ internshipId });
+
+    res.json(apps);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
