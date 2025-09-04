@@ -182,37 +182,59 @@ useEffect(() => {
       </section>
 
       {/* Partner Companies Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Industry Partners</h2>
-            <p className="text-xl text-gray-600">
-              Collaborating with leading companies to create opportunities
-            </p>
-          </div>
+      {/* Partner Companies Section */}
+<section className="py-16 bg-gray-50">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="text-center mb-12">
+      <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Industry Partners</h2>
+      <p className="text-xl text-gray-600">
+        Collaborating with leading companies to create opportunities
+      </p>
+    </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {companyProfiles?.slice(0, 4).map((profile) => (
-              <Card key={profile.id} className="p-6 text-center">
-                <img
-                  src={profile.logoUrl}
-                  alt={profile.companyName}
-                  className="h-16 w-auto mx-auto mb-4 object-contain"
-                />
-                <h3 className="text-lg font-semibold text-gray-900">{profile.companyName}</h3>
-              </Card>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-           
-              <Button size="lg" onClick={handleNavigate}>
-                View All Partners <ChevronRight className="ml-2 w-5 h-5" />
-              </Button>
-           
-          </div>
+    {/* Loading Spinner */}
+    {loading ? (
+      <div className="flex justify-center items-center py-10">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    ) : error ? (
+      <p className="text-center text-red-500">{error}</p>
+    ) : (
+      <>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {companyProfiles?.slice(0, 4).map((profile) => (
+            <Card key={profile.id} className="p-6 text-center">
+              <img
+                src={profile.logoUrl}
+                alt={profile.companyName}
+                className="h-16 w-auto mx-auto mb-4 object-contain"
+              />
+              <h3 className="text-lg font-semibold text-gray-900">
+                {profile.companyName}
+              </h3>
+            </Card>
+          ))}
         </div>
-      </section>
+
+        <div className="text-center mt-12">
+          <Button
+            size="lg"
+            onClick={handleNavigate}
+            disabled={loading || companyProfiles.length === 0}
+            className={`${
+              loading || companyProfiles.length === 0
+                ? "opacity-50 cursor-not-allowed"
+                : ""
+            }`}
+          >
+            View All Partners <ChevronRight className="ml-2 w-5 h-5" />
+          </Button>
+        </div>
+      </>
+    )}
+  </div>
+</section>
+
 
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-r from-blue-600 to-teal-600 text-white">
