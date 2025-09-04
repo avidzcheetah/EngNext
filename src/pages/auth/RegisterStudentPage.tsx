@@ -151,7 +151,7 @@ const RegisterStudentPage: React.FC = () => {
             </div>
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Student Registration</h2>
-          <p className="mt-2 text-gray-600">Join the EEE internship network</p>
+          <p className="mt-2 text-gray-600">Join the Engineering internship network</p>
         </div>
 
         <Card className="p-8">

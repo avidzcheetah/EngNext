@@ -23,7 +23,7 @@ const About: React.FC = () => {
             <h2 className="text-3xl font-extrabold text-gray-900 mb-4">Our Mission</h2>
             <p className="text-gray-600 mb-6">
               The Faculty of Engineering, University of Jaffna,
-              developed Inturnix to create a seamless online connection between EEE students
+              developed Inturnix to create a seamless online connection between Engineering students
               and industry partners. We aim to streamline the internship search, application,
               and recruitment processes with an intuitive, secure, and interactive platform.
             </p>
@@ -52,7 +52,7 @@ const About: React.FC = () => {
             <div className="bg-white p-8 rounded-xl shadow hover:shadow-lg transition-shadow duration-300">
               <Users className="w-12 h-12 text-blue-600 mx-auto mb-4" />
               <h3 className="text-lg font-bold text-gray-900 mb-2">Student-Focused</h3>
-              <p className="text-gray-600 text-sm">Built for EEE students to highlight skills and secure opportunities.</p>
+              <p className="text-gray-600 text-sm">Built for Engineering students to highlight skills and secure opportunities.</p>
             </div>
             <div className="bg-white p-8 rounded-xl shadow hover:shadow-lg transition-shadow duration-300">
               <Briefcase className="w-12 h-12 text-purple-600 mx-auto mb-4" />
