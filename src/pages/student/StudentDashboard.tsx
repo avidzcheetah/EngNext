@@ -429,7 +429,7 @@ const handleSubmitApplication = async () => {
                              )}
               </div>
               <h3 className="font-bold text-gray-900">{profileData.firstName} {profileData.lastName}</h3>
-              <p className="text-sm text-gray-600">EEE Student</p>
+              <p className="text-sm text-gray-600">Engineering Undergraduate</p>
 
               <div className="mt-4 space-y-2 text-sm">
                 <div className="flex justify-between">

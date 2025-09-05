@@ -421,7 +421,7 @@ const handleSave = async () => {
                   <h2 className="text-2xl font-bold text-gray-900">
                     {profileData.firstName} {profileData.lastName}
                   </h2>
-                  <p className="text-gray-600">EEE Student • {profileData.year}</p>
+                  <p className="text-gray-600">Engineering Undergraduate • {profileData.year}</p>
                   <p className="text-sm text-gray-500">Reg: {profileData.registrationNumber}</p>
                 </div>
                 <div className="text-right">

@@ -211,7 +211,7 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
                 </h2>
                 <div className="flex items-center space-x-2 text-gray-600 mb-1">
                   <GraduationCap className="w-5 h-5 text-gray-400" />
-                  <span>EEE Student • {profileData.year}</span>
+                  <span>Engineering Undergraduate • {profileData.year}</span>
                 </div>
                 <p className="text-sm text-gray-500 mb-4">
                   Registration: {profileData.registrationNumber}

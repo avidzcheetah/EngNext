@@ -160,7 +160,7 @@ const RegisterCompanyPage: React.FC = () => {
             </div>
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Company Registration</h2>
-          <p className="mt-2 text-gray-600">Partner with EEE students</p>
+          <p className="mt-2 text-gray-600">Partner with Engineering students</p>
         </div>
 
         <Card className="p-8">
