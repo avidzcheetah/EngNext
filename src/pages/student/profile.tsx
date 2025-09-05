@@ -96,10 +96,11 @@ const StudentProfile: React.FC = () => {
   size: string;
 } | null>(null);
   const location = useLocation();
-  const { id } = location.state || {};
+  
   const [profilepreview,setProfilePreview]=useState<string | null>(null);
   
-  console.log(id);
+  
+  let id=user?.id
   // Load profile data on component mount
   useEffect(() => {
     fetchProfile();
