@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink, MapPin, Users, Calendar, Search, Filter, Building2, Globe, Mail } from 'lucide-react';
-import { useLocation } from "react-router-dom";
+
+import { useCompany } from "../contexts/CompanyContext";
 // Mock company data (will be replaced with API calls later)
 
 
@@ -26,43 +27,18 @@ const Companies: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState('all');
   const [selectedLocation, setSelectedLocation] = useState('all');
-  const [loading, setLoading] = useState(true);
+  const [loadings, setLoading] = useState(true);
 
  
+const { companyProfiles, loading, error } = useCompany();
 
+ const [errors, setError] = useState<string | null>(null);
 
- const [error, setError] = useState<string | null>(null);
- const [companyProfiles, setCompanyProfiles] = useState<
-  {
-    id?: string;
-    description?: string;
-    website?: string;
-    email?: string;
-    role?: string;
-    logo?: string;
-    logoType?: string;
-    logoUrl?: string;
-    companyName?: string;
-    employees?:number;
-    location?:string
-    industry?:string;
-  }[]
->([]);
  // Get unique industries and locations for filters
   const industries = [...new Set(companyProfiles.map(company => company.industry))];
   const locations = [...new Set(companyProfiles.map(company => company.location))];
   
-  const location = useLocation();
-
-
-
-
- useEffect(() => {
-    if (location.state?.companies) {
-      setCompanyProfiles(location.state.companies);
-    }
-  }, [location.state]);
-
+  
   // Simulate loading state
   useEffect(() => {
     const timer = setTimeout(() => {

@@ -15,8 +15,9 @@ import {
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import { mockInternships } from "../../data/mockData";
-import { useLocation } from "react-router-dom";
+
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../../contexts/AuthContext';
 
 const CompanyDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -42,7 +43,8 @@ const CompanyDashboard: React.FC = () => {
     industry?:string;
     employees?:string;
   } | null>(null);
-
+ const { user, isAuthenticated, logout } = useAuth();
+  let id =user?.id;
 const handleEdit = (internshipId: string) => {
   const foundJob = Job.find(j => j._id === internshipId) || null;
   setEditJob(foundJob);
@@ -59,6 +61,18 @@ const handleEdit = (internshipId: string) => {
     });
   }
 };
+
+const handleCancel =()=>{
+  setEdit(false);
+  setShowJobModal(false);
+     setFdata({
+      title:  "",
+      description:  "",
+      requirements:  [],
+      duration:  "",
+      location:  "",
+    });
+}
 
 const handleViewApplication=(internshipId:string)=>{
    navigate("/company/application",{state:{internshipId}})
@@ -163,9 +177,7 @@ const sendRejectemail = (studentid: string) => {
   location?: string;
 } | null>(null);
 
-  const location = useLocation();
-  const { id } = location.state || {};
-  console.log(id);
+  
 
   
 
@@ -442,6 +454,8 @@ const sendMessageToStudent = async (ID: string, message: string) => {
       console.log("Updated company:", data);
       fetchCompanyDetails();
       setCompanyProfile(data.company); // update local state
+    
+    
     } catch (err: any) {
       console.error(err);
     }
@@ -516,6 +530,13 @@ const handleJobPosition = async (e: React.MouseEvent<HTMLButtonElement>) => {
     console.log("Internship created:", data);
     setShowJobModal(false)
     fetchJobs();
+     setFdata({
+      title:  "",
+      description:  "",
+      requirements:  [],
+      duration:  "",
+      location:  "",
+    });
 
   } catch (error) {
     console.error("Error creating internship:", error);
@@ -558,6 +579,14 @@ const handleEditPosition = async (e: React.MouseEvent<HTMLButtonElement>) => {
     console.log("Internship Edited Succesfully:", data);
     setEdit(false)
     fetchJobs();
+     setFdata({
+      title:  "",
+      description:  "",
+      requirements:  [],
+      duration:  "",
+      location:  "",
+    });
+
 
   } catch (error) {
     console.error("Error creating internship:", error);
@@ -1204,7 +1233,7 @@ const handleDownloadCV = async (id:string) => {
                   <Button
                     variant="outline"
                     fullWidth
-                    onClick={() => setShowJobModal(false)}
+                    onClick={handleCancel}
                   >
                     Cancel
                   </Button>
@@ -1309,7 +1338,7 @@ const handleDownloadCV = async (id:string) => {
 
         {/* Buttons */}
         <div className="flex gap-3">
-          <Button variant="outline" fullWidth onClick={() => setEdit(false)}>
+          <Button variant="outline" fullWidth onClick={handleCancel}>
             Cancel
           </Button>
           <Button

@@ -17,7 +17,7 @@ import Input from '../../components/ui/Input';
 import { mockInternships, mockCompanies } from '../../data/mockData';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-
+import { useAuth } from '../../contexts/AuthContext';
 
 const StudentDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,10 +25,10 @@ const StudentDashboard: React.FC = () => {
   const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [selectedInternship, setSelectedInternship] = useState<string | null>(null);
   const location = useLocation();
-  const { id } = location.state || {};
+  
   const [isLoading,setIsLoading]=useState(false)
   const [error,setError]=useState("")
- const navigate=useNavigate()
+  const navigate=useNavigate()
 
  
 
@@ -49,7 +49,8 @@ interface Application {
 
 // Initialize with empty array, will populate later with setApplications
 const [applications, setApplications] = useState<Application[]>([]);
-
+ const { user, isAuthenticated, logout } = useAuth();
+  let id =user?.id;
 
    const [profileData, setProfileData] = useState({
      id:  '',
@@ -417,7 +418,7 @@ const handleSubmitApplication = async () => {
               <div className="">
                  {profileData.profilePicture ? (
                                 <img
-                                 src={profilepreview ?? undefined} // ✅ blob URL from state, never null
+                                 src={user?.profilePicture} // ✅ blob URL from state, never null
                                 alt="Profile"
                                 className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 ring-2 ring-blue-200"
                                />
