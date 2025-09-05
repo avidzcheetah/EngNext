@@ -1,10 +1,14 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import React from "react";
 import App from './App.tsx';
 import './index.css';
+import { CompanyProvider } from './contexts/CompanyContext';
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
+ <React.StrictMode>
+    <CompanyProvider>
+      <App />
+    </CompanyProvider>
+  </React.StrictMode>
 );

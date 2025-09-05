@@ -7,64 +7,23 @@ import Slider from '../components/ui/slider';
 import { lecturers, partners } from '../data/mockData';
 import { useState,useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import { useCompany } from "../contexts/CompanyContext";
 
 const HomePage: React.FC = () => {
 
 const navigate = useNavigate();
 
-  const [error, setError] = useState<string | null>(null);
-  const [loading,setLoading]=useState(false);
- const [companyProfiles, setCompanyProfiles] = useState<
-  {
-    id?: string;
-    description?: string;
-    website?: string;
-    email?: string;
-    role?: string;
-    logo?: string;
-    logoType?: string;
-    logoUrl?: string;
-    companyName?: string;
-  }[]
->([]);
+  const [errors, setError] = useState<string | null>(null);
+  const [loadings,setLoading]=useState(false);
 
-const fetchCompanyDetails = async () => {
-  try {
-    setLoading(true);
-    setError("");
 
-    const res = await fetch(`http://localhost:5000/api/companyRoutes/getAll`);
-    if (!res.ok) throw new Error(`Error: ${res.status}`);
-
-    const data = await res.json();
-    console.log("API response:", data);
-
-    const companies = data.companies.map((company: any) => {
-      const logoBase64 = company.logo || null;  // Already Base64 from backend
-      const contentType = company.logoType || "image/png"; // Use backend type or fallback
-
-      return {
-        ...company,
-        logoUrl: logoBase64 ? `data:${contentType};base64,${logoBase64}` : null,
-        companyName: company.companyName || company.name,
-      };
-    });
-
-    setCompanyProfiles(companies);
-  } catch (err: any) {
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+const { companyProfiles, loading, error } = useCompany();
 
 
 
 
-useEffect(() => {
-    fetchCompanyDetails();
- 
-  }, []);
+
+
 
 
   const handleNavigate = () => {

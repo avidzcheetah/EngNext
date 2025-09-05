@@ -418,7 +418,7 @@ const handleSubmitApplication = async () => {
               <div className="">
                  {profileData.profilePicture ? (
                                 <img
-                                 src={profilepreview ?? undefined} // ✅ blob URL from state, never null
+                                 src={user?.profilePicture} // ✅ blob URL from state, never null
                                 alt="Profile"
                                 className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 ring-2 ring-blue-200"
                                />

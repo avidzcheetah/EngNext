@@ -38,6 +38,7 @@ function App() {
               <Route path="/company/profile" element={<CompanyProfile  />} />
               <Route path="/company/application" element={<ApplicationsPage/>} />
               <Route path="/student/PublicProfile" element={<PublicStudentProfile />} />
+              <Route path="/comapny/PublicProfile" element={<PublicStudentProfile />} />
             </Routes>
           </main>
           <Footer />

@@ -192,8 +192,8 @@ static async verifyCompany(req, res) {
 
     // Convert profile picture to Base64 if exists
     let profilePictureBase64 = null;
-    if (company.profilePicture && company.profilePicture.data) {
-      profilePictureBase64 = `data:${company.profilePicture.contentType};base64,${company.profilePicture.data.toString('base64')}`;
+    if (company.logo && company.logo.data) {
+      profilePictureBase64 = `data:${company.logo.contentType};base64,${company.logo.data.toString('base64')}`;
     }
 
     // Send all necessary info to frontend
