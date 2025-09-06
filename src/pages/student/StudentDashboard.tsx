@@ -1,4 +1,4 @@
-import React, { useState ,useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Search,
@@ -25,116 +25,129 @@ const StudentDashboard: React.FC = () => {
   const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [selectedInternship, setSelectedInternship] = useState<string | null>(null);
   const location = useLocation();
-  
-  const [isLoading,setIsLoading]=useState(false)
-  const [error,setError]=useState("")
-  const navigate=useNavigate()
 
- 
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+  const navigate = useNavigate()
 
-interface Application {
- 
-  studentId: string;
-  companyId: string;
-  studentName: string;
-  email: string;
-  internshipTitle: string;
-  appliedDate: string;
-  status: string;
-  skills: string[];
-  gpa: number;
-  internshipId:string;
+  // Updated state variables for CV upload and cover letter
+  const [uploadedCV, setUploadedCV] = useState<File | null>(null);
+  const [coverLetter, setCoverLetter] = useState('');
 
-}
+  interface Application {
+    studentId: string;
+    companyId: string;
+    studentName: string;
+    email: string;
+    internshipTitle: string;
+    appliedDate: string;
+    status: string;
+    skills: string[];
+    gpa: number;
+    internshipId: string;
+  }
 
 // Initialize with empty array, will populate later with setApplications
-const [applications, setApplications] = useState<Application[]>([]);
 
- const { user, isAuthenticated, logout } = useAuth();
+
+
  
-   const [profileData, setProfileData] = useState({
-     id:  '',
-     firstName:  '',
-     lastName:  '',
-     email: '',
-     phone: '',
-     dateOfBirth: '',
-     address: '',
-     city: '',
-     postalCode: '',
-     profilePicture: null ,
-     bio: '',
-     skills: [],
-     gpa: 0,
-     year: '1st Year',
-     registrationNumber: '',
-     portfolio: '',
-     linkedin: '',
-     github: '',
-     availability: true,
-     ApplicationsSent:'',
-     RecentNotifications:[],
-     ProfileViews:'',
-    
-   });
    
+   
+  // Initialize with empty array, will populate later with setApplications
+  const [applications, setApplications] = useState<Application[]>([]);
+  const { user, isAuthenticated, logout } = useAuth();
+  let id = user?.id;
+
+  // Updated CV upload handler with proper validation
+  const handleCVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        alert('Please upload a PDF file');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        alert('File size should be less than 5MB');
+        return;
+      }
+      setUploadedCV(file);
+    }
+  };
+
+  const [profileData, setProfileData] = useState({
+    id: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    dateOfBirth: '',
+    address: '',
+    city: '',
+    postalCode: '',
+    profilePicture: null,
+    bio: '',
+    skills: [],
+    gpa: 0,
+    year: '1st Year',
+    registrationNumber: '',
+    portfolio: '',
+    linkedin: '',
+    github: '',
+    availability: true,
+    ApplicationsSent: '',
+    RecentNotifications: [],
+    ProfileViews: '',
+  });
+
   type Internships = {
-  _id?: string;
-  companyId?: string;
-  companyName?: string;
-  title?: string;
-  description?: string;
-  requirements?: string[];
-  duration?: string;
-  location?: string;
-  isActive?: boolean;
-  createdAt?: string;
-};
+    _id?: string;
+    companyId?: string;
+    companyName?: string;
+    title?: string;
+    description?: string;
+    requirements?: string[];
+    duration?: string;
+    location?: string;
+    isActive?: boolean;
+    createdAt?: string;
+  };
 
-const [fData, setFdata] = useState<Internships[] | null>(null);
+  const [fData, setFdata] = useState<Internships[] | null>(null);
 
+  const [cvPreview, setCvPreview] = useState<string | null>(null);
+  const [CVPreview, setCVPreview] = useState<{
+    filename: string;
+    uploadDate: string;
+    size: string;
+  } | null>(null);
 
-     const [cvPreview, setCvPreview] = useState<string | null>(null);
-     const [CVPreview, setCVPreview] = useState<{
-     filename: string;
-     uploadDate: string;
-     size: string;
-   } | null>(null);
+  const [profilepreview, setProfilePreview] = useState<string | null>(null);
+  
+  useEffect(() => {
+    if (!id) {
+      navigate("/login");
+    }
+    console.log(id);
+  }, [id, navigate]);
 
-
-
-     const [profilepreview,setProfilePreview]=useState<string | null>(null);
-let id = user?.id;
-console.log("Student ID:", id);
-
-useEffect(() => {
-  if (user === null) {
-    navigate("/login");
+  const handleUpdateprofile = () => {
+    navigate("/student/profile", { state: { id: id } });
   }
-}, [user, navigate]);
 
-const handleUpdateprofile =()=>{
- navigate("/student/profile",{ state: { id:id } });
-
-}
-
-useEffect(() => {
-  if (id) {
+  useEffect(() => {
     fetchProfile();
     fetchCV();
     fetchProfilePicture();
     fetchAllJobs();
-  }
-}, [id]);
+  }, []);
 
   const fetchProfile = async () => {
     setIsLoading(true);
     try {
-      
       const response = await fetch(`http://localhost:5000/api/studentRoutes/getStudentById/${id}`, {
         method: 'GET',
         headers: {
-          
           'Content-Type': 'application/json'
         }
       });
@@ -148,147 +161,143 @@ useEffect(() => {
       setProfileData(data);
     } catch (err) {
       console.log("Error fetching data")
-     
     } finally {
       setIsLoading(false);
     }
   };
 
   const fetchProfilePicture = async () => {
-  try {
-    const response = await fetch(
-      `http://localhost:5000/api/studentRoutes/getProfilePicture/${id}`
-    );
-   
-     
-    if (!response.ok) throw new Error("Failed to fetch image");
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/studentRoutes/getProfilePicture/${id}`
+      );
 
-    const blob = await response.blob();
-    const imageUrl = URL.createObjectURL(blob); // create a temporary URL
-    setProfilePreview( imageUrl );
-   
-  } catch (err) {
-    console.error(err);
-  }
-};
+      if (!response.ok) throw new Error("Failed to fetch image");
 
+      const blob = await response.blob();
+      const imageUrl = URL.createObjectURL(blob); // create a temporary URL
+      setProfilePreview(imageUrl);
 
-const fetchAllJobs = async () => {
-  try {
-    const response = await fetch(
-      "http://localhost:5000/api/InternshipRoutes/getAllInternships"
-    );
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    if (!response.ok) throw new Error("Failed to fetch internships");
+  const fetchAllJobs = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/InternshipRoutes/getAllInternships"
+      );
 
-    const data = await response.json(); // ✅ parse JSON body
-    setFdata(data); // ✅ update state with actual data
-  } catch (err) {
-    console.error("Error fetching internships:", err);
-  }
-};
+      if (!response.ok) throw new Error("Failed to fetch internships");
+
+      const data = await response.json(); // ✅ parse JSON body
+      setFdata(data); // ✅ update state with actual data
+    } catch (err) {
+      console.error("Error fetching internships:", err);
+    }
+  };
 
   const fetchCV = async () => {
-  setIsLoading(true);
-  try {
-    const response = await fetch(
-      `http://localhost:5000/api/studentRoutes/getCV/${id}`,
-      {
-        method: "GET",
-        // No need for 'Content-Type' when getting a file
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/studentRoutes/getCV/${id}`,
+        {
+          method: "GET",
+          // No need for 'Content-Type' when getting a file
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch CV");
       }
-    );
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch CV");
+      const blob = await response.blob(); // get the file as a Blob
+      const fileUrl = URL.createObjectURL(blob); // create temporary URL
+      setCvPreview(fileUrl); // store in state
+    } catch (err) {
+      console.log("Error fetching CV:", err);
+      setError("Failed to fetch CV");
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    const blob = await response.blob(); // get the file as a Blob
-    const fileUrl = URL.createObjectURL(blob); // create temporary URL
-    setCvPreview(fileUrl); // store in state
-  } catch (err) {
-    console.log("Error fetching CV:", err);
-    setError("Failed to fetch CV");
-  } finally {
-    setIsLoading(false);
-  }
-};
+  const handleSubmitApplication = async () => {
+    try {
+      const newApplication = {
+        studentId: id,
+        companyId: fData?.find((item) => item._id === selectedInternship)?.companyId || "",
+        studentName: `${profileData.firstName} ${profileData.lastName}`,
+        email: profileData.email,
+        internshipTitle: fData?.find((item) => item._id === selectedInternship)?.title || "",
+        appliedDate: new Date().toISOString(),
+        status: "pending",
+        skills: profileData.skills,
+        gpa: profileData.gpa,
+        internshipId: selectedInternship || "",
+      };
 
-const handleSubmitApplication = async () => {
-  try {
-    const newApplication = {
-      studentId: id,
-      companyId: fData?.find((item) => item._id === selectedInternship)?.companyId || "",
-      studentName: `${profileData.firstName} ${profileData.lastName}`,
-      email: profileData.email,
-      internshipTitle: fData?.find((item) => item._id === selectedInternship)?.title || "",
-      appliedDate: new Date().toISOString(),
-      status: "pending",
-      skills: profileData.skills,
-      gpa: profileData.gpa,
-      internshipId: selectedInternship || "",
-    };
+      // 1️⃣ Send application to backend
+      const res = await fetch("http://localhost:5000/api/applicationRoutes/createApplication", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newApplication),
+      });
 
-    // 1️⃣ Send application to backend
-    const res = await fetch("http://localhost:5000/api/applicationRoutes/createApplication", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newApplication),
-    });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        alert("You have already applied for this");
+        setShowApplicationModal(false);
+        return;
+      }
 
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      alert("You have already applied for this");
+      const data = await res.json();
+      console.log("Application submitted to backend:", data);
+
+      // 2️⃣ Update UI only after success
+      setApplications((prev) => [...prev, data]);
+      alert("Applied successfully");
       setShowApplicationModal(false);
-      return;
+      
+      // Reset form state
+      setUploadedCV(null);
+      setCoverLetter('');
+
+      // 3️⃣ Increment ApplicationsSent
+      const res1 = await fetch(
+        `http://localhost:5000/api/studentRoutes/incrementApplicationsSent/${id}`,
+        { method: "PUT" }
+      );
+
+      if (!res1.ok) {
+        console.warn("Increment failed:", res1.statusText);
+      } else {
+        const updated = await res1.json();
+        console.log("Updated ApplicationsSent:", updated);
+        // Optionally update local profileData state:
+        // setProfileData((prev) => ({ ...prev, ApplicationsSent: updated.ApplicationsSent }));
+      }
+    } catch (error) {
+      console.error(error);
+      setError(error instanceof Error ? error.message : "Something went wrong");
     }
-
-    const data = await res.json();
-    console.log("Application submitted to backend:", data);
-
-    // 2️⃣ Update UI only after success
-    setApplications((prev) => [...prev, data]);
-    alert("Applied successfully");
-    setShowApplicationModal(false);
-
-    // 3️⃣ Increment ApplicationsSent
-    const res1 = await fetch(
-      `http://localhost:5000/api/studentRoutes/incrementApplicationsSent/${id}`,
-      { method: "PUT" }
-    );
-
-    if (!res1.ok) {
-      console.warn("Increment failed:", res1.statusText);
-    } else {
-      const updated = await res1.json();
-      console.log("Updated ApplicationsSent:", updated);
-      // Optionally update local profileData state:
-      // setProfileData((prev) => ({ ...prev, ApplicationsSent: updated.ApplicationsSent }));
-    }
-  } catch (error) {
-    console.error(error);
-    setError(error instanceof Error ? error.message : "Something went wrong");
-  }
-};
-
-  
-
+  };
 
   const filteredInternships = fData?.filter((internship) => {
-  const title = internship.title ?? "";
-  const company = internship.companyName ?? "";
-  const matchesSearch =
-    title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    company.toLowerCase().includes(searchTerm.toLowerCase()); // ✅ use API field
+    const title = internship.title ?? "";
+    const company = internship.companyName ?? "";
+    const matchesSearch =
+      title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      company.toLowerCase().includes(searchTerm.toLowerCase()); // ✅ use API field
 
-  return matchesSearch && internship.isActive;
-});
-
+    return matchesSearch && internship.isActive;
+  });
 
   const handleApply = (internshipId: string) => {
     setSelectedInternship(internshipId);
     setShowApplicationModal(true);
-
   };
 
   return (
@@ -330,9 +339,10 @@ const handleSubmitApplication = async () => {
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500"
                   >
                     <option value="all">All Fields</option>
-                    <option value="electronics">Electronics</option>
-                    <option value="software">Software</option>
-                    <option value="power">Power Systems</option>
+                    <option value="eee">Electronic and Electrical</option>
+                    <option value="com">Computer</option>
+                    <option value="mech">Mechanical</option>
+                    <option value="civil">Civil</option>
                   </select>
                   <Button variant="outline" className="hover:shadow-md transition-all">
                     <Filter className="w-4 h-4 mr-2" />
@@ -353,7 +363,6 @@ const handleSubmitApplication = async () => {
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-4">
-                       
                         <div>
                           <h3 className="text-xl font-semibold text-gray-900 mb-1">
                             {internship.title}
@@ -420,17 +429,17 @@ const handleSubmitApplication = async () => {
             {/* Profile Quick View */}
             <Card className="p-6 text-center shadow-sm hover:shadow-md transition">
               <div className="">
-                 {profileData.profilePicture ? (
-                                <img
-                                 src={user?.profilePicture} // ✅ blob URL from state, never null
-                                alt="Profile"
-                                className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 ring-2 ring-blue-200"
-                               />
-                            ) : (
-                             <div className="w-21 h-21 bg-gradient-to-br from-blue-150 to-purple-150 flex items-center justify-center">
-                              <User className="w-12 h-12 text-blue-600" />
-                            </div>
-                             )}
+                {profileData.profilePicture ? (
+                  <img
+                    src={user?.profilePicture} // ✅ blob URL from state, never null
+                    alt="Profile"
+                    className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 ring-2 ring-blue-200"
+                  />
+                ) : (
+                  <div className="w-21 h-21 bg-gradient-to-br from-blue-150 to-purple-150 flex items-center justify-center">
+                    <User className="w-12 h-12 text-blue-600" />
+                  </div>
+                )}
               </div>
               <h3 className="font-bold text-gray-900">{profileData.firstName} {profileData.lastName}</h3>
               <p className="text-sm text-gray-600">Engineering Undergraduate</p>
@@ -452,7 +461,6 @@ const handleSubmitApplication = async () => {
                 <User className="w-4 h-4 mr-2" />
                 Update Profile
               </Button>
-              
             </Card>
 
             {/* Notifications */}
@@ -465,96 +473,164 @@ const handleSubmitApplication = async () => {
                 <div className="p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
                   <p className="text-sm font-medium text-blue-900">Application Status</p>
                   <p className="text-xs text-blue-700">
-               {profileData.RecentNotifications
-               .filter(
-                (note) =>
-               (note as string).toLowerCase().includes("accepted") ||
-                 (note as string).toLowerCase().includes("rejected")
-                )
-               .slice(-3) // ✅ only last 3
-              .map((note, index) => (
-                 <div key={index}>{note}</div>
-                  ))}
-
-
+                    {profileData.RecentNotifications
+                      .filter(
+                        (note) =>
+                          (note as string).toLowerCase().includes("accepted") ||
+                          (note as string).toLowerCase().includes("rejected")
+                      )
+                      .slice(-3) // ✅ only last 3
+                      .map((note, index) => (
+                        <div key={index}>{note}</div>
+                      ))}
                   </p>
                 </div>
                 <div className="p-3 bg-green-50 rounded-lg hover:bg-green-100 transition">
                   <p className="text-sm font-medium text-green-900">Application viewed</p>
                   <p className="text-xs text-green-700">
-                     {profileData.RecentNotifications
-                   .filter(
-                   (note) =>
-                   (note as string).toLowerCase().includes("viewed")
-                    )
-                    .slice(-3) 
-                   .map((note, index) => (
-                    <div key={index}>{note}</div>
-                 ))}
+                    {profileData.RecentNotifications
+                      .filter(
+                        (note) =>
+                          (note as string).toLowerCase().includes("viewed")
+                      )
+                      .slice(-3)
+                      .map((note, index) => (
+                        <div key={index}>{note}</div>
+                      ))}
                   </p>
                 </div>
               </div>
             </Card>
 
             {/* Quick Stats */}
-           <Card className="p-6 shadow-sm hover:shadow-md transition">
-  <h3 className="font-semibold text-gray-900 mb-4">Your Stats</h3>
-  {[
-    { label: "Applications Sent:", value: profileData?.ApplicationsSent },
-    { label: "Profile Views:", value:profileData?.ProfileViews },
-    
-  ].map((stat) => (
-    <div className="flex justify-between" key={stat.label}>
-      <span className="text-gray-600">{stat.label}</span>
-      <span className="font-medium">{stat.value ?? 0}</span>
-    </div>
-  ))}
-</Card>
-
+            <Card className="p-6 shadow-sm hover:shadow-md transition">
+              <h3 className="font-semibold text-gray-900 mb-4">Your Stats</h3>
+              {[
+                { label: "Applications Sent:", value: profileData?.ApplicationsSent },
+                { label: "Profile Views:", value: profileData?.ProfileViews },
+              ].map((stat) => (
+                <div className="flex justify-between" key={stat.label}>
+                  <span className="text-gray-600">{stat.label}</span>
+                  <span className="font-medium">{stat.value ?? 0}</span>
+                </div>
+              ))}
+            </Card>
           </div>
         </div>
       </div>
 
-      {/* Application Modal */}
+      {/* Updated Application Modal */}
       {showApplicationModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <Card className="max-w-md w-full p-6">
-            <h3 className="text-xl font-semibold mb-4">Apply for Internship</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Upload Your CV
-                </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition cursor-pointer">
-                  <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">Drop your CV here or click to browse</p>
-                  <input type="file" accept=".pdf" className="hidden" />
+          <Card className="max-w-2xl w-full p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold">Submit Application</h3>
+              <button
+                onClick={() => setShowApplicationModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Profile Completeness Check */}
+            {(!profileData.skills.length || !cvPreview) ? (
+              <div className="text-center py-6">
+                <div className="mb-4">
+                  <FileText className="w-16 h-16 text-gray-400 mx-auto mb-3" />
+                  <h4 className="text-lg font-medium text-gray-900 mb-2">Complete Your Profile First</h4>
+                  <p className="text-gray-600 mb-4">
+                    Please make sure your profile is complete with your CV and skills before applying.
+                    Companies will review your profile details during the application process.
+                  </p>
+                </div>
+                <Button
+                  onClick={() => navigate('/student/profile')}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                >
+                  Complete Profile
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Profile Summary */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-3">Your Application Profile</h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-600">Name</p>
+                      <p className="font-medium">{profileData.firstName} {profileData.lastName}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600">Email</p>
+                      <p className="font-medium">{profileData.email}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600">Skills</p>
+                      <div className="flex flex-wrap gap-1">
+                        {profileData.skills.map((skill, index) => (
+                          <span key={index} className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-gray-600">CV Status</p>
+                      <p className="text-green-600 font-medium flex items-center">
+                        <FileText className="w-4 h-4 mr-1" />
+                        Uploaded
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Cover Letter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Cover Letter (Recommended)
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={coverLetter}
+                    onChange={(e) => setCoverLetter(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500"
+                    placeholder="Why are you interested in this position? Share a brief message with the employer..."
+                  />
+                </div>
+
+                {/* Info Notice */}
+                <div className="bg-blue-50 text-blue-700 p-4 rounded-lg text-sm">
+                  <p className="flex items-center">
+                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    The company will review your complete profile including your CV and skills
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3">
+                  <Button
+                    variant="outline"
+                    fullWidth
+                    onClick={() => setShowApplicationModal(false)}
+                    className="hover:bg-red-300 hover:text-white transition"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    fullWidth 
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-[1.02] transition"
+                    onClick={handleSubmitApplication}
+                  >
+                    Submit Application
+                  </Button>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Cover Letter (Optional)
-                </label>
-                <textarea
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500"
-                  placeholder="Why are you interested in this position?"
-                />
-              </div>
-              <div className="flex space-x-3">
-                <Button
-                  variant="outline"
-                  fullWidth
-                  onClick={() => setShowApplicationModal(false)}
-                  className="hover:bg-gray-50"
-                >
-                  Cance
-                </Button>
-                <Button fullWidth className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-[1.02] transition" onClick={handleSubmitApplication}>
-                  Submit Application
-                </Button>
-              </div>
-            </div>
+            )}
           </Card>
         </div>
       )}
