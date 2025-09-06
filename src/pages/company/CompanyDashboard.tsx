@@ -83,9 +83,12 @@ interface CompanyProfileData {
   }
 };
 
-const handleViewCoverletter=(id :string)=>{
+const [coverletterID,setcoverletterID]=useState("")
+
+const handleViewCoverletter=(id :string,id2:string)=>{
   setCoverletter(true);
   setcoverletterstudentId(id);
+  setcoverletterID(id2);
 }
 
 const handleCancelCoverLetter =()=>{
@@ -962,7 +965,7 @@ const handleDownloadCV = async (id:string) => {
            <Button
             variant="outline"
             size="sm"
-            onClick={() => handleViewCoverletter(forms.studentId)}
+            onClick={() => handleViewCoverletter(forms.studentId,forms._id)}
           >
             <Download className="w-4 h-4 mr-1" /> View Cover Letter
           </Button>
@@ -1604,7 +1607,13 @@ const handleDownloadCV = async (id:string) => {
       <h3 className="text-xl font-bold mb-6">Cover Letter</h3>
       <div className="space-y-4">
         <p className="text-gray-700 leading-relaxed">
-    {applications.find(app => String(app.studentId) === String(coverletterstudentID))?.coverLetter || "No cover letter submitted"}
+    {
+  applications.find(
+    (app) =>
+      String(app.studentId) === String(coverletterstudentID) &&
+      String(app._id) === String(coverletterID)
+  )?.coverLetter || "No cover letter submitted"
+}
 
     
        
