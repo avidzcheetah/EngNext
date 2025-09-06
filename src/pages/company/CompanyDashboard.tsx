@@ -29,7 +29,8 @@ const CompanyDashboard: React.FC = () => {
   const [editId,setEditId]=useState("")
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const [coverletter,setCoverletter]=useState(false);
+  const [coverletterstudentID,setcoverletterstudentId]=useState("");
 interface CompanyProfileData {
   id?: string;
   description?: string;
@@ -63,7 +64,8 @@ interface CompanyProfileData {
     );
  const { user, isAuthenticated, logout } = useAuth();
   let id =user?.id;
-  console.log(id);
+
+  
   const handleEdit = (internshipId: string) => {
   const foundJob = Job.find(j => j._id === internshipId) || null;
   setEditJob(foundJob);
@@ -80,6 +82,16 @@ interface CompanyProfileData {
     });
   }
 };
+
+const handleViewCoverletter=(id :string)=>{
+  setCoverletter(true);
+  setcoverletterstudentId(id);
+}
+
+const handleCancelCoverLetter =()=>{
+  setCoverletter(false);
+  setcoverletterstudentId("");
+}
 
 const handleCancel =()=>{
   setEdit(false);
@@ -106,6 +118,7 @@ const [Job, setJob] = useState<
     duration?: string;
     location?: string;
     isActive?: boolean;
+    
   }>
 >([]);
 
@@ -226,6 +239,7 @@ const sendRejectemail = (studentid: string) => {
   gpa: number;
   createdAt: string;
   updatedAt: string;
+  coverLetter:string;
   __v: number;
 }
 
@@ -241,6 +255,7 @@ const [applications, setApplications] = useState<Application[]>([
     status: "",
     skills: [], // ✅ corrected from [string]
     gpa: 0,     // start with 0 or any default
+    coverLetter:"",
     createdAt: "",
     updatedAt: "",
     __v: 0,
@@ -923,7 +938,7 @@ const handleDownloadCV = async (id:string) => {
           </div>
           <div>
             <h4 className="text-sm font-medium text-gray-900 mb-2">GPA:</h4>
-            <p className="text-lg font-semibold text-green-600">{forms.gpa}</p>
+            <p className="text-lg font-semibold text-green-600">{forms.gpa} {forms.coverLetter}</p>
           </div>
         </div>
 
@@ -942,6 +957,14 @@ const handleDownloadCV = async (id:string) => {
             onClick={() => handleDownloadCV(forms.studentId)}
           >
             <Download className="w-4 h-4 mr-1" /> Download CV
+          </Button>
+
+           <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleViewCoverletter(forms.studentId)}
+          >
+            <Download className="w-4 h-4 mr-1" /> View Cover Letter
           </Button>
 
           <Button
@@ -1505,6 +1528,25 @@ const handleDownloadCV = async (id:string) => {
                 }
                   />
                 </div>
+
+  </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    InterShip Status
+                  </label>
+                  <input
+                    value={fData?.location}
+                    type="text"
+                    placeholder="e.g., Colombo, Remote, Hybrid"
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                    onChange={(e)=> setFdata((prev) => ({
+                     ...prev,
+                    location: e.target.value,     // ✅ update location
+                  }))
+                }
+                  />
+                
+                
                 <div>
                   <label className="block text-sm font-medium mb-1">
                     Description
@@ -1555,6 +1597,29 @@ const handleDownloadCV = async (id:string) => {
             </Card>
           </div>
         )}
+  {/*Cover Letter */}
+        {coverletter && (
+  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
+      <h3 className="text-xl font-bold mb-6">Cover Letter</h3>
+      <div className="space-y-4">
+        <p className="text-gray-700 leading-relaxed">
+    {applications.find(app => String(app.studentId) === String(coverletterstudentID))?.coverLetter || "No cover letter submitted"}
+
+    
+       
+        </p>
+      </div>
+
+      <div className="flex justify-end mt-6">
+        <Button variant="outline" onClick={handleCancelCoverLetter}>
+          Close
+        </Button>
+      </div>
+    </Card>
+  </div>
+)}
+
 
 
         {/*Edit job Model*/}

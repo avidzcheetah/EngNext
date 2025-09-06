@@ -42,14 +42,14 @@ const LoginPage: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-
+     console.log("Test Point One ")
       if (!response.ok) {
         const text = await response.text();
         console.error('Server response:', text);
         setError('Incorrect email or password.');
         return;
       }
-
+    console.log("Test Point Two ")
       const data: LoginResponse = await response.json();
 
       if (!data.exists) {
@@ -58,7 +58,7 @@ const LoginPage: React.FC = () => {
         );
         return;
       }
-
+     console.log("Test Point Three ")
       // Login with complete User object
       login({
         id: data.id,
@@ -68,12 +68,13 @@ const LoginPage: React.FC = () => {
         companyName: data.companyName || "",
         createdAt: new Date() // set current time
       });
-
+   console.log("Test Point four ")
       const redirectPath = userType === 'student' ? '/student/dashboard' : '/company/dashboard';
       navigate(redirectPath, { state: { id: data.id } })
+      console.log("Test Point Five ")
     } catch (err) {
       console.error(err);
-      setError('Server error. Please try again later.');
+      setError('Server error. Please  try again later.');
     } finally {
       setLoading(false);
     }

@@ -93,7 +93,7 @@ static async updateCompany(req, res) {
 }
 
 
-  
+
 static async getAllCompanies(req, res) {
   try {
     const companies = await companySchema.find();
@@ -109,8 +109,8 @@ static async getAllCompanies(req, res) {
       location: c.location,
       employees: c.employees,
       industry: c.industry,
-      logo: c.logo?.data ? c.logo.data.toString("base64") : null,
-      logoType: c.logo?.contentType || "image/png",
+     // logo: c.logo?.data ? c.logo.data.toString("base64") : null,
+     // logoType: c.logo?.contentType || "image/png",
       logoFilename: c.logo?.filename || null,
       isApproved: c.isApproved,
       internships: c.internships || [],
