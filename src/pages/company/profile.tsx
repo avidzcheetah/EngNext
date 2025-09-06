@@ -16,6 +16,20 @@ interface CompanyProfileData {
   location?: string;
   industry?: string;
   employees?: string;
+  phoneNo?:string;
+  OurValues?:[string];
+  WorkCulture?:string;
+  internBenifits?:[string];
+    
+    fullTimeOpportunities?: boolean;
+    certification?: boolean;
+    mentorship?: boolean;
+    stipend?: boolean;
+  
+   foundedYear?:string,
+   companyType?:string,
+   address? :string,
+
 }
 
 const CompanyProfile: React.FC<{}> = () => {
@@ -33,6 +47,20 @@ const CompanyProfile: React.FC<{}> = () => {
     location: "",
     industry: "",
     employees: "",
+    phoneNo:"",
+    WorkCulture:"",
+    OurValues:[""],
+    internBenifits:[""],
+    foundedYear:"",
+    companyType:"",
+    address :"",
+    
+    fullTimeOpportunities:false,
+    certification:false,
+    mentorship:false,
+    stipend:false
+    
+
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -75,20 +103,35 @@ const CompanyProfile: React.FC<{}> = () => {
   }, [id]);
 
   // Sync formData when companyProfile updates
-  useEffect(() => {
-    if (companyProfile) {
-      setFormData((prev) => ({
-        companyName: companyProfile.companyName || "",
-        website: companyProfile.website || "",
-        email: companyProfile.email || "",
-        description: companyProfile.description || "",
-        logoFile: prev.logoFile || null,
-        location: companyProfile.location || "",
-        industry: companyProfile.industry || "",
-        employees: companyProfile.employees || "",
-      }));
-    }
-  }, [companyProfile]);
+useEffect(() => {
+  if (companyProfile) {
+    setFormData((prev) => ({
+      ...prev, // keep anything not explicitly overwritten
+      companyName: companyProfile.companyName || "",
+      website: companyProfile.website || "",
+      email: companyProfile.email || "",
+      description: companyProfile.description || "",
+      logoFile: prev.logoFile || null, // keep file if already uploaded
+      location: companyProfile.location || "",
+      industry: companyProfile.industry || "",
+      employees: companyProfile.employees || "",
+      phoneNo: companyProfile.phoneNo || "",
+      OurValues: companyProfile.OurValues || [],
+      WorkCulture: companyProfile.WorkCulture || "",
+      internBenifits: companyProfile.internBenifits|| [],
+      foundedYear: companyProfile.foundedYear || "",
+      companyType: companyProfile.companyType || "",
+      address: companyProfile.address || "",
+       
+        fullTimeOpportunities: companyProfile.fullTimeOpportunities ||false,
+        certification: companyProfile.certification || false,
+        mentorship: companyProfile.mentorship || false,
+        stipend: companyProfile.stipend || false,
+      
+    }));
+  }
+}, [companyProfile]);
+
 
   // Handlers
   const handleChange = (
@@ -118,13 +161,25 @@ const CompanyProfile: React.FC<{}> = () => {
   const handleSaveChanges = async () => {
     try {
       const formToSend = new FormData();
-      formToSend.append("companyName", formData.companyName);
-      formToSend.append("website", formData.website);
-      formToSend.append("email", formData.email);
-      formToSend.append("description", formData.description);
-      formToSend.append("industry", formData.industry);
-      formToSend.append("employees", formData.employees);
-      formToSend.append("location", formData.location);
+    formToSend.append("companyName", formData.companyName);
+formToSend.append("website", formData.website);
+formToSend.append("email", formData.email);
+formToSend.append("description", formData.description);
+formToSend.append("industry", formData.industry);
+formToSend.append("employees", formData.employees);
+formToSend.append("location", formData.location);
+formToSend.append("phoneNo", formData.phoneNo);
+formToSend.append("WorkCulture", formData.WorkCulture);
+formToSend.append("OurValues", JSON.stringify(formData.OurValues));
+formToSend.append("internBenifits", JSON.stringify(formData.internBenifits));
+formToSend.append("foundedYear", formData.foundedYear);
+formToSend.append("companyType", formData.companyType);
+formToSend.append("address", formData.address);
+formToSend.append("fullTimeOpportunities", formData.fullTimeOpportunities ? "true" : "false");
+formToSend.append("certification", formData.certification ? "true" : "false");
+formToSend.append("mentorship", formData.mentorship ? "true" : "false");
+formToSend.append("stipend", formData.stipend ? "true" : "false");
+
       if (formData.logoFile) formToSend.append("logo", formData.logoFile);
 
       const res = await fetch(
@@ -215,6 +270,131 @@ const CompanyProfile: React.FC<{}> = () => {
             />
           </div>
 
+<div className="mb-4">
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Internship Program
+  </label>
+
+  <div className="flex flex-col space-y-2">
+    <label className="inline-flex items-center">
+      <input
+        type="checkbox"
+        checked={formData.fullTimeOpportunities}
+        onChange={(e) =>
+          setFormData((prev) => ({
+            ...prev,
+            fullTimeOpportunities: e.target.checked,
+          }))
+        }
+        className="mr-2"
+      />
+      Full-time Opportunities
+    </label>
+
+    <label className="inline-flex items-center">
+      <input
+        type="checkbox"
+        checked={formData.certification}
+        onChange={(e) =>
+          setFormData((prev) => ({
+            ...prev,
+            certification: e.target.checked,
+          }))
+        }
+        className="mr-2"
+      />
+      Certification
+    </label>
+
+    <label className="inline-flex items-center">
+      <input
+        type="checkbox"
+        checked={formData.mentorship}
+        onChange={(e) =>
+          setFormData((prev) => ({
+            ...prev,
+            mentorship: e.target.checked,
+          }))
+        }
+        className="mr-2"
+      />
+      Mentorship
+    </label>
+
+    <label className="inline-flex items-center">
+      <input
+        type="checkbox"
+        checked={formData.stipend}
+        onChange={(e) =>
+          setFormData((prev) => ({
+            ...prev,
+            stipend: e.target.checked,
+          }))
+        }
+        className="mr-2"
+      />
+      Stipend
+    </label>
+  </div>
+</div>
+
+
+
+          <div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Founded Year
+  </label>
+  <input
+    type="text"
+    name="foundedYear"
+    value={formData.foundedYear}
+    onChange={handleChange}
+    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+  />
+</div>
+
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Address
+  </label>
+  <input
+    type="text"
+    name="address"
+    value={formData.address}
+    onChange={handleChange}
+    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+  />
+</div>
+
+
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Company Type
+  </label>
+  <select
+    name="companyType"
+    value={formData.companyType}
+    onChange={(e) =>
+      setFormData((prev) => ({ ...prev, companyType: e.target.value }))
+    }
+    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500 ${
+      {
+        Startup: "bg-green-100 text-green-800",
+        MNC: "bg-blue-100 text-blue-800",
+        SME: "bg-purple-100 text-purple-800",
+        Other: "bg-gray-100 text-gray-800",
+      }[formData.companyType] || "bg-gray-100 text-gray-800"
+    }`}
+  >
+    <option value="">Select Company Type</option>
+    <option value="Startup">Startup</option>
+    <option value="MNC">MNC</option>
+    <option value="SME">SME</option>
+    <option value="Other">Other</option>
+  </select>
+</div>
+
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Employee Count
@@ -223,6 +403,115 @@ const CompanyProfile: React.FC<{}> = () => {
               type="text"
               name="employees"
               value={formData.employees}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+            />
+          </div>
+
+            <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Contact Number
+            </label>
+            <input
+              type="text"
+              name="phoneNo"
+              value={formData.phoneNo}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+            />
+          </div>
+
+           {formData.internBenifits.map((benefit, index) => (
+  <div key={index} className="flex gap-2 mb-2">
+    <input
+      type="text"
+      value={benefit}
+      onChange={(e) => {
+        const newBenefits = [...formData.internBenifits];
+        newBenefits[index] = e.target.value;
+        setFormData((prev) => ({ ...prev, internBenifits: newBenefits }));
+      }}
+      className="flex-1 px-3 py-2 border rounded-lg"
+    />
+    <button
+      type="button"
+      onClick={() => {
+        const newBenefits = formData.internBenifits.filter((_, i) => i !== index);
+        setFormData((prev) => ({ ...prev, internBenifits: newBenefits }));
+      }}
+      className="px-3 py-2 bg-red-500 text-white rounded"
+    >
+      Delete
+    </button>
+  </div>
+))}
+<button
+  type="button"
+  onClick={() =>
+    setFormData((prev) => ({
+      ...prev,
+      internBenifits: [...prev.internBenifits, ""],
+    }))
+  }
+  className="px-3 py-2 bg-blue-500 text-white rounded"
+>
+  Add Intern Benefits
+</button>
+
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Our Values
+  </label>
+
+  {formData.OurValues.map((value, index) => (
+    <div key={index} className="flex gap-2 mb-2">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => {
+          const newValues = [...formData.OurValues];
+          newValues[index] = e.target.value;
+          setFormData((prev) => ({ ...prev, OurValues: newValues }));
+        }}
+        className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+      />
+      <button
+        type="button"
+        onClick={() => {
+          const newValues = formData.OurValues.filter((_, i) => i !== index);
+          setFormData((prev) => ({ ...prev, OurValues: newValues }));
+        }}
+        className="px-3 py-2 bg-red-500 text-white rounded"
+      >
+        Delete
+      </button>
+    </div>
+  ))}
+
+  <button
+    type="button"
+    onClick={() =>
+      setFormData((prev) => ({
+        ...prev,
+        OurValues: [...prev.OurValues, ""],
+      }))
+    }
+    className="px-3 py-2 bg-blue-500 text-white rounded"
+  >
+    Add Company Value
+  </button>
+</div>
+
+          
+
+            <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Work Culture
+            </label>
+            <input
+              type="text"
+              name="WorkCulture"
+              value={formData.WorkCulture}
               onChange={handleChange}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
             />

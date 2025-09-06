@@ -16,7 +16,7 @@ import ApplicationsPage from './pages/company/application';
 import CompanyProfile from './pages/company/profile';
 import Companies from './pages/companies';
 import PublicStudentProfile from './pages/student/PublicProfile';
-
+import PublicCompanyProfile from './pages/company/PublicProfile';
 function App() {
   return (
     <AuthProvider>
@@ -38,7 +38,7 @@ function App() {
               <Route path="/company/profile" element={<CompanyProfile  />} />
               <Route path="/company/application" element={<ApplicationsPage/>} />
               <Route path="/student/PublicProfile" element={<PublicStudentProfile />} />
-              <Route path="/comapny/PublicProfile" element={<PublicStudentProfile />} />
+              <Route path="/comapny/PublicProfile/:id" element={<PublicCompanyProfile />} />
             </Routes>
           </main>
           <Footer />

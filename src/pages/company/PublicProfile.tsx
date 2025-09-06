@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from "react-router-dom";
 import { 
   Building2, 
   Globe, 
@@ -25,53 +26,33 @@ import {
   Send
 } from 'lucide-react';
 
-// Types for company profile
-interface CompanyProfile {
-  id: string;
-  name: string;
-  logo?: string;
-  description: string;
-  website?: string;
-  email: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  country?: string;
-  industry: string;
-  companySize: string;
-  foundedYear?: number;
-  companyType: 'Startup' | 'SME' | 'MNC' | 'Government' | 'NGO';
-  benefits: string[];
-  companyValues: string[];
-  workCulture: string;
-  socialLinks?: {
-    linkedin?: string;
-    facebook?: string;
-    twitter?: string;
-  };
-  stats: {
-    totalInternships: number;
-    activePositions: number;
-    successfulPlacements: number;
-    averageRating: number;
-  };
-  internshipProgram: {
-    duration: string[];
-    stipend: boolean;
-    mentorship: boolean;
-    certification: boolean;
+ interface CompanyProfileData {
+   id?: string;
+   description?: string;
+   website?: string;
+   email?: string;
+   role?: string;
+   logo?: string;
+   logoType?: string;
+   logoUrl?: string;
+   companyName?: string;
+   location?: string;
+   industry?: string;
+   employees?: string;
+   phoneNo?:string;
+   OurValues?:[string];
+   WorkCulture?:string;
+   internBenifits?:[string];
+    
     fullTimeOpportunities: boolean;
-  };
-  featuredInternships: {
-    id: string;
-    title: string;
-    department: string;
-    location: string;
-    duration: string;
-    postedDate: string;
-    applicants: number;
-  }[];
-}
+    certification: boolean;
+    mentorship: boolean;
+    stipend: boolean;
+  
+   foundedYear:string,
+   companyType:string,
+   address :string,
+ }
 
 interface PublicCompanyProfileProps {
   companyId?: string;
@@ -84,123 +65,88 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [companyData, setCompanyData] = useState<CompanyProfile | null>(null);
-
+ 
+  
+   const [companyProfile, setCompanyProfile] = useState<CompanyProfileData | null>(
+       null
+     );
   // Load company profile data on component mount
   useEffect(() => {
-    fetchCompanyProfile();
+    fetchCompanyDetails();
+    fetchJobs();
   }, [companyId]);
-
-  const fetchCompanyProfile = async () => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      // Replace with actual API call to MongoDB
-      const response = await fetch(`/api/companies/public-profile/${companyId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
+  const { id } = useParams<{ id: string }>();
+  const fetchCompanyDetails = async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+  
+        const res = await fetch(
+          `http://localhost:5000/api/companyRoutes/getById/${id}`
+        );
+  
+        if (!res.ok) {
+          throw new Error(`Error: ${res.status}`);
         }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch company profile');
+  
+        const data = await res.json();
+        console.log("API response:", data);
+  
+        // Convert Base64 logo to data URL
+        if (data.company.logo) {
+          const logoDataUrl = `data:${
+            data.company.logoType || "image/png"
+          };base64,${data.company.logo}`;
+          data.company.logoUrl = logoDataUrl;
+        }
+  
+        setCompanyProfile(data.company);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      const data = await response.json();
-      setCompanyData(data);
-    } catch (err) {
-      // Mock data for demonstration
-      console.log('Using mock data - API not yet implemented');
-      const mockCompany: CompanyProfile = {
-        id: companyId,
-        name: 'TechCorp Lanka',
-        logo: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=200&h=200&fit=crop&crop=center',
-        description: 'TechCorp Lanka is a leading technology company specializing in innovative software solutions, electronics engineering, and renewable energy systems. We are committed to driving digital transformation across Sri Lanka while maintaining our focus on sustainable technology practices and employee development.',
-        website: 'https://techcorp.lk',
-        email: 'careers@techcorp.lk',
-        phone: '+94 11 234 5678',
-        address: '123 Business District, Level 15',
-        city: 'Colombo',
-        country: 'Sri Lanka',
-        industry: 'Technology & Electronics',
-        companySize: '200-500 employees',
-        foundedYear: 2015,
-        companyType: 'SME',
-        benefits: [
-          'Competitive stipend',
-          'Mentorship program',
-          'Health insurance',
-          'Flexible working hours',
-          'Free lunch',
-          'Learning & development budget',
-          'Performance bonuses',
-          'Remote work options'
-        ],
-        companyValues: [
-          'Innovation',
-          'Sustainability',
-          'Employee Growth',
-          'Customer Success',
-          'Integrity',
-          'Collaboration'
-        ],
-        workCulture: 'We foster an inclusive, collaborative environment where innovation thrives. Our flat organizational structure encourages open communication, and we believe in work-life balance while pursuing excellence in everything we do.',
-        socialLinks: {
-          linkedin: 'https://linkedin.com/company/techcorp-lanka',
-          facebook: 'https://facebook.com/techcorplanka',
-          twitter: 'https://twitter.com/techcorplk'
-        },
-        stats: {
-          totalInternships: 45,
-          activePositions: 8,
-          successfulPlacements: 156,
-          averageRating: 4.7
-        },
-        internshipProgram: {
-          duration: ['3 months', '6 months', '12 months'],
-          stipend: true,
-          mentorship: true,
-          certification: true,
-          fullTimeOpportunities: true
-        },
-        featuredInternships: [
-          {
-            id: '1',
-            title: 'Software Engineering Intern',
-            department: 'Engineering',
-            location: 'Colombo',
-            duration: '6 months',
-            postedDate: '2025-01-20',
-            applicants: 24
-          },
-          {
-            id: '2',
-            title: 'Electronics Design Intern',
-            department: 'Hardware',
-            location: 'Hybrid',
-            duration: '3 months',
-            postedDate: '2025-01-18',
-            applicants: 15
-          },
-          {
-            id: '3',
-            title: 'Digital Marketing Intern',
-            department: 'Marketing',
-            location: 'Remote',
-            duration: '4 months',
-            postedDate: '2025-01-15',
-            applicants: 31
-          }
-        ]
-      };
-      setCompanyData(mockCompany);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const [Job, setJob] = useState<
+      Array<{
+        _id?: string;
+        companyName?: string;
+        title?: string;
+        description?: string;
+        requirements?: string[];
+        duration?: string;
+        location?: string;
+        isActive?: boolean;
+        createdAt?:string
+      }>
+    >([]);
+
+  
+   const fetchJobs = async ()=>{
+       try {
+         setIsLoading(true);
+         setError("");
+   
+         const res = await fetch(
+           `http://localhost:5000/api/InternshipRoutes/getInternshipsByCompanyId/${id}`
+         );
+   
+         const data = await res.json();
+         console.log("API response:", data);
+   
+         // If your API returns { internships: [...] }, adjust accordingly
+         setJob(Array.isArray(data) ? data : data.internships || []);
+         
+      
+   
+         setJob(data);
+       } catch (err: any) {
+         setError(err.message);
+       } finally {
+         setIsLoading(false);
+       }
+     }
 
   if (isLoading) {
     return (
@@ -213,7 +159,7 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
     );
   }
 
-  if (error || !companyData) {
+  if (error || !companyProfile) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center">
         <div className="text-center">
@@ -262,9 +208,9 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 h-32 relative">
               <div className="absolute -bottom-16 left-8">
                 <div className="w-32 h-32 rounded-xl border-4 border-white bg-white overflow-hidden shadow-lg">
-                  {companyData.logo ? (
+                  {companyProfile.logoUrl ? (
                     <img
-                      src={companyData.logo}
+                      src={companyProfile.logoUrl}
                       alt="Company Logo"
                       className="w-full h-full object-cover"
                     />
@@ -275,47 +221,41 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
                   )}
                 </div>
               </div>
-              {/* Rating Badge */}
-              <div className="absolute top-6 right-6">
-                <div className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full flex items-center space-x-2">
-                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold">{companyData.stats.averageRating}</span>
-                  <span className="text-sm opacity-90">rating</span>
-                </div>
-              </div>
+             
+              
             </div>
             
             <div className="pt-20 pb-8 px-8">
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">{companyData.name}</h2>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">{companyProfile.companyName}</h2>
                   <div className="flex items-center space-x-4 text-gray-600 mb-4">
                     <span className="flex items-center space-x-1">
                       <Building2 className="w-4 h-4" />
-                      <span>{companyData.industry}</span>
+                      <span>{companyProfile.industry}</span>
                     </span>
                     <span className="flex items-center space-x-1">
                       <Users className="w-4 h-4" />
-                      <span>{companyData.companySize}</span>
+                      <span>{companyProfile.employees}</span>
                     </span>
-                    {companyData.foundedYear && (
+                    {companyProfile.foundedYear && (
                       <span className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4" />
-                        <span>Est. {companyData.foundedYear}</span>
+                        <span>Est. {companyProfile.foundedYear}</span>
                       </span>
                     )}
                   </div>
                   <div className="mb-4">
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      companyData.companyType === 'Startup' ? 'bg-green-100 text-green-800' :
-                      companyData.companyType === 'MNC' ? 'bg-blue-100 text-blue-800' :
-                      companyData.companyType === 'SME' ? 'bg-purple-100 text-purple-800' :
+                      companyProfile.companyType === 'Startup' ? 'bg-green-100 text-green-800' :
+                      companyProfile.companyType === 'MNC' ? 'bg-blue-100 text-blue-800' :
+                      companyProfile.companyType === 'SME' ? 'bg-purple-100 text-purple-800' :
                       'bg-gray-100 text-gray-800'
                     }`}>
-                      {companyData.companyType}
+                      {companyProfile.companyType}
                     </span>
                   </div>
-                  <p className="text-gray-700 leading-relaxed">{companyData.description}</p>
+                  <p className="text-gray-700 leading-relaxed">{companyProfile.description}</p>
                 </div>
 
                 <div className="space-y-6">
@@ -325,31 +265,31 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
                     <div className="space-y-3">
                       <div className="flex items-center space-x-3">
                         <Mail className="w-5 h-5 text-gray-400" />
-                        <a href={`mailto:${companyData.email}`} className="text-blue-600 hover:text-blue-700">
-                          {companyData.email}
+                        <a href={`mailto:${companyProfile.email}`} className="text-blue-600 hover:text-blue-700">
+                          {companyProfile.email}
                         </a>
                       </div>
-                      {companyData.phone && (
+                      {companyProfile.phoneNo && (
                         <div className="flex items-center space-x-3">
                           <Phone className="w-5 h-5 text-gray-400" />
-                          <a href={`tel:${companyData.phone}`} className="text-gray-700">
-                            {companyData.phone}
+                          <a href={`tel:${companyProfile.phoneNo}`} className="text-gray-700">
+                            {companyProfile.phoneNo}
                           </a>
                         </div>
                       )}
-                      {companyData.website && (
+                      {companyProfile.website && (
                         <div className="flex items-center space-x-3">
                           <Globe className="w-5 h-5 text-gray-400" />
-                          <a href={companyData.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700">
+                          <a href={companyProfile.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700">
                             Visit Website
                           </a>
                         </div>
                       )}
-                      {(companyData.address || companyData.city) && (
+                      {(companyProfile.location || companyProfile.address) && (
                         <div className="flex items-center space-x-3">
                           <MapPin className="w-5 h-5 text-gray-400" />
                           <span className="text-gray-700">
-                            {[companyData.address, companyData.city, companyData.country].filter(Boolean).join(', ')}
+                            {[companyProfile.address, companyProfile.location].filter(Boolean).join(', ')}
                           </span>
                         </div>
                       )}
@@ -359,15 +299,12 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
                   {/* Quick Stats */}
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-3">Internship Statistics</h3>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3 ">
                       <div className="bg-blue-50 rounded-lg p-3 text-center">
-                        <div className="text-2xl font-bold text-blue-600">{companyData.stats.activePositions}</div>
+                        <div className="text-2xl font-bold text-blue-600">{Job.length}</div>
                         <div className="text-sm text-gray-600">Active Positions</div>
                       </div>
-                      <div className="bg-green-50 rounded-lg p-3 text-center">
-                        <div className="text-2xl font-bold text-green-600">{companyData.stats.successfulPlacements}</div>
-                        <div className="text-sm text-gray-600">Placements</div>
-                      </div>
+                      
                     </div>
                   </div>
                 </div>
@@ -384,57 +321,57 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="text-center">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${
-                  companyData.internshipProgram.stipend ? 'bg-green-100' : 'bg-gray-100'
+                  companyProfile.stipend ? 'bg-green-100' : 'bg-gray-100'
                 }`}>
                   <TrendingUp className={`w-6 h-6 ${
-                    companyData.internshipProgram.stipend ? 'text-green-600' : 'text-gray-400'
+                   companyProfile.stipend ? 'text-green-600' : 'text-gray-400'
                   }`} />
                 </div>
                 <h4 className="font-medium text-gray-900 mb-1">Stipend</h4>
                 <p className="text-sm text-gray-600">
-                  {companyData.internshipProgram.stipend ? 'Competitive stipend offered' : 'Unpaid program'}
+                  {companyProfile.stipend ? 'Competitive stipend offered' : 'Unpaid program'}
                 </p>
               </div>
               
               <div className="text-center">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${
-                  companyData.internshipProgram.mentorship ? 'bg-blue-100' : 'bg-gray-100'
+                  companyProfile.mentorship ? 'bg-blue-100' : 'bg-gray-100'
                 }`}>
                   <Users className={`w-6 h-6 ${
-                    companyData.internshipProgram.mentorship ? 'text-blue-600' : 'text-gray-400'
+                   companyProfile.mentorship ? 'text-blue-600' : 'text-gray-400'
                   }`} />
                 </div>
                 <h4 className="font-medium text-gray-900 mb-1">Mentorship</h4>
                 <p className="text-sm text-gray-600">
-                  {companyData.internshipProgram.mentorship ? '1-on-1 mentor assigned' : 'Self-guided learning'}
+                  {companyProfile.mentorship ? '1-on-1 mentor assigned' : 'Self-guided learning'}
                 </p>
               </div>
 
               <div className="text-center">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${
-                  companyData.internshipProgram.certification ? 'bg-purple-100' : 'bg-gray-100'
+                  companyProfile.certification ? 'bg-purple-100' : 'bg-gray-100'
                 }`}>
                   <Shield className={`w-6 h-6 ${
-                    companyData.internshipProgram.certification ? 'text-purple-600' : 'text-gray-400'
+                    companyProfile.certification ? 'text-purple-600' : 'text-gray-400'
                   }`} />
                 </div>
                 <h4 className="font-medium text-gray-900 mb-1">Certification</h4>
                 <p className="text-sm text-gray-600">
-                  {companyData.internshipProgram.certification ? 'Official completion certificate' : 'No certification'}
+                  {companyProfile.certification ? 'Official completion certificate' : 'No certification'}
                 </p>
               </div>
 
               <div className="text-center">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${
-                  companyData.internshipProgram.fullTimeOpportunities ? 'bg-orange-100' : 'bg-gray-100'
+                  companyProfile.fullTimeOpportunities ? 'bg-orange-100' : 'bg-gray-100'
                 }`}>
                   <Target className={`w-6 h-6 ${
-                    companyData.internshipProgram.fullTimeOpportunities ? 'text-orange-600' : 'text-gray-400'
+                    companyProfile.fullTimeOpportunities ? 'text-orange-600' : 'text-gray-400'
                   }`} />
                 </div>
                 <h4 className="font-medium text-gray-900 mb-1">Full-time Opportunities</h4>
                 <p className="text-sm text-gray-600">
-                  {companyData.internshipProgram.fullTimeOpportunities ? 'Potential for full-time roles' : 'Internship only'}
+                  {companyProfile.fullTimeOpportunities ? 'Potential for full-time roles' : 'Internship only'}
                 </p>
               </div>
             </div>
@@ -449,7 +386,7 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
                 <span>Our Values</span>
               </h3>
               <div className="grid grid-cols-2 gap-3">
-                {companyData.companyValues.map((value, index) => (
+                {companyProfile.OurValues?.map((value, index) => (
                   <div key={index} className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
                     <CheckCircle className="w-4 h-4 text-green-600" />
                     <span className="text-gray-700 font-medium">{value}</span>
@@ -465,7 +402,7 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
                 <span>Intern Benefits</span>
               </h3>
               <div className="space-y-2">
-                {companyData.benefits.map((benefit, index) => (
+                {companyProfile.internBenifits?.map((benefit, index) => (
                   <div key={index} className="flex items-center space-x-3">
                     <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
                     <span className="text-gray-700">{benefit}</span>
@@ -478,7 +415,7 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
           {/* Work Culture */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">Work Culture</h3>
-            <p className="text-gray-700 leading-relaxed">{companyData.workCulture}</p>
+            <p className="text-gray-700 leading-relaxed">{companyProfile.WorkCulture}</p>
           </div>
 
           {/* Current Openings */}
@@ -488,19 +425,19 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
                 <Briefcase className="w-6 h-6 text-blue-600" />
                 <span>Current Openings</span>
               </h3>
-              <span className="text-sm text-gray-500">{companyData.featuredInternships.length} positions available</span>
+              <span className="text-sm text-gray-500">{Job.length} positions available</span>
             </div>
             
             <div className="space-y-4">
-              {companyData.featuredInternships.map((internship) => (
-                <div key={internship.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+              {Job.map((internship) => (
+                <div key={internship._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h4 className="font-semibold text-gray-900 mb-1">{internship.title}</h4>
-                      <p className="text-gray-600 text-sm">{internship.department}</p>
+                      
                     </div>
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                      {internship.applicants} applicants
+                      {internship.isActive} 
                     </span>
                   </div>
                   
@@ -515,7 +452,7 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
                     </span>
                     <span className="flex items-center space-x-1">
                       <Calendar className="w-4 h-4" />
-                      <span>Posted {new Date(internship.postedDate).toLocaleDateString()}</span>
+                    Posted {new Date(internship.createdAt!).toDateString()}
                     </span>
                   </div>
                   
@@ -535,46 +472,7 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
           </div>
 
           {/* Social Links */}
-          {companyData.socialLinks && Object.values(companyData.socialLinks).some(link => link) && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Follow Us</h3>
-              <div className="flex space-x-4">
-                {companyData.socialLinks.linkedin && (
-                  <a
-                    href={companyData.socialLinks.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>LinkedIn</span>
-                  </a>
-                )}
-                {companyData.socialLinks.facebook && (
-                  <a
-                    href={companyData.socialLinks.facebook}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>Facebook</span>
-                  </a>
-                )}
-                {companyData.socialLinks.twitter && (
-                  <a
-                    href={companyData.socialLinks.twitter}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>Twitter</span>
-                  </a>
-                )}
-              </div>
-            </div>
-          )}
+          
         </div>
       </div>
     </div>

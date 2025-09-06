@@ -49,9 +49,9 @@ interface Application {
 
 // Initialize with empty array, will populate later with setApplications
 const [applications, setApplications] = useState<Application[]>([]);
- const { user, isAuthenticated, logout } = useAuth();
-  let id =user?.id;
 
+ const { user, isAuthenticated, logout } = useAuth();
+ 
    const [profileData, setProfileData] = useState({
      id:  '',
      firstName:  '',
@@ -104,24 +104,28 @@ const [fData, setFdata] = useState<Internships[] | null>(null);
 
 
      const [profilepreview,setProfilePreview]=useState<string | null>(null);
-     useEffect(() => {
-     if (!id) {
-     navigate("/login");
-     }
-    console.log(id);
-}, [id, navigate]);
+let id = user?.id;
+console.log("Student ID:", id);
+
+useEffect(() => {
+  if (user === null) {
+    navigate("/login");
+  }
+}, [user, navigate]);
 
 const handleUpdateprofile =()=>{
  navigate("/student/profile",{ state: { id:id } });
 
 }
 
- useEffect(() => {
+useEffect(() => {
+  if (id) {
     fetchProfile();
     fetchCV();
     fetchProfilePicture();
-    fetchAllJobs ();
-  }, []);
+    fetchAllJobs();
+  }
+}, [id]);
 
   const fetchProfile = async () => {
     setIsLoading(true);
