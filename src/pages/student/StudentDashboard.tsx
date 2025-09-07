@@ -45,12 +45,21 @@ const StudentDashboard: React.FC = () => {
     skills: string[];
     gpa: number;
     internshipId: string;
+    coverLetter:string;
   }
 
+// Initialize with empty array, will populate later with setApplications
+
+
+
+ 
+   
+   
   // Initialize with empty array, will populate later with setApplications
   const [applications, setApplications] = useState<Application[]>([]);
   const { user, isAuthenticated, logout } = useAuth();
-  let id = user?.id;
+  console.log(user);
+  const id = user?.id;
 
   // Updated CV upload handler with proper validation
   const handleCVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,12 +126,7 @@ const StudentDashboard: React.FC = () => {
 
   const [profilepreview, setProfilePreview] = useState<string | null>(null);
   
-  useEffect(() => {
-    if (!id) {
-      navigate("/login");
-    }
-    console.log(id);
-  }, [id, navigate]);
+
 
   const handleUpdateprofile = () => {
     navigate("/student/profile", { state: { id: id } });
@@ -230,6 +234,7 @@ const StudentDashboard: React.FC = () => {
         skills: profileData.skills,
         gpa: profileData.gpa,
         internshipId: selectedInternship || "",
+        coverLetter:coverLetter,
       };
 
       // 1️⃣ Send application to backend
@@ -281,10 +286,11 @@ const StudentDashboard: React.FC = () => {
   const filteredInternships = fData?.filter((internship) => {
     const title = internship.title ?? "";
     const company = internship.companyName ?? "";
+    const field   =internship.title ??"";
     const matchesSearch =
       title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       company.toLowerCase().includes(searchTerm.toLowerCase()); // ✅ use API field
-
+      field.toLocaleLowerCase().includes(selectedFilter.toLocaleLowerCase())
     return matchesSearch && internship.isActive;
   });
 

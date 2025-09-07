@@ -246,7 +246,7 @@ const { companyProfiles, loading, error } = useCompany();
                   <div className="px-6 pb-6">
                     <div className="flex space-x-2">
                       <Link
-                        to={`/companies/${company.id}`}
+                        to={`/comapny/PublicProfile/${company.id}`}
                         className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-2 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 text-sm font-medium"
                       >
                         View Details

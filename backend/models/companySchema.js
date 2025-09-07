@@ -1,5 +1,6 @@
 // models/Company.js
 import { Schema, model } from "mongoose";
+import { type } from "os";
 
 const companySchema = new Schema({
   email: { type: String, required: true, unique: true },
@@ -13,11 +14,21 @@ const companySchema = new Schema({
     contentType: String,   // e.g., 'image/png', 'image/jpeg'
     filename: String       // original file name
   },
-  
+  phoneNo:{type:String},
+  OurValues:[String],
+  WorkCulture:{type:String},
+  internBenifits:[String],
   isApproved: { type: Boolean, default: false },
   location: { type: String },
   employees: { type: String },
   industry: { type: String },
+  fullTimeOpportunities:{type:String},
+  certification:{type:String},
+  mentorship:{type:String},
+  stipend:{type:String},
+  foundedYear:{type:String},
+  companyType:{type:String},
+  address:{type:String},
   internships: [
     {
       title: { type: String},

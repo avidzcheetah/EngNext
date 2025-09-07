@@ -26,7 +26,14 @@ class CompanyController {
           filename: req.file.originalname
         };
       }
+       // Parse array fields if they are JSON strings
+    if (companyData.OurValues && typeof companyData.OurValues === "string") {
+      companyData.OurValues = JSON.parse(companyData.OurValues);
+    }
 
+    if (companyData.internBenifits && typeof companyData.internBenifits === "string") {
+      companyData.internBenifits = JSON.parse(companyData.internBenifits);
+    }
       // Create company document
       const company = new companySchema(companyData);
       await company.save();
@@ -57,7 +64,11 @@ static async updateCompany(req, res) {
 
     // Update text fields
     Object.keys(req.body).forEach(key => {
-      company[key] = req.body[key];
+      if ((key === "OurValues" || key === "internBenifits") && typeof req.body[key] === "string") {
+        company[key] = JSON.parse(req.body[key]); // parse array fields
+      } else {
+        company[key] = req.body[key];
+      }
     });
 
     // Update logo if uploaded
@@ -82,7 +93,7 @@ static async updateCompany(req, res) {
 }
 
 
-  
+
 static async getAllCompanies(req, res) {
   try {
     const companies = await companySchema.find();
@@ -98,11 +109,15 @@ static async getAllCompanies(req, res) {
       location: c.location,
       employees: c.employees,
       industry: c.industry,
-      logo: c.logo?.data ? c.logo.data.toString("base64") : null,
-      logoType: c.logo?.contentType || "image/png",
+     // logo: c.logo?.data ? c.logo.data.toString("base64") : null,
+     // logoType: c.logo?.contentType || "image/png",
       logoFilename: c.logo?.filename || null,
       isApproved: c.isApproved,
       internships: c.internships || [],
+      phoneNo :c.phoneNo,
+      WorkCulture:c.WorkCulture,
+      internBenifits:c.internBenifits || [],
+      OurValues:c.OurValues ||[],
       createdAt: c.createdAt,
       updatedAt: c.updatedAt,
     }));
@@ -141,7 +156,18 @@ static async getAllCompanies(req, res) {
         location: company.location,
         employees: company.employees,
         industry: company.industry,
+        phoneNo :company.phoneNo,
+        WorkCulture:company.WorkCulture,
+        internBenifits:company.internBenifits || [],
+        OurValues:company.OurValues ||[],
         internships: company.internships || [],
+        fullTimeOpportunities:company.fullTimeOpportunities,
+        certification:company.companycertification,
+        mentorship:company.mentorship,
+        stipend:company.stipend,
+        foundedYear:company.foundedYear,
+        companyType:company.companyType,
+        address:company.address,
         createdAt: company.createdAt,
         updatedAt: company.updatedAt,
         
@@ -208,7 +234,7 @@ static async verifyCompany(req, res) {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server  error", error });
   }
 }
 

@@ -48,6 +48,10 @@ const applicationSchema = new mongoose.Schema(
     internshipId :{
       type:String
     }
+    ,
+    coverLetter:{
+      type:String
+    }
   },
   { timestamps: true } // adds createdAt & updatedAt
 );
