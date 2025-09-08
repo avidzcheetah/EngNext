@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const StudentDashboard: React.FC = () => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [showApplicationModal, setShowApplicationModal] = useState(false);
@@ -142,7 +143,7 @@ const StudentDashboard: React.FC = () => {
   const fetchProfile = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/studentRoutes/getStudentById/${id}`, {
+      const response = await fetch(`${baseUrl}/api/studentRoutes/getStudentById/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -166,7 +167,7 @@ const StudentDashboard: React.FC = () => {
   const fetchProfilePicture = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/studentRoutes/getProfilePicture/${id}`
+        `${baseUrl}/api/studentRoutes/getProfilePicture/${id}`
       );
 
       if (!response.ok) throw new Error("Failed to fetch image");
@@ -183,7 +184,7 @@ const StudentDashboard: React.FC = () => {
   const fetchAllJobs = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/InternshipRoutes/getAllInternships"
+        `${baseUrl}/api/InternshipRoutes/getAllInternships`
       );
 
       if (!response.ok) throw new Error("Failed to fetch internships");
@@ -199,7 +200,7 @@ const StudentDashboard: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/studentRoutes/getCV/${id}`,
+        `${baseUrl}/api/studentRoutes/getCV/${id}`,
         {
           method: "GET",
           // No need for 'Content-Type' when getting a file
@@ -238,7 +239,7 @@ const StudentDashboard: React.FC = () => {
       };
 
       // 1️⃣ Send application to backend
-      const res = await fetch("http://localhost:5000/api/applicationRoutes/createApplication", {
+      const res = await fetch(`${baseUrl}/api/applicationRoutes/createApplication`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newApplication),
@@ -265,7 +266,7 @@ const StudentDashboard: React.FC = () => {
 
       // 3️⃣ Increment ApplicationsSent
       const res1 = await fetch(
-        `http://localhost:5000/api/studentRoutes/incrementApplicationsSent/${id}`,
+        `${baseUrl}/api/studentRoutes/incrementApplicationsSent/${id}`,
         { method: "PUT" }
       );
 

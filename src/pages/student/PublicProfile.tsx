@@ -46,6 +46,7 @@ interface PublicStudentProfileProps {
 // Component
 // -------------------------
 const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const [profileData, setProfileData] = useState<StudentProfile>({
     id: "",
     firstName: "",
@@ -78,7 +79,7 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
     setIsLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/studentRoutes/getStudentById/${studentId}`
+        `${baseUrl}/api/studentRoutes/getStudentById/${studentId}`
       );
       if (!res.ok) throw new Error("Failed to fetch profile");
       const data = await res.json();
@@ -95,7 +96,7 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
     if (!studentId) return;
     try {
       const res = await fetch(
-        `http://localhost:5000/api/studentRoutes/getProfilePicture/${studentId}`
+        `${baseUrl}/api/studentRoutes/getProfilePicture/${studentId}`
       );
       if (!res.ok) return;
       const blob = await res.blob();

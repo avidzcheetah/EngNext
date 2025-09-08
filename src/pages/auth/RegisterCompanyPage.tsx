@@ -6,6 +6,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 
 const RegisterCompanyPage: React.FC = () => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const [formData, setFormData] = useState({
     companyName: '',
     email: '',
@@ -106,7 +107,7 @@ const RegisterCompanyPage: React.FC = () => {
     // If you have a file (logo, etc.), you can append it as well:
     if (Logo) fd.append('logo', Logo );
 
-    const response = await fetch('http://localhost:5000/api/companyRoutes/createCompany', {
+    const response = await fetch(`${baseUrl}/api/companyRoutes/createCompany`, {
       method: 'POST',
       body: fd, // send FormData directly
       // DO NOT set 'Content-Type', fetch will set it automatically for FormData

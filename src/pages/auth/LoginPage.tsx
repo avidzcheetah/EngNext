@@ -16,6 +16,7 @@ interface LoginResponse {
 }
 
 const LoginPage: React.FC = () => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const [userType, setUserType] = useState<'student' | 'company'>('student');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,8 +35,8 @@ const LoginPage: React.FC = () => {
     try {
       const url =
         userType === 'company'
-          ? 'http://localhost:5000/api/companyRoutes/verifyCompany'
-          : 'http://localhost:5000/api/studentRoutes/loginStudent';
+          ? `${baseUrl}/api/companyRoutes/verifyCompany`
+          : `${baseUrl}/api/studentRoutes/loginStudent`;
 
       const response = await fetch(url, {
         method: 'POST',

@@ -66,7 +66,7 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
  
-  
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
    const [companyProfile, setCompanyProfile] = useState<CompanyProfileData | null>(
        null
      );
@@ -82,7 +82,7 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
         setError("");
   
         const res = await fetch(
-          `http://localhost:5000/api/companyRoutes/getById/${id}`
+          `${baseUrl}/api/companyRoutes/getById/${id}`
         );
   
         if (!res.ok) {
@@ -129,7 +129,7 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
          setError("");
    
          const res = await fetch(
-           `http://localhost:5000/api/InternshipRoutes/getInternshipsByCompanyId/${id}`
+           `${baseUrl}/api/InternshipRoutes/getInternshipsByCompanyId/${id}`
          );
    
          const data = await res.json();

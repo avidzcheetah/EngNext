@@ -6,6 +6,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 
 const RegisterStudentPage: React.FC = () => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -92,7 +93,7 @@ const RegisterStudentPage: React.FC = () => {
 
   try {
     // Send data to your API
-    const response = await fetch('http://localhost:5000/api/studentRoutes/createStudent', {
+    const response = await fetch(`${baseUrl}/api/studentRoutes/createStudent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

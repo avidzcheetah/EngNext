@@ -26,6 +26,7 @@ interface Application {
   createdAt: string;
   updatedAt: string;
   __v: number;
+  coverLetter:string;
 }
 
 interface CompanyProfile {
@@ -35,6 +36,7 @@ interface CompanyProfile {
 
 // -------------------- Page --------------------
 const ApplicationsPage: React.FC = () => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const location = useLocation();
   const { internshipId } = location.state as { internshipId: string };
   const navigate = useNavigate();
@@ -43,6 +45,20 @@ const ApplicationsPage: React.FC = () => {
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [coverletter,setCoverletter]=useState(false);
+  const [coverletterstudentID,setcoverletterstudentId]=useState("");
+  const [coverletterID,setcoverletterID]=useState("")
+
+  const handleViewCoverletter=(id :string,id2:string)=>{
+  setCoverletter(true);
+  setcoverletterstudentId(id);
+  setcoverletterID(id2);
+}
+
+const handleCancelCoverLetter =()=>{
+  setCoverletter(false);
+  setcoverletterstudentId("");
+}
 
   // -------------------- Fetch Applications --------------------
   const fetchApplications = async () => {
@@ -50,7 +66,7 @@ const ApplicationsPage: React.FC = () => {
       setLoading(true);
       setError("");
 
-      const res = await fetch(`http://localhost:5000/api/applicationRoutes/fetchByInternshipId/${internshipId}`);
+      const res = await fetch(`${baseUrl}/api/applicationRoutes/fetchByInternshipId/${internshipId}`);
       if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
 
       const data = await res.json();
@@ -101,7 +117,7 @@ const ApplicationsPage: React.FC = () => {
 
   const handleAccept = async (ID: string) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/applicationRoutes/acceptApplication/${ID}`, {
+      const res = await fetch(`${baseUrl}/api/applicationRoutes/acceptApplication/${ID}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
       });
@@ -123,7 +139,7 @@ const ApplicationsPage: React.FC = () => {
 
   const handleReject = async (ID: string) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/applicationRoutes/rejectApplication/${ID}`, {
+      const res = await fetch(`${baseUrl}/api/applicationRoutes/rejectApplication/${ID}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
       });
@@ -150,7 +166,7 @@ const ApplicationsPage: React.FC = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/studentRoutes/addRecentNotification/${studentID}`,
+        `${baseUrl}/studentRoutes/addRecentNotification/${studentID}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -171,7 +187,7 @@ const ApplicationsPage: React.FC = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/studentRoutes/incrementProfileView/${studentID}`,
+       `${baseUrl}/studentRoutes/incrementProfileView/${studentID}`,
         { method: "PUT", headers: { "Content-Type": "application/json" } }
       );
       if (!res.ok) throw new Error(`Error incrementing profile view: ${res.status}`);
@@ -189,7 +205,7 @@ const ApplicationsPage: React.FC = () => {
   // -------------------- Download CV --------------------
   const handleDownloadCV = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/studentRoutes/getCV/${id}`);
+      const res = await fetch(`${baseUrl}/studentRoutes/getCV/${id}`);
       if (!res.ok) throw new Error("CV download failed");
 
       const blob = await res.blob();
@@ -310,6 +326,14 @@ const ApplicationsPage: React.FC = () => {
                   >
                     <Download className="w-4 h-4 mr-1" /> Download CV
                   </Button>
+                  <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleViewCoverletter(app.studentId,app._id)}
+          >
+            <Download className="w-4 h-4 mr-1" /> View Cover Letter
+          </Button>
+                  
 
                   <Button
                     size="sm"
@@ -324,8 +348,40 @@ const ApplicationsPage: React.FC = () => {
                 </div>
               </Card>
             ))}
+        
+
         </div>
       )}
+      
+        {/*Cover Letter */}
+        {coverletter && (
+  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
+      <h3 className="text-xl font-bold mb-6">Cover Letter</h3>
+      <div className="space-y-4">
+        <p className="text-gray-700 leading-relaxed">
+    {
+  applications.find(
+    (app) =>
+      String(app.studentId) === String(coverletterstudentID) &&
+      String(app._id) === String(coverletterID)
+  )?.coverLetter || "No cover letter submitted"
+}
+
+    
+       
+        </p>
+      </div>
+
+      <div className="flex justify-end mt-6">
+        <Button variant="outline" onClick={handleCancelCoverLetter}>
+          Close
+        </Button>
+      </div>
+    </Card>
+  </div>
+)}
+        
     </div>
   );
 };
