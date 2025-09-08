@@ -77,7 +77,7 @@ const Footer: React.FC = () => {
             © 2025 Faculty of Engineering, University of Jaffna. All rights reserved.
           </p>
           <p className="text-sm text-gray-400 mt-2">
-            Made with ❤️ by <a href="https://avidzverse.vercel.app" className="text-blue-400 font-semibold">Avidu Witharana</a> & Aakil Ahamed 
+            Made with ❤️ by <a href="https://avidzverse.vercel.app" className="text-blue-400 font-semibold">Avidu Witharana</a> & <a href="https://www.linkedin.com/in/aakil29a519311/" className="text-blue-400 font-semibold">Aakil Ahamed</a> 
           </p>
         </div>
       </div>
