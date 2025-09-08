@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
 type CompanyProfile = {
   id?: string;
   description?: string;
@@ -33,7 +33,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
       setLoading(true);
       setError(null);
 
-      const res = await fetch("http://localhost:5000/api/companyRoutes/getAll");
+      const res = await fetch(`${baseUrl}/aapi/companyRoutes/getAll`);
       if (!res.ok) throw new Error(`Error: ${res.status}`);
 
       const data = await res.json();

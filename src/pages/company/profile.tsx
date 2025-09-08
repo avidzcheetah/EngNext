@@ -33,6 +33,7 @@ interface CompanyProfileData {
 }
 
 const CompanyProfile: React.FC<{}> = () => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const [companyProfile, setCompanyProfile] = useState<CompanyProfileData | null>(
     null
   );
@@ -72,7 +73,7 @@ const CompanyProfile: React.FC<{}> = () => {
       setError("");
 
       const res = await fetch(
-        `http://localhost:5000/api/companyRoutes/getById/${id}`
+        `${baseUrl}/api/companyRoutes/getById/${id}`
       );
 
       if (!res.ok) {
@@ -183,7 +184,7 @@ formToSend.append("stipend", formData.stipend ? "true" : "false");
       if (formData.logoFile) formToSend.append("logo", formData.logoFile);
 
       const res = await fetch(
-        `http://localhost:5000/api/companyRoutes/updateCompany/${companyProfile?.id}`,
+        `${baseUrl}/companyRoutes/updateCompany/${companyProfile?.id}`,
         {
           method: "PUT",
           body: formToSend,

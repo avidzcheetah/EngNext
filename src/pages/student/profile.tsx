@@ -50,6 +50,7 @@ interface StudentProfile {
 }
 
 const StudentProfile: React.FC = () => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cvInputRef = useRef<HTMLInputElement>(null);
@@ -114,7 +115,7 @@ const StudentProfile: React.FC = () => {
     
     try {
       
-      const response = await fetch(`http://localhost:5000/api/studentRoutes/getStudentById/${id}`, {
+      const response = await fetch(`${baseUrl}/api/studentRoutes/getStudentById/${id}`, {
         method: 'GET',
         headers: {
           
@@ -140,7 +141,7 @@ const StudentProfile: React.FC = () => {
   const fetchProfilePicture = async () => {
   try {
     const response = await fetch(
-      `http://localhost:5000/api/studentRoutes/getProfilePicture/${id}`
+      `${baseUrl}/api/studentRoutes/getProfilePicture/${id}`
     );
     if (!response.ok) throw new Error("Failed to fetch image");
 
@@ -161,7 +162,7 @@ const StudentProfile: React.FC = () => {
 
   try {
     const response = await fetch(
-      `http://localhost:5000/api/studentRoutes/getCV/${id}`,
+      `${baseUrl}/api/studentRoutes/getCV/${id}`,
       {
         method: "GET",
         // No need for 'Content-Type' when getting a file
@@ -300,7 +301,7 @@ const handleSave = async () => {
       formData.append("profilePicture", profileData.profilePicture);
     }
 
-    const response = await fetch(`http://localhost:5000/api/studentRoutes/updatestudents/${id}`, {
+    const response = await fetch(`${baseUrl}/api/studentRoutes/updatestudents/${id}`, {
       method: "PUT",
       headers: {
       },
