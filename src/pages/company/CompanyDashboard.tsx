@@ -941,7 +941,7 @@ const handleDownloadCV = async (id:string) => {
           </div>
           <div>
             <h4 className="text-sm font-medium text-gray-900 mb-2">GPA:</h4>
-            <p className="text-lg font-semibold text-green-600">{forms.gpa} {forms.coverLetter}</p>
+            <p className="text-lg font-semibold text-green-600">{forms.gpa} </p>
           </div>
         </div>
 
