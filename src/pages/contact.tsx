@@ -142,9 +142,9 @@ const Contact: React.FC = () => {
       {/* Contact Form & Map Section */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid gap-12 lg:grid-cols-2">
+          <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
             {/* Contact Form */}
-            <div className="bg-white rounded-xl shadow-lg p-8">
+            <div className="bg-white rounded-xl shadow-lg p-8 h-fit">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h2>
               
               {isSubmitted ? (
@@ -154,14 +154,14 @@ const Contact: React.FC = () => {
                   <p className="text-gray-600">Thank you for contacting us. We'll get back to you soon.</p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1.5">
                         Full Name *
                       </label>
                       <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                         <input
                           type="text"
                           id="name"
@@ -169,18 +169,18 @@ const Contact: React.FC = () => {
                           required
                           value={formData.name}
                           onChange={handleInputChange}
-                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                          className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                           placeholder="Enter your full name"
                         />
                       </div>
                     </div>
                     
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
                         Email Address *
                       </label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                         <input
                           type="email"
                           id="email"
@@ -188,7 +188,7 @@ const Contact: React.FC = () => {
                           required
                           value={formData.email}
                           onChange={handleInputChange}
-                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                          className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                           placeholder="Enter your email address"
                         />
                       </div>
@@ -196,18 +196,18 @@ const Contact: React.FC = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="userType" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="userType" className="block text-sm font-medium text-gray-700 mb-1.5">
                       I am a *
                     </label>
                     <div className="relative">
-                      <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <select
                         id="userType"
                         name="userType"
                         required
                         value={formData.userType}
                         onChange={handleInputChange}
-                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       >
                         <option value="student">Student</option>
                         <option value="company">Company Representative</option>
@@ -218,7 +218,7 @@ const Contact: React.FC = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1.5">
                       Subject *
                     </label>
                     <input
@@ -228,25 +228,25 @@ const Contact: React.FC = () => {
                       required
                       value={formData.subject}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       placeholder="What is this about?"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1.5">
                       Message *
                     </label>
                     <div className="relative">
-                      <MessageSquare className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
+                      <MessageSquare className="absolute left-3 top-3 text-gray-400 w-4 h-4" />
                       <textarea
                         id="message"
                         name="message"
                         required
-                        rows={5}
+                        rows={4}
                         value={formData.message}
                         onChange={handleInputChange}
-                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
+                        className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
                         placeholder="Please provide details about your inquiry..."
                       />
                     </div>
@@ -255,34 +255,73 @@ const Contact: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
+                    onClick={handleSubmit}
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2 text-sm"
                   >
                     {isSubmitting ? (
                       <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                         <span>Sending...</span>
                       </>
                     ) : (
                       <>
-                        <Send className="w-5 h-5" />
+                        <Send className="w-4 h-4" />
                         <span>Send Message</span>
                       </>
                     )}
                   </button>
-                </form>
+                </div>
               )}
             </div>
 
             {/* Map & Additional Info */}
             <div className="space-y-8">
-              {/* Map */}
+              {/* Interactive Google Map */}
               <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div className="h-64 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                  <div className="text-center">
-                    <MapPin className="w-12 h-12 text-blue-600 mx-auto mb-2" />
-                    <p className="text-gray-600 font-medium">University of Jaffna</p>
-                    <p className="text-gray-500 text-sm">Faculty of Engineering</p>
-                    <p className="text-gray-500 text-sm">Interactive Map Coming Soon</p>
+                <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                  <h3 className="font-semibold flex items-center">
+                    <MapPin className="w-5 h-5 mr-2" />
+                    Find Us Here
+                  </h3>
+                  <p className="text-sm text-blue-100 mt-1">University of Jaffna, Faculty of Engineering</p>
+                </div>
+                <div className="h-80">
+                  <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3742.4100508048564!2d80.39923267478424!3d9.31372629075947!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3afe96901581421d%3A0x3d3557c67d291156!2sFaculty%20Of%20Engineering%2C%20University%20of%20Jaffna!5e1!3m2!1sen!2slk!4v1757329557072!5m2!1sen!2slk" 
+                  width="100%" 
+                  height="100%" 
+                  style={{ border: 0 }} 
+                  allowFullScreen
+                  loading="lazy" 
+                  referrerPolicy="no-referrer-when-downgrade">
+                  </iframe>
+                </div>
+                <div className="p-4 bg-gray-50 border-t">
+                  <div className="flex items-start space-x-3">
+                    <MapPin className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-gray-900">Faculty of Engineering</p>
+                      <p className="text-sm text-gray-600">University of Jaffna</p>
+                      <p className="text-sm text-gray-600">Ariviyal Nagar, Kilinochchi 44000, Sri Lanka</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <div className="flex flex-wrap gap-2">
+                      <a
+                        href="https://maps.app.goo.gl/eXCAt7LEKKEm8Wk57"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full hover:bg-blue-200 transition-colors duration-200"
+                      >
+                        <MapPin className="w-3 h-3 mr-1" />
+                        Open in Google Maps
+                      </a>
+                      <button
+                        onClick={() => navigator.clipboard?.writeText('Faculty of Engineering, University of Jaffna, Ariviyal Nagar, Kilinochchi 44000, Sri Lanka')}
+                        className="inline-flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-full hover:bg-gray-200 transition-colors duration-200"
+                      >
+                        Copy Address
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
