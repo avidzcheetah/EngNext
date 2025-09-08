@@ -33,7 +33,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
       setLoading(true);
       setError(null);
 
-      const res = await fetch(`${baseUrl}/aapi/companyRoutes/getAll`);
+      const res = await fetch(`${baseUrl}/api/companyRoutes/getAll`);
       if (!res.ok) throw new Error(`Error: ${res.status}`);
 
       const data = await res.json();
