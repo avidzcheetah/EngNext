@@ -48,8 +48,8 @@ const RegisterStudentPage: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setErrors(prev => ({ ...prev, profilePicture: 'File size must be less than 5MB' }));
+      if (file.size > 3 * 1024 * 1024) { // 3MB limit
+        setErrors(prev => ({ ...prev, profilePicture: 'File size must be less than 3MB' }));
         return;
       }
       if (!file.type.startsWith('image/')) {

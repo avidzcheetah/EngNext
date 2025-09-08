@@ -521,7 +521,7 @@ const Contact: React.FC = () => {
               {
                 question: "What documents do I need to apply for internships?",
                 answer:
-                  "Students need to upload their CV (PDF format, max 5MB) and complete their profile information. Some companies may request additional documents during the application process.",
+                  "Students need to upload their CV (PDF format, max 3MB) and complete their profile information. Some companies may request additional documents during the application process.",
               },
               {
                 question: "How are students and companies verified?",
