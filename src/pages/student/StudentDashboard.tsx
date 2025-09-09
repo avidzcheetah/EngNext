@@ -70,8 +70,8 @@ const StudentDashboard: React.FC = () => {
         alert('Please upload a PDF file');
         return;
       }
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        alert('File size should be less than 5MB');
+      if (file.size > 4 * 1024 * 1024) { // 4MB limit
+        alert('File size should be less than 4MB');
         return;
       }
       setUploadedCV(file);

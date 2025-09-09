@@ -201,8 +201,8 @@ const StudentProfile: React.FC = () => {
     
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Profile picture must be less than 5MB');
+    if (file.size > 3 * 1024 * 1024) {
+      setError('Profile picture must be less than 3MB');
       return;
     }
         setProfileData(prev => ({
@@ -226,8 +226,8 @@ const StudentProfile: React.FC = () => {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError('CV must be less than 5MB');
+    if (file.size > 4 * 1024 * 1024) {
+      setError('CV must be less than 4MB');
       return;
     }
     const newCV = {

@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, Eye, EyeOff, Upload, CheckCircle } from 'lucide-react';
-import Card from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Upload,
+  CheckCircle,
+} from "lucide-react";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
 
 const RegisterStudentPage: React.FC = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -29,35 +37,44 @@ const RegisterStudentPage: React.FC = () => {
   };
 
   const validatePassword = (password: string) => {
-    return password.length >= 8 && 
-           /[A-Z]/.test(password) && 
-           /[a-z]/.test(password) && 
-           /[0-9]/.test(password);
+    return (
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /[0-9]/.test(password)
+    );
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setErrors(prev => ({ ...prev, profilePicture: 'File size must be less than 5MB' }));
+      if (file.size > 3 * 1024 * 1024) {
+        // 3MB limit
+        setErrors((prev) => ({
+          ...prev,
+          profilePicture: "File size must be less than 3MB",
+        }));
         return;
       }
-      if (!file.type.startsWith('image/')) {
-        setErrors(prev => ({ ...prev, profilePicture: 'Please select an image file' }));
+      if (!file.type.startsWith("image/")) {
+        setErrors((prev) => ({
+          ...prev,
+          profilePicture: "Please select an image file",
+        }));
         return;
       }
       setProfilePicture(file);
-      setErrors(prev => ({ ...prev, profilePicture: '' }));
+      setErrors((prev) => ({ ...prev, profilePicture: "" }));
     }
   };
 
@@ -68,20 +85,22 @@ const RegisterStudentPage: React.FC = () => {
 
     // Validation
     const newErrors: Record<string, string> = {};
-    
-    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
-    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
-    
+
+    if (!formData.firstName.trim())
+      newErrors.firstName = "First name is required";
+    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
+
     if (!validateEmail(formData.email)) {
-      newErrors.email = 'Please use your institutional email (@eng.jfn.ac.lk)';
+      newErrors.email = "Please use your institutional email (@eng.jfn.ac.lk)";
     }
-    
+
     if (!validatePassword(formData.password)) {
-      newErrors.password = 'Password must be at least 8 characters with uppercase, lowercase, and number';
+      newErrors.password =
+        "Password must be at least 8 characters with uppercase, lowercase, and number";
     }
-    
+
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -90,37 +109,39 @@ const RegisterStudentPage: React.FC = () => {
       return;
     }
 
+    try {
+      // Send data to your API
+      const response = await fetch(
+        `${baseUrl}/api/studentRoutes/createStudent`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            password: formData.password,
+          }),
+        }
+      );
 
-  try {
-    // Send data to your API
-    const response = await fetch(`${baseUrl}/api/studentRoutes/createStudent`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password,
-      }),
-    });
+      const data = await response.json();
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      // If backend sends an error
-      setErrors({ submit: data.message || 'Registration failed' });
-    } else {
-      // Success
-      setEmailSent(true);
+      if (!response.ok) {
+        // If backend sends an error
+        setErrors({ submit: data.message || "Registration failed" });
+      } else {
+        // Success
+        setEmailSent(true);
+      }
+    } catch (error) {
+      setErrors({ submit: "Registration failed. Please try again." });
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    setErrors({ submit: 'Registration failed. Please try again.' });
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   if (emailSent) {
     return (
@@ -128,12 +149,15 @@ const RegisterStudentPage: React.FC = () => {
         <div className="max-w-md w-full text-center">
           <Card className="p-8">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Check Your Email</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Check Your Email
+            </h2>
             <p className="text-gray-600 mb-6">
-              We've sent a verification link to <strong>{formData.email}</strong>. 
-              Please check your email and click the verification link to activate your account.
+              We've sent a verification link to{" "}
+              <strong>{formData.email}</strong>. Please check your email and
+              click the verification link to activate your account.
             </p>
-            <Button onClick={() => navigate('/login')} fullWidth>
+            <Button onClick={() => navigate("/login")} fullWidth>
               Go to Login
             </Button>
           </Card>
@@ -151,8 +175,12 @@ const RegisterStudentPage: React.FC = () => {
               <User className="w-8 h-8 text-white" />
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Student Registration</h2>
-          <p className="mt-2 text-gray-600">Join the Engineering internship network</p>
+          <h2 className="text-3xl font-bold text-gray-900">
+            Student Registration
+          </h2>
+          <p className="mt-2 text-gray-600">
+            Join the Engineering internship network
+          </p>
         </div>
 
         <Card className="p-8">
@@ -172,6 +200,7 @@ const RegisterStudentPage: React.FC = () => {
                 onChange={handleInputChange}
                 error={errors.firstName}
                 required
+                className="w-full"
               />
               <Input
                 name="lastName"
@@ -181,6 +210,7 @@ const RegisterStudentPage: React.FC = () => {
                 onChange={handleInputChange}
                 error={errors.lastName}
                 required
+                className="w-full"
               />
             </div>
 
@@ -199,7 +229,7 @@ const RegisterStudentPage: React.FC = () => {
             <div className="relative">
               <Input
                 name="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 label="Password"
                 value={formData.password}
                 onChange={handleInputChange}
@@ -212,14 +242,18 @@ const RegisterStudentPage: React.FC = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-8 text-gray-400 hover:text-gray-600"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </button>
             </div>
 
             <div className="relative">
               <Input
                 name="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
+                type={showConfirmPassword ? "text" : "password"}
                 label="Confirm Password"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
@@ -232,11 +266,13 @@ const RegisterStudentPage: React.FC = () => {
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-3 top-8 text-gray-400 hover:text-gray-600"
               >
-                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showConfirmPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </button>
             </div>
-
-          
 
             <Button type="submit" fullWidth loading={loading}>
               Create Student Account
@@ -245,8 +281,11 @@ const RegisterStudentPage: React.FC = () => {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
                 Sign in here
               </Link>
             </p>
