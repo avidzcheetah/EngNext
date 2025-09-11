@@ -18,7 +18,7 @@ import CompanyProfile from './pages/company/profile';
 import Companies from './pages/companies';
 import PublicStudentProfile from './pages/student/PublicProfile';
 import PublicCompanyProfile from './pages/company/PublicProfile';
-import AdminDashboard from './pages/admin/Dashboard';
+import AdminDashboard from './pages/admin/dashboard';
 
 function App() {
   return (
@@ -35,6 +35,7 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register/student" element={<RegisterStudentPage />} />
               <Route path="/register/company" element={<RegisterCompanyPage />} />
+              <Route path="/register/admin" element={<RegisterAdminPage />} />
               <Route path="/student/dashboard" element={<StudentDashboard />} />
               <Route path="/student/profile" element={<StudentProfile />} />
               <Route path="/company/dashboard" element={<CompanyDashboard />} />
@@ -42,6 +43,7 @@ function App() {
               <Route path="/company/application" element={<ApplicationsPage/>} />
               <Route path="/student/PublicProfile" element={<PublicStudentProfile />} />
               <Route path="/comapny/PublicProfile/:id" element={<PublicCompanyProfile />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
             </Routes>
           </main>
           <Footer />

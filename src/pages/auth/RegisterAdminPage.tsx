@@ -14,7 +14,6 @@ const RegisterAdminPage: React.FC = () => {
     username: '',
     email: '',
     department: '' as AdminDepartment | '',
-    employeeId: '',
     password: '',
     confirmPassword: '',
   });
@@ -65,7 +64,6 @@ const RegisterAdminPage: React.FC = () => {
     if (!formData.username.trim()) newErrors.username = 'Username is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     if (!formData.department) newErrors.department = 'Department selection is required';
-    if (!formData.employeeId.trim()) newErrors.employeeId = 'Employee ID is required';
     
     if (formData.email && !validateEmail(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
@@ -104,7 +102,6 @@ const RegisterAdminPage: React.FC = () => {
           username: formData.username,
           email: formData.email,
           department: formData.department,
-          employeeId: formData.employeeId,
           password: formData.password,
         }),
       });
@@ -217,23 +214,11 @@ const RegisterAdminPage: React.FC = () => {
             <Input
               name="email"
               type="email"
-              label="Official University Email"
+              label="Email"
               placeholder="admin@eng.jfn.ac.lk"
               value={formData.email}
               onChange={handleInputChange}
               error={errors.email}
-              fullWidth
-              required
-            />
-
-            <Input
-              name="employeeId"
-              type="text"
-              label="Employee ID"
-              placeholder="Enter your university employee ID"
-              value={formData.employeeId}
-              onChange={handleInputChange}
-              error={errors.employeeId}
               fullWidth
               required
             />

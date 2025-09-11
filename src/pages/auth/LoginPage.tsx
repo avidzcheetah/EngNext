@@ -193,6 +193,17 @@ const LoginPage: React.FC = () => {
                 </Link>
               </p>
             )}
+            {userType === 'admin' && (
+              <p className="text-sm text-gray-600">
+                Don&apos;t have an account?{' '}
+                <Link
+                  to={`/register/admin`}
+                  className="font-medium text-blue-600 hover:text-blue-500"
+                >
+                  Sign up here
+                </Link>
+              </p>
+            )}
           </div>
         </Card>
 
