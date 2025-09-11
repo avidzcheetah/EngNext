@@ -9,6 +9,7 @@ import Contact from './pages/contact';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterStudentPage from './pages/auth/RegisterStudentPage';
 import RegisterCompanyPage from './pages/auth/RegisterCompanyPage';
+import RegisterAdminPage from './pages/auth/RegisterAdminPage';
 import StudentDashboard from './pages/student/StudentDashboard';
 import StudentProfile from './pages/student/profile';
 import CompanyDashboard from './pages/company/CompanyDashboard';
@@ -17,6 +18,8 @@ import CompanyProfile from './pages/company/profile';
 import Companies from './pages/companies';
 import PublicStudentProfile from './pages/student/PublicProfile';
 import PublicCompanyProfile from './pages/company/PublicProfile';
+import AdminDashboard from './pages/admin/Dashboard';
+
 function App() {
   return (
     <AuthProvider>

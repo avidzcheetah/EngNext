@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Building2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { User, Shield, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -11,13 +11,13 @@ interface LoginResponse {
   id: string;
   email: string;
   profilePicture?: string | null;
-  companyName?: string | null;
+  department?: string | null;
   createdAt: string;
 }
 
 const LoginPage: React.FC = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
-  const [userType, setUserType] = useState<'student' | 'company'>('student');
+  const [userType, setUserType] = useState<'student' | 'admin'>('student');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -34,8 +34,8 @@ const LoginPage: React.FC = () => {
 
     try {
       const url =
-        userType === 'company'
-          ? `${baseUrl}/api/companyRoutes/verifyCompany`
+        userType === 'admin'
+          ? `${baseUrl}/api/adminRoutes/loginAdmin`
           : `${baseUrl}/api/studentRoutes/loginStudent`;
 
       const response = await fetch(url, {
@@ -43,39 +43,39 @@ const LoginPage: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-     console.log("Test Point One ")
+
       if (!response.ok) {
         const text = await response.text();
         console.error('Server response:', text);
         setError('Incorrect email or password.');
         return;
       }
-    console.log("Test Point Two ")
+
       const data: LoginResponse = await response.json();
 
       if (!data.exists) {
         setError(
-          `${userType === 'company' ? 'Company' : 'Student'} not found or invalid password.`
+          `${userType === 'admin' ? 'Admin' : 'Student'} not found or invalid password.`
         );
         return;
       }
-     console.log("Test Point Three ")
+
       // Login with complete User object
       login({
         id: data.id,
         email: data.email,
         role: userType,
-        profilePicture: data.profilePicture || "",
-        companyName: data.companyName || "",
-        createdAt: new Date() // set current time
+        profilePicture: data.profilePicture || '',
+        department: data.department || '',
+        createdAt: new Date(),
       });
-   console.log("Test Point four ")
-      const redirectPath = userType === 'student' ? '/student/dashboard' : '/company/dashboard';
-      navigate(redirectPath, { state: { id: data.id } })
-      console.log("Test Point Five ")
+
+      const redirectPath =
+        userType === 'student' ? '/student/dashboard' : '/admin/dashboard';
+      navigate(redirectPath, { state: { id: data.id } });
     } catch (err) {
       console.error(err);
-      setError('Server error. Please  try again later.');
+      setError('Server error. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -110,15 +110,15 @@ const LoginPage: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => setUserType('company')}
+              onClick={() => setUserType('admin')}
               className={`flex-1 flex items-center justify-center py-2 px-4 rounded-md transition-all duration-200 ${
-                userType === 'company'
+                userType === 'admin'
                   ? 'bg-white shadow-sm text-blue-600'
                   : 'text-gray-600 hover:text-blue-600'
               }`}
             >
-              <Building2 className="w-4 h-4 mr-2" />
-              Company
+              <Shield className="w-4 h-4 mr-2" />
+              Admin
             </button>
           </div>
 
@@ -182,15 +182,17 @@ const LoginPage: React.FC = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link
-                to={`/register/${userType}`}
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
-                Sign up here
-              </Link>
-            </p>
+            {userType === 'student' && (
+              <p className="text-sm text-gray-600">
+                Don&apos;t have an account?{' '}
+                <Link
+                  to={`/register/student`}
+                  className="font-medium text-blue-600 hover:text-blue-500"
+                >
+                  Sign up here
+                </Link>
+              </p>
+            )}
           </div>
         </Card>
 
