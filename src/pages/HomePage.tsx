@@ -204,12 +204,12 @@ const { companyProfiles, loading, error } = useCompany();
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register/student">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
+              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-black">
                 Register as Student
               </Button>
             </Link>
             <Link to="/register/company">
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-blue-600">
+              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-black">
                 Register as Company
               </Button>
             </Link>

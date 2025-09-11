@@ -17,17 +17,17 @@ export const lecturers: Lecturer[] = [
   },
   {
     id: '3',
-    name: 'Dr. Ravi Kumar',
+    name: 'Lec1 Name',
     title: 'Senior Lecturer',
     photo: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400',
-    specialization: 'Control Systems & Automation'
+    specialization: 'Specialization here'
   },
   {
     id: '4',
-    name: 'Dr. Priya Sharma',
+    name: 'Lec2 Name',
     title: 'Lecturer',
     photo: 'https://images.pexels.com/photos/3783725/pexels-photo-3783725.jpeg?auto=compress&cs=tinysrgb&w=400',
-    specialization: 'Signal Processing & AI'
+    specialization: 'Specialization here'
   }
 ];
 
