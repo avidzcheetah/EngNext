@@ -5,6 +5,7 @@ export interface User {
   lastName?: string;
   companyName?: string;
   profilePicture?: string;
+  department?: string;
   role: 'student' | 'company' | 'admin';
   isApproved?: boolean;
   createdAt: Date;

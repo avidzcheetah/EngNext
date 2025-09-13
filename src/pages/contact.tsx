@@ -110,12 +110,12 @@ const Contact: React.FC = () => {
     {
       title: "Student Registration",
       description: "Register as a student to find internships",
-      link: "/register",
+      link: "/register/student",
     },
     {
       title: "Company Registration",
       description: "Register your company to post internships",
-      link: "/company/register",
+      link: "/register/company",
     },
     {
       title: "Technical Support",
@@ -125,7 +125,7 @@ const Contact: React.FC = () => {
     {
       title: "Partnership Opportunities",
       description: "Explore partnership with University of Jaffna",
-      link: "#",
+      link: "/companies",
     },
   ];
 

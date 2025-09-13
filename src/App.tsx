@@ -9,6 +9,7 @@ import Contact from './pages/contact';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterStudentPage from './pages/auth/RegisterStudentPage';
 import RegisterCompanyPage from './pages/auth/RegisterCompanyPage';
+import RegisterAdminPage from './pages/auth/RegisterAdminPage';
 import StudentDashboard from './pages/student/StudentDashboard';
 import StudentProfile from './pages/student/profile';
 import CompanyDashboard from './pages/company/CompanyDashboard';
@@ -17,6 +18,9 @@ import CompanyProfile from './pages/company/profile';
 import Companies from './pages/companies';
 import PublicStudentProfile from './pages/student/PublicProfile';
 import PublicCompanyProfile from './pages/company/PublicProfile';
+import AdminDashboard from './pages/admin/Dashboard';
+import AdminLogin from './pages/auth/AdminLogin';
+
 function App() {
   return (
     <AuthProvider>
@@ -32,6 +36,7 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register/student" element={<RegisterStudentPage />} />
               <Route path="/register/company" element={<RegisterCompanyPage />} />
+              <Route path="/register/admin" element={<RegisterAdminPage />} />
               <Route path="/student/dashboard" element={<StudentDashboard />} />
               <Route path="/student/profile" element={<StudentProfile />} />
               <Route path="/company/dashboard" element={<CompanyDashboard />} />
@@ -39,6 +44,8 @@ function App() {
               <Route path="/company/application" element={<ApplicationsPage/>} />
               <Route path="/student/PublicProfile" element={<PublicStudentProfile />} />
               <Route path="/comapny/PublicProfile/:id" element={<PublicCompanyProfile />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/adminlogin" element={<AdminLogin/>} />
             </Routes>
           </main>
           <Footer />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Shield, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -15,7 +15,7 @@ interface LoginResponse {
   createdAt: string;
 }
 
-const LoginPage: React.FC = () => {
+const AdminLogin: React.FC = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
     setError('');
 
     try {
-      const url = `${baseUrl}/api/studentRoutes/loginStudent`;
+      const url = `${baseUrl}/api/adminRoutes/loginAdmin`;
 
       const response = await fetch(url, {
         method: 'POST',
@@ -50,7 +50,7 @@ const LoginPage: React.FC = () => {
       const data: LoginResponse = await response.json();
 
       if (!data.exists) {
-        setError('Student not found or invalid password.');
+        setError('Admin not found or invalid password.');
         return;
       }
 
@@ -58,13 +58,13 @@ const LoginPage: React.FC = () => {
       login({
         id: data.id,
         email: data.email,
-        role: 'student',
+        role: 'admin',
         profilePicture: data.profilePicture || '',
         department: data.department || '',
         createdAt: new Date(),
       });
 
-      navigate('/student/dashboard', { state: { id: data.id } });
+      navigate('/admin/dashboard', { state: { id: data.id } });
     } catch (err) {
       console.error(err);
       setError('Server error. Please try again later.');
@@ -82,15 +82,15 @@ const LoginPage: React.FC = () => {
               <span className="text-white font-bold text-2xl">I</span>
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
-          <p className="mt-2 text-gray-600">Sign in to your Inturnix account</p>
+          <h2 className="text-3xl font-bold text-gray-900">Admin Portal</h2>
+          <p className="mt-2 text-gray-600">Sign in to your admin account</p>
         </div>
 
         <Card className="p-8">
           <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
             <div className="flex-1 flex items-center justify-center py-2 px-4 rounded-md bg-white shadow-sm text-blue-600">
-              <User className="w-4 h-4 mr-2" />
-              Student Login
+              <Shield className="w-4 h-4 mr-2" />
+              Admin Login
             </div>
           </div>
 
@@ -104,7 +104,7 @@ const LoginPage: React.FC = () => {
             <div className="relative">
               <Input
                 type="email"
-                placeholder="Enter your student email"
+                placeholder="Enter your admin email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 fullWidth
@@ -149,7 +149,7 @@ const LoginPage: React.FC = () => {
             </div>
 
             <Button type="submit" fullWidth loading={loading}>
-              Sign in
+              Sign in as admin
             </Button>
           </form>
 
@@ -157,7 +157,7 @@ const LoginPage: React.FC = () => {
             <p className="text-sm text-gray-600">
               Don&apos;t have an account?{' '}
               <Link
-                to={`/register/student`}
+                to={`/register/admin`}
                 className="font-medium text-blue-600 hover:text-blue-500"
               >
                 Sign up here
@@ -165,15 +165,9 @@ const LoginPage: React.FC = () => {
             </p>
           </div>
         </Card>
-
-        <div className="mt-4 text-center">
-          <p className="text-xs text-gray-500">
-            Students must use their institutional email (@eng.jfn.ac.lk)
-          </p>
-        </div>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default AdminLogin;

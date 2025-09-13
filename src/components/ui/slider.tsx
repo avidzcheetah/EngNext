@@ -5,18 +5,18 @@ import Button from './Button';
 
 const slidesData = [
   { id: 1, 
-    bg: 'https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/486325587_648294061476471_8869992137619792909_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_ohc=75MtE5CB81QQ7kNvwGkDqyg&_nc_oc=Adn4J89gMIXDjWhm1OycafrjPt5bm3wGzI3U3bdoZGVn_CgSZeLmdHA_rdITaTbUDyfueOVV2jn6itQZBSQqcRuZ&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=4UHpPPuxO1s_IMSQAXBMlA&oh=00_AfV4oNqCvqrWFDZkdyybJgUPNcHAwdiMHZ04itWqgk7XBA&oe=689CFC49', 
+    bg: 'https://i.postimg.cc/bv6pwHHx/Whats-App-Image-2025-09-10-at-20-18-04-251b45bb.jpg', 
     text: 'Welcome to Inturnix',
     desc: 'Bridging the gap between talented Engineering students and industry leaders. Your gateway to exceptional internship opportunities.' },
   { id: 2, 
-    bg: 'https://scontent.fcmb1-2.fna.fbcdn.net/v/t1.6435-9/83194792_2564087017052186_6078193925812649984_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=833d8c&_nc_ohc=DnQnt2GVtQkQ7kNvwFYNsdi&_nc_oc=Adky8xLPYnm5JGH4kT_E8i2W5fc7wuctK1a0ptGvpEm7Vm5dEYxNatMd2ym7FeToygTk00yRI2MuaGHgNW_mTziv&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=Xe11MWaNnjzssngan3QdZA&oh=00_AfWUhGeFe0wBH3_u20O0HclH1J6RCDWgFO1ungBTzJxY-g&oe=68BEAF10', 
-    text: 'Excellence in Solar Technologies',
-    desc: 'Sri Lankas First Floating Solar Plant. The Norwegian Ambassador to Sri Lanka Trine Jøranli Eskedal, open first floating solar plant of Sri Lanka in Kilinochchi.'
+    bg: 'https://i.postimg.cc/gJXFk90p/474564388-1645851299349445-6805054092875662533-n.jpg', 
+    text: 'Engineering Futures',
+    desc: 'Empowering the next generation of innovators through unmatched internship connections.'
    },
   { id: 3, 
-    bg: 'https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/523084195_4204172289818031_4375100798015996410_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=LITP9LT1MhAQ7kNvwGp4wIj&_nc_oc=AdkePg67dUi_CRS7rE5Ds1iBRqwRjapSkQKvmaE3NRCaAphzUr2jNDwCGMw_ocTgAJscHWj1rJ4IYdgSJEFfWHjK&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=LBTRYzP7h-3sELl3rzdBHw&oh=00_AfWgh5goxdLX946SsRsgwqzVZP7MBipwf5UTSeTkue8Z8A&oe=689D035C', 
-    text: 'Field visits',
-    desc: 'Thambapavani Wind Farm & Vydexa Nedunkulam Solar PV Park'
+    bg: 'https://i.postimg.cc/nhpJKw3K/Whats-App-Image-2025-09-10-at-20-18-05-d16c7e81.jpg', 
+    text: 'Talent Meets Opportunity',
+    desc: 'Bringing skilled engineering students face-to-face with industry trailblazers for meaningful internships.'
    },
 ];
 
