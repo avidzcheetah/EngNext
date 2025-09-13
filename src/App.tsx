@@ -18,7 +18,8 @@ import CompanyProfile from './pages/company/profile';
 import Companies from './pages/companies';
 import PublicStudentProfile from './pages/student/PublicProfile';
 import PublicCompanyProfile from './pages/company/PublicProfile';
-import AdminDashboard from './pages/admin/dashboard';
+import AdminDashboard from './pages/admin/Dashboard';
+import AdminLogin from './pages/auth/AdminLogin';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
               <Route path="/student/PublicProfile" element={<PublicStudentProfile />} />
               <Route path="/comapny/PublicProfile/:id" element={<PublicCompanyProfile />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/adminlogin" element={<AdminLogin/>} />
             </Routes>
           </main>
           <Footer />
