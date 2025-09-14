@@ -9,7 +9,8 @@ import {
   FileText,
   Send,
   Bell,
-  User
+  User,
+  Heart
 } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -31,9 +32,10 @@ const StudentDashboard: React.FC = () => {
   const [error, setError] = useState("")
   const navigate = useNavigate()
 
-  // Updated state variables for CV upload and cover letter
+  // Updated state variables for CV upload, cover letter, and interest level
   const [uploadedCV, setUploadedCV] = useState<File | null>(null);
   const [coverLetter, setCoverLetter] = useState('');
+  const [interestLevel, setInterestLevel] = useState(60); // Default to 60%
 
   interface Application {
     studentId: string;
@@ -46,14 +48,12 @@ const StudentDashboard: React.FC = () => {
     skills: string[];
     gpa: number;
     internshipId: string;
-    coverLetter:string;
+    coverLetter: string;
+    interestLevel: number; // Added interest level to interface
   }
 
 // Initialize with empty array, will populate later with setApplications
 
-
-
- 
    
    
   // Initialize with empty array, will populate later with setApplications
@@ -128,6 +128,14 @@ const StudentDashboard: React.FC = () => {
   const [profilepreview, setProfilePreview] = useState<string | null>(null);
   
 
+  // Function to get interest level color and text
+  const getInterestLevelInfo = (level: number) => {
+    if (level <= 20) return { color: 'bg-red-400', text: 'Low Interest', textColor: 'text-red-600' };
+    if (level <= 40) return { color: 'bg-orange-400', text: 'Moderate Interest', textColor: 'text-orange-600' };
+    if (level <= 60) return { color: 'bg-yellow-400', text: 'Good Interest', textColor: 'text-yellow-600' };
+    if (level <= 80) return { color: 'bg-blue-400', text: 'High Interest', textColor: 'text-blue-600' };
+    return { color: 'bg-green-400', text: 'Very High Interest', textColor: 'text-green-600' };
+  };
 
   const handleUpdateprofile = () => {
     navigate("/student/profile", { state: { id: id } });
@@ -235,7 +243,8 @@ const StudentDashboard: React.FC = () => {
         skills: profileData.skills,
         gpa: profileData.gpa,
         internshipId: selectedInternship || "",
-        coverLetter:coverLetter,
+        coverLetter: coverLetter,
+        interestLevel: interestLevel, // Include interest level in application
       };
 
       // 1️⃣ Send application to backend
@@ -263,6 +272,7 @@ const StudentDashboard: React.FC = () => {
       // Reset form state
       setUploadedCV(null);
       setCoverLetter('');
+      setInterestLevel(60); // Reset interest level to default
 
       // 3️⃣ Increment ApplicationsSent
       const res1 = await fetch(
@@ -298,6 +308,7 @@ const StudentDashboard: React.FC = () => {
   const handleApply = (internshipId: string) => {
     setSelectedInternship(internshipId);
     setShowApplicationModal(true);
+    setInterestLevel(60); // Reset to default when opening modal
   };
 
   return (
@@ -519,10 +530,10 @@ const StudentDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Updated Application Modal */}
+      {/* Updated Application Modal with Interest Level */}
       {showApplicationModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <Card className="max-w-2xl w-full p-6">
+          <Card className="max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-semibold">Submit Application</h3>
               <button
@@ -587,6 +598,65 @@ const StudentDashboard: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Interest Level Slider */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <Heart className="w-4 h-4 inline mr-2" />
+                    Select your Interest Level for this Position:
+                  </label>
+                  <div className="space-y-3">
+                    <div className="relative">
+                      {/* Background bar */}
+                      <div className="w-full h-4 bg-gray-200 rounded-full shadow-inner">
+                        {/* Progress bar that changes color */}
+                        <div 
+                          className={`h-4 rounded-full transition-all duration-300 ease-out ${getInterestLevelInfo(interestLevel).color} shadow-sm`}
+                          style={{ width: `${interestLevel}%` }}
+                        ></div>
+                      </div>
+                      
+                      {/* Invisible slider overlay */}
+                      <input
+                        type="range"
+                        min="20"
+                        max="100"
+                        step="20"
+                        value={interestLevel}
+                        onChange={(e) => setInterestLevel(Number(e.target.value))}
+                        className="absolute top-0 w-full h-4 opacity-0 cursor-pointer"
+                      />
+                      
+                      {/* Slider thumb indicator */}
+                      <div 
+                        className="absolute top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white border-2 border-gray-300 rounded-full shadow-md pointer-events-none transition-all duration-300"
+                        style={{ 
+                          left: `calc(${interestLevel}% - 12px)`,
+                          borderColor: getInterestLevelInfo(interestLevel).color.replace('bg-', '').replace('-400', '-500')
+                        }}
+                      >
+                        <div className={`w-2 h-2 ${getInterestLevelInfo(interestLevel).color} rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`}></div>
+                      </div>
+                      
+                      <div className="relative mt-2">
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span style={{ position: 'absolute', left: '0%', transform: 'translateX(-50%)' }}>0%</span>
+                          <span style={{ position: 'absolute', left: '20%', transform: 'translateX(-50%)' }}>20%</span>
+                          <span style={{ position: 'absolute', left: '40%', transform: 'translateX(-50%)' }}>40%</span>
+                          <span style={{ position: 'absolute', left: '60%', transform: 'translateX(-50%)' }}>60%</span>
+                          <span style={{ position: 'absolute', left: '80%', transform: 'translateX(-50%)' }}>80%</span>
+                          <span style={{ position: 'absolute', left: '100%', transform: 'translateX(-50%)' }}>100%</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-center space-x-2 p-3 bg-gray-50 rounded-lg">
+                      <Heart className={`w-5 h-5 ${getInterestLevelInfo(interestLevel).color.replace('bg-', 'text-')}`} />
+                      <span className={`font-medium ${getInterestLevelInfo(interestLevel).textColor}`}>
+                        {getInterestLevelInfo(interestLevel).text} ({interestLevel}%)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Cover Letter */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -607,7 +677,7 @@ const StudentDashboard: React.FC = () => {
                     <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                     </svg>
-                    The company will review your complete profile including your CV and skills
+                    Your interest level helps employers understand your priority for this position
                   </p>
                 </div>
 

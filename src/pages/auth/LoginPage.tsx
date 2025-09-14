@@ -74,8 +74,132 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-teal-50 to-blue-100 animate-gradient-xy"></div>
+      <div className="absolute inset-0">
+        {/* Nebula-like Glow 1 */}
+        <div
+          className="absolute rounded-full animate-pulse"
+          style={{
+            width: '400px',
+            height: '400px',
+            left: '10%',
+            top: '15%',
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent)',
+            animationDuration: '8s',
+          }}
+        ></div>
+        {/* Nebula-like Glow 2 */}
+        <div
+          className="absolute rounded-full animate-pulse"
+          style={{
+            width: '500px',
+            height: '500px',
+            right: '5%',
+            bottom: '10%',
+            background: 'radial-gradient(circle, rgba(147, 51, 234, 0.3), transparent)',
+            animationDuration: '10s',
+            animationDelay: '2s',
+          }}
+        ></div>
+        {/* Stars */}
+        {[...Array(40)].map((_, i) => {
+          const size = Math.random() * 3 + 1;
+          const delay = Math.random() * 4;
+          const duration = Math.random() * 3 + 3;
+          return (
+            <div
+              key={`star-${i}`}
+              className="absolute rounded-full animate-twinkle"
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                backgroundColor: 'white',
+                animationDelay: `${delay}s`,
+                animationDuration: `${duration}s`,
+              }}
+            />
+          );
+        })}
+        {/* Floating Cosmic Particles */}
+        {[...Array(15)].map((_, i) => {
+          const size = Math.random() * 18 + 6;
+          const delay = Math.random() * 5;
+          const duration = Math.random() * 7 + 8;
+          const driftX = (Math.random() - 0.5) * 100;
+          return (
+            <div
+              key={`particle-${i}`}
+              className="absolute rounded-full animate-float"
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                backgroundColor: 'rgba(59, 130, 246, 0.4)',
+                animationDelay: `${delay}s`,
+                animationDuration: `${duration}s`,
+                ['--drift-x' as string]: `${driftX}px`,
+              } as React.CSSProperties}
+            />
+          );
+        })}
+      </div>
+
+      <style>{`
+        @keyframes gradient-xy {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 0.4;
+          }
+          50% {
+            opacity: 0.6;
+          }
+          100% {
+            transform: translateY(-100vh) translateX(var(--drift-x, 20px));
+            opacity: 0.4;
+          }
+        }
+
+        @keyframes twinkle {
+          0% {
+            opacity: 0.4;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.8;
+            transform: scale(1.5);
+          }
+          100% {
+            opacity: 0.4;
+            transform: scale(1);
+          }
+        }
+
+        .animate-gradient-xy {
+          background-size: 200% 200%;
+          animation: gradient-xy 15s ease infinite;
+        }
+
+        .animate-float {
+          animation: float linear infinite;
+        }
+
+        .animate-twinkle {
+          animation: twinkle ease-in-out infinite;
+        }
+      `}</style>
+
+      <div className="max-w-md w-full relative z-10">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center">
@@ -86,7 +210,7 @@ const LoginPage: React.FC = () => {
           <p className="mt-2 text-gray-600">Sign in to your Inturnix account</p>
         </div>
 
-        <Card className="p-8">
+        <Card className="p-8 bg-white/90 backdrop-blur-sm">
           <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
             <div className="flex-1 flex items-center justify-center py-2 px-4 rounded-md bg-white shadow-sm text-blue-600">
               <User className="w-4 h-4 mr-2" />

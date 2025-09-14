@@ -49,7 +49,6 @@ const RegisterStudentPage: React.FC = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -59,7 +58,6 @@ const RegisterStudentPage: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 3 * 1024 * 1024) {
-        // 3MB limit
         setErrors((prev) => ({
           ...prev,
           profilePicture: "File size must be less than 3MB",
@@ -83,7 +81,6 @@ const RegisterStudentPage: React.FC = () => {
     setLoading(true);
     setErrors({});
 
-    // Validation
     const newErrors: Record<string, string> = {};
 
     if (!formData.firstName.trim())
@@ -110,7 +107,6 @@ const RegisterStudentPage: React.FC = () => {
     }
 
     try {
-      // Send data to your API
       const response = await fetch(
         `${baseUrl}/api/studentRoutes/createStudent`,
         {
@@ -130,10 +126,8 @@ const RegisterStudentPage: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        // If backend sends an error
         setErrors({ submit: data.message || "Registration failed" });
       } else {
-        // Success
         setEmailSent(true);
       }
     } catch (error) {
@@ -145,9 +139,128 @@ const RegisterStudentPage: React.FC = () => {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full text-center">
-          <Card className="p-8">
+      <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-100 animate-gradient-xy"></div>
+        <div className="absolute inset-0">
+          <div
+            className="absolute rounded-full animate-pulse"
+            style={{
+              width: "400px",
+              height: "400px",
+              left: "10%",
+              top: "15%",
+              background: "radial-gradient(circle, rgba(139, 92, 246, 0.3), transparent)",
+              animationDuration: "8s",
+            }}
+          ></div>
+          <div
+            className="absolute rounded-full animate-pulse"
+            style={{
+              width: "500px",
+              height: "500px",
+              right: "5%",
+              bottom: "10%",
+              background: "radial-gradient(circle, rgba(79, 70, 229, 0.3), transparent)",
+              animationDuration: "10s",
+              animationDelay: "2s",
+            }}
+          ></div>
+          {[...Array(40)].map((_, i) => {
+            const size = Math.random() * 3 + 1;
+            const delay = Math.random() * 4;
+            const duration = Math.random() * 3 + 3;
+            return (
+              <div
+                key={`star-${i}`}
+                className="absolute rounded-full animate-twinkle"
+                style={{
+                  width: `${size}px`,
+                  height: `${size}px`,
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  backgroundColor: "white",
+                  animationDelay: `${delay}s`,
+                  animationDuration: `${duration}s`,
+                }}
+              />
+            );
+          })}
+          {[...Array(15)].map((_, i) => {
+            const size = Math.random() * 18 + 6;
+            const delay = Math.random() * 5;
+            const duration = Math.random() * 7 + 8;
+            const driftX = (Math.random() - 0.5) * 100;
+            return (
+              <div
+                key={`particle-${i}`}
+                className="absolute rounded-full animate-float"
+                style={{
+                  width: `${size}px`,
+                  height: `${size}px`,
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  backgroundColor: "rgba(139, 92, 246, 0.4)",
+                  animationDelay: `${delay}s`,
+                  animationDuration: `${duration}s`,
+                  ["--drift-x" as string]: `${driftX}px`,
+                } as React.CSSProperties}
+              />
+            );
+          })}
+        </div>
+
+        <style>{`
+          @keyframes gradient-xy {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+
+          @keyframes float {
+            0% {
+              transform: translateY(0) translateX(0);
+              opacity: 0.4;
+            }
+            50% {
+              opacity: 0.6;
+            }
+            100% {
+              transform: translateY(-100vh) translateX(var(--drift-x, 20px));
+              opacity: 0.4;
+            }
+          }
+
+          @keyframes twinkle {
+            0% {
+              opacity: 0.4;
+              transform: scale(1);
+            }
+            50% {
+              opacity: 0.8;
+              transform: scale(1.5);
+            }
+            100% {
+              opacity: 0.4;
+              transform: scale(1);
+            }
+          }
+
+          .animate-gradient-xy {
+            background-size: 200% 200%;
+            animation: gradient-xy 15s ease infinite;
+          }
+
+          .animate-float {
+            animation: float linear infinite;
+          }
+
+          .animate-twinkle {
+            animation: twinkle ease-in-out infinite;
+          }
+        `}</style>
+
+        <div className="max-w-md w-full relative z-10 text-center">
+          <Card className="p-8 bg-white/90 backdrop-blur-sm">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               Check Your Email
@@ -167,11 +280,130 @@ const RegisterStudentPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-100 animate-gradient-xy"></div>
+      <div className="absolute inset-0">
+        <div
+          className="absolute rounded-full animate-pulse"
+          style={{
+            width: "400px",
+            height: "400px",
+            left: "10%",
+            top: "15%",
+            background: "radial-gradient(circle, rgba(139, 92, 246, 0.3), transparent)",
+            animationDuration: "8s",
+          }}
+        ></div>
+        <div
+          className="absolute rounded-full animate-pulse"
+          style={{
+            width: "500px",
+            height: "500px",
+            right: "5%",
+            bottom: "10%",
+            background: "radial-gradient(circle, rgba(79, 70, 229, 0.3), transparent)",
+            animationDuration: "10s",
+            animationDelay: "2s",
+          }}
+        ></div>
+        {[...Array(40)].map((_, i) => {
+          const size = Math.random() * 3 + 1;
+          const delay = Math.random() * 4;
+          const duration = Math.random() * 3 + 3;
+          return (
+            <div
+              key={`star-${i}`}
+              className="absolute rounded-full animate-twinkle"
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                backgroundColor: "white",
+                animationDelay: `${delay}s`,
+                animationDuration: `${duration}s`,
+              }}
+            />
+          );
+        })}
+        {[...Array(15)].map((_, i) => {
+          const size = Math.random() * 18 + 6;
+          const delay = Math.random() * 5;
+          const duration = Math.random() * 7 + 8;
+          const driftX = (Math.random() - 0.5) * 100;
+          return (
+            <div
+              key={`particle-${i}`}
+              className="absolute rounded-full animate-float"
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                backgroundColor: "rgba(139, 92, 246, 0.4)",
+                animationDelay: `${delay}s`,
+                animationDuration: `${duration}s`,
+                ["--drift-x" as string]: `${driftX}px`,
+              } as React.CSSProperties}
+            />
+          );
+        })}
+      </div>
+
+      <style>{`
+        @keyframes gradient-xy {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 0.4;
+          }
+          50% {
+            opacity: 0.6;
+          }
+          100% {
+            transform: translateY(-100vh) translateX(var(--drift-x, 20px));
+            opacity: 0.4;
+          }
+        }
+
+        @keyframes twinkle {
+          0% {
+            opacity: 0.4;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.8;
+            transform: scale(1.5);
+          }
+          100% {
+            opacity: 0.4;
+            transform: scale(1);
+          }
+        }
+
+        .animate-gradient-xy {
+          background-size: 200% 200%;
+          animation: gradient-xy 15s ease infinite;
+        }
+
+        .animate-float {
+          animation: float linear infinite;
+        }
+
+        .animate-twinkle {
+          animation: twinkle ease-in-out infinite;
+        }
+      `}</style>
+
+      <div className="max-w-md w-full relative z-10">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center">
+            <div className="w-16 h-16 bg-indigo-600 rounded-xl flex items-center justify-center">
               <User className="w-8 h-8 text-white" />
             </div>
           </div>
@@ -183,7 +415,7 @@ const RegisterStudentPage: React.FC = () => {
           </p>
         </div>
 
-        <Card className="p-8">
+        <Card className="p-8 bg-white/90 backdrop-blur-sm">
           <form onSubmit={handleSubmit} className="space-y-6">
             {errors.submit && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -284,7 +516,7 @@ const RegisterStudentPage: React.FC = () => {
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="font-medium text-blue-600 hover:text-blue-500"
+                className="font-medium text-indigo-600 hover:text-indigo-500"
               >
                 Sign in here
               </Link>
