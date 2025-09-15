@@ -79,7 +79,7 @@ const AdminLogin: React.FC = () => {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-2xl">I</span>
+              <Shield className="w-10 h-10 text-white" />
             </div>
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Admin Portal</h2>

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import Card from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface LoginResponse {
   exists: boolean;
@@ -17,11 +17,11 @@ interface LoginResponse {
 
 const LoginPage: React.FC = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -29,28 +29,28 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const url = `${baseUrl}/api/studentRoutes/loginStudent`;
 
       const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
         const text = await response.text();
-        console.error('Server response:', text);
-        setError('Incorrect email or password.');
+        console.error("Server response:", text);
+        setError("Incorrect email or password.");
         return;
       }
 
       const data: LoginResponse = await response.json();
 
       if (!data.exists) {
-        setError('Student not found or invalid password.');
+        setError("Student not found or invalid password.");
         return;
       }
 
@@ -58,16 +58,16 @@ const LoginPage: React.FC = () => {
       login({
         id: data.id,
         email: data.email,
-        role: 'student',
-        profilePicture: data.profilePicture || '',
-        department: data.department || '',
+        role: "student",
+        profilePicture: data.profilePicture || "",
+        department: data.department || "",
         createdAt: new Date(),
       });
 
-      navigate('/student/dashboard', { state: { id: data.id } });
+      navigate("/student/dashboard", { state: { id: data.id } });
     } catch (err) {
       console.error(err);
-      setError('Server error. Please try again later.');
+      setError("Server error. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -82,25 +82,27 @@ const LoginPage: React.FC = () => {
         <div
           className="absolute rounded-full animate-pulse"
           style={{
-            width: '400px',
-            height: '400px',
-            left: '10%',
-            top: '15%',
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent)',
-            animationDuration: '8s',
+            width: "400px",
+            height: "400px",
+            left: "10%",
+            top: "15%",
+            background:
+              "radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent)",
+            animationDuration: "8s",
           }}
         ></div>
         {/* Nebula-like Glow 2 */}
         <div
           className="absolute rounded-full animate-pulse"
           style={{
-            width: '500px',
-            height: '500px',
-            right: '5%',
-            bottom: '10%',
-            background: 'radial-gradient(circle, rgba(147, 51, 234, 0.3), transparent)',
-            animationDuration: '10s',
-            animationDelay: '2s',
+            width: "500px",
+            height: "500px",
+            right: "5%",
+            bottom: "10%",
+            background:
+              "radial-gradient(circle, rgba(147, 51, 234, 0.3), transparent)",
+            animationDuration: "10s",
+            animationDelay: "2s",
           }}
         ></div>
         {/* Stars */}
@@ -117,7 +119,7 @@ const LoginPage: React.FC = () => {
                 height: `${size}px`,
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                backgroundColor: 'white',
+                backgroundColor: "white",
                 animationDelay: `${delay}s`,
                 animationDuration: `${duration}s`,
               }}
@@ -134,16 +136,18 @@ const LoginPage: React.FC = () => {
             <div
               key={`particle-${i}`}
               className="absolute rounded-full animate-float"
-              style={{
-                width: `${size}px`,
-                height: `${size}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                backgroundColor: 'rgba(59, 130, 246, 0.4)',
-                animationDelay: `${delay}s`,
-                animationDuration: `${duration}s`,
-                ['--drift-x' as string]: `${driftX}px`,
-              } as React.CSSProperties}
+              style={
+                {
+                  width: `${size}px`,
+                  height: `${size}px`,
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  backgroundColor: "rgba(59, 130, 246, 0.4)",
+                  animationDelay: `${delay}s`,
+                  animationDuration: `${duration}s`,
+                  ["--drift-x" as string]: `${driftX}px`,
+                } as React.CSSProperties
+              }
             />
           );
         })}
@@ -203,7 +207,7 @@ const LoginPage: React.FC = () => {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-2xl">I</span>
+              <User className="w-8 h-8 text-white" />
             </div>
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
@@ -240,7 +244,7 @@ const LoginPage: React.FC = () => {
 
             <div className="relative">
               <Input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -255,7 +259,11 @@ const LoginPage: React.FC = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </button>
             </div>
 
@@ -267,7 +275,10 @@ const LoginPage: React.FC = () => {
                 />
                 <span className="ml-2 text-sm text-gray-600">Remember me</span>
               </label>
-              <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+              <Link
+                to="/forgot-password"
+                className="text-sm text-blue-600 hover:text-blue-500"
+              >
                 Forgot password?
               </Link>
             </div>
@@ -279,7 +290,7 @@ const LoginPage: React.FC = () => {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Don&apos;t have an account?{' '}
+              Don&apos;t have an account?{" "}
               <Link
                 to={`/register/student`}
                 className="font-medium text-blue-600 hover:text-blue-500"

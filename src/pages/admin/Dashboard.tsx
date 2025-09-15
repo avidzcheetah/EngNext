@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PlusCircle, Briefcase, Building2, Users, Edit3 } from "lucide-react";
+import { PlusCircle, Briefcase, Building2, Users, Edit3, Eye, Trash2 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import { useAuth } from "../../contexts/AuthContext";
@@ -58,6 +58,38 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleDeleteCompany = async (companyId: string) => {
+    if (!confirm("Are you sure you want to delete this company? This will also delete all associated internships.")) {
+      return;
+    }
+    
+    try {
+      const res = await fetch(`${baseUrl}/api/companyRoutes/deleteCompany/${companyId}`, {
+        method: 'DELETE'
+      });
+      
+      if (res.ok) {
+        alert("Company deleted successfully");
+        fetchCompanies();
+        fetchInternships();
+      } else {
+        const error = await res.json();
+        alert(error.message || "Failed to delete company");
+      }
+    } catch (err) {
+      console.error("Error deleting company:", err);
+      alert("Failed to delete company");
+    }
+  };
+
+  const handleManageCompany = (companyId: string) => {
+    navigate(`/admin/manageCompany/${companyId}`);
+  };
+
+  const handleViewCompany = (companyId: string) => {
+    navigate(`/admin/viewCompany/${companyId}`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -72,103 +104,170 @@ const AdminDashboard: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="p-6 text-center hover:shadow-lg transition-all bg-white rounded-xl">
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <Building2 className="w-6 h-6 text-blue-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-1">{companies.length}</h3>
+            <p className="text-gray-600 text-sm">Total Companies</p>
+          </Card>
+          
+          <Card className="p-6 text-center hover:shadow-lg transition-all bg-white rounded-xl">
+            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <Briefcase className="w-6 h-6 text-purple-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-1">{internships.length}</h3>
+            <p className="text-gray-600 text-sm">Active Internships</p>
+          </Card>
+          
+          <Card className="p-6 text-center hover:shadow-lg transition-all bg-white rounded-xl">
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <Users className="w-6 h-6 text-green-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-1">{applications.length}</h3>
+            <p className="text-gray-600 text-sm">Total Applications</p>
+          </Card>
+          
+          <Card className="p-6 text-center hover:shadow-lg transition-all bg-white rounded-xl">
+            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <PlusCircle className="w-6 h-6 text-orange-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-1">
+              {applications.filter(app => app.status === "pending").length}
+            </h3>
+            <p className="text-gray-600 text-sm">Pending Reviews</p>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Main Content */}
-          <div className="lg:col-span-3 space-y-6">
+          <div className="lg:col-span-2 space-y-6">
             
             {/* Companies Section */}
             <Card className="p-6 shadow-sm hover:shadow-md transition">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-blue-600" /> Companies
+                  <Building2 className="w-5 h-5 text-blue-600" /> Companies ({companies.length})
                 </h3>
                 <Button
-                  onClick={() => navigate("/admin/addCompany")}
+                  onClick={() => navigate("/register/company")}
                   className="bg-gradient-to-r from-blue-600 to-purple-600 text-white"
                 >
                   <PlusCircle className="w-4 h-4 mr-2" /> Add Company
                 </Button>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-3 max-h-96 overflow-y-auto">
                 {companies.map((company) => (
-                  <Card key={company._id} className="p-4 flex justify-between items-center">
-                    <div>
-                      <h4 className="font-bold text-gray-900">{company.name}</h4>
-                      <p className="text-sm text-gray-600">{company.email}</p>
+                  <Card key={company._id} className="p-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-3">
+                        {company.logoUrl && (
+                          <img 
+                            src={company.logoUrl} 
+                            alt={company.name}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        )}
+                        <div>
+                          <h4 className="font-bold text-gray-900">{company.name || company.companyName}</h4>
+                          <p className="text-sm text-gray-600">{company.email}</p>
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                            {company.industry || 'Technology'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewCompany(company._id)}
+                          title="View Company Profile"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleManageCompany(company._id)}
+                          title="Manage Company & Internships"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleDeleteCompany(company._id)}
+                          title="Delete Company"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => navigate(`/admin/editCompany/${company._id}`)}
-                    >
-                      <Edit3 className="w-4 h-4 mr-2" /> Edit
-                    </Button>
                   </Card>
                 ))}
+                {companies.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    No companies added yet. Click "Add Company" to get started.
+                  </div>
+                )}
               </div>
             </Card>
 
-            {/* Internships Section */}
+            {/* Recent Internships Section */}
             <Card className="p-6 shadow-sm hover:shadow-md transition">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <Briefcase className="w-5 h-5 text-purple-600" /> Internships
+                  <Briefcase className="w-5 h-5 text-purple-600" /> Recent Internships
                 </h3>
                 <Button
-                  onClick={() => navigate("/admin/postInternship")}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-white"
+                  onClick={() => navigate("/admin/allInternships")}
+                  variant="outline"
+                  size="sm"
                 >
-                  <PlusCircle className="w-4 h-4 mr-2" /> Post Internship
+                  View All
                 </Button>
               </div>
-              <div className="space-y-3">
-                {internships.map((internship) => (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {internships.slice(0, 5).map((internship) => (
                   <Card key={internship._id} className="p-4">
                     <div className="flex justify-between items-center">
                       <div>
                         <h4 className="font-bold text-gray-900">{internship.title}</h4>
                         <p className="text-sm text-gray-600">{internship.companyName}</p>
+                        <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
+                          <span>{internship.location}</span>
+                          <span>{internship.duration}</span>
+                          <span className={`px-2 py-1 rounded-full ${
+                            internship.isActive 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {internship.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
                       </div>
                       <div className="flex space-x-2">
                         <Button
                           variant="outline"
-                          onClick={() => navigate(`/admin/editInternship/${internship._id}`)}
+                          size="sm"
+                          onClick={() => navigate(`/admin/viewInternship/${internship._id}`)}
                         >
-                          <Edit3 className="w-4 h-4 mr-2" /> Edit
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => fetchApplications(internship._id)}
-                        >
-                          <Users className="w-4 h-4 mr-2" /> View Applicants
+                          <Eye className="w-4 h-4 mr-1" /> View
                         </Button>
                       </div>
                     </div>
                   </Card>
                 ))}
+                {internships.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    No internships posted yet.
+                  </div>
+                )}
               </div>
             </Card>
-
-            {/* Applications Section */}
-            {applications.length > 0 && (
-              <Card className="p-6 shadow-sm hover:shadow-md transition">
-                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-green-600" /> Applications
-                </h3>
-                <div className="space-y-3">
-                  {applications.map((app) => (
-                    <Card key={app._id} className="p-4">
-                      <h4 className="font-bold text-gray-900">{app.studentName}</h4>
-                      <p className="text-sm text-gray-600">{app.email}</p>
-                      <p className="text-xs text-gray-500">
-                        GPA: {app.gpa} | Skills: {app.skills.join(", ")}
-                      </p>
-                    </Card>
-                  ))}
-                </div>
-              </Card>
-            )}
-
           </div>
 
           {/* Sidebar */}
@@ -183,6 +282,37 @@ const AdminDashboard: React.FC = () => {
               >
                 Manage Profile
               </Button>
+            </Card>
+
+            {/* Quick Actions */}
+            <Card className="p-6">
+              <h3 className="font-bold text-gray-900 mb-4">Quick Actions</h3>
+              <div className="space-y-3">
+                <Button
+                  fullWidth
+                  variant="outline"
+                  onClick={() => navigate("/register/company")}
+                >
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  Add New Company
+                </Button>
+                <Button
+                  fullWidth
+                  variant="outline"
+                  onClick={() => navigate("/admin/allInternships")}
+                >
+                  <Briefcase className="w-4 h-4 mr-2" />
+                  Manage Internships
+                </Button>
+                <Button
+                  fullWidth
+                  variant="outline"
+                  onClick={() => navigate("/admin/applications")}
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  Review Applications
+                </Button>
+              </div>
             </Card>
           </div>
         </div>
