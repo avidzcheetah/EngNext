@@ -801,7 +801,7 @@ const handleDownloadCV = async (id:string) => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
-            Company Dashboard
+            Company Dashboard - {formData.companyName}
           </h1>
           <p className="text-gray-600">
             Manage your internship programs and candidates

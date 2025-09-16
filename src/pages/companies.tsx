@@ -1,44 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ExternalLink, MapPin, Users, Calendar, Search, Filter, Building2, Globe, Mail } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import {
+  ExternalLink,
+  MapPin,
+  Users,
+  Calendar,
+  Search,
+  Filter,
+  Building2,
+  Globe,
+  Mail,
+} from "lucide-react";
 
 import { useCompany } from "../contexts/CompanyContext";
 // Mock company data (will be replaced with API calls later)
 
-
 const Companies: React.FC = () => {
- ;
- const [filteredCompanies, setFilteredCompanies] = useState<
-  {
-    id?: string;
-    description?: string;
-    website?: string;
-    email?: string;
-    role?: string;
-    logo?: string;
-    logoType?: string;
-    logoUrl?: string;
-    companyName?: string;
-    employees?:number;
-    location?:string;
-    industry?:string
-  }[]
->([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedIndustry, setSelectedIndustry] = useState('all');
-  const [selectedLocation, setSelectedLocation] = useState('all');
+  const [filteredCompanies, setFilteredCompanies] = useState<
+    {
+      id?: string;
+      description?: string;
+      website?: string;
+      email?: string;
+      role?: string;
+      logo?: string;
+      logoType?: string;
+      logoUrl?: string;
+      companyName?: string;
+      employees?: number;
+      location?: string;
+      industry?: string;
+    }[]
+  >([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedIndustry, setSelectedIndustry] = useState("all");
+  const [selectedLocation, setSelectedLocation] = useState("all");
   const [loadings, setLoading] = useState(true);
 
- 
-const { companyProfiles, loading, error } = useCompany();
+  const { companyProfiles, loading, error } = useCompany();
 
- const [errors, setError] = useState<string | null>(null);
+  const [errors, setError] = useState<string | null>(null);
 
- // Get unique industries and locations for filters
-  const industries = [...new Set(companyProfiles.map(company => company.industry))];
-  const locations = [...new Set(companyProfiles.map(company => company.location))];
-  
-  
+  // Get unique industries and locations for filters
+  const industries = [
+    ...new Set(companyProfiles.map((company) => company.industry)),
+  ];
+  const locations = [
+    ...new Set(companyProfiles.map((company) => company.location)),
+  ];
+
   // Simulate loading state
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -53,27 +63,34 @@ const { companyProfiles, loading, error } = useCompany();
 
     // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(company =>
-        company.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.role?.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (company) =>
+          company.companyName
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          company.description
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          company.role?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Industry filter
-    if (selectedIndustry !== 'all') {
-      filtered = filtered.filter(company => company.industry=== selectedIndustry);
+    if (selectedIndustry !== "all") {
+      filtered = filtered.filter(
+        (company) => company.industry === selectedIndustry
+      );
     }
 
     // Location filter
-    if (selectedLocation !== 'all') {
-      filtered = filtered.filter(company => company.location === selectedLocation);
+    if (selectedLocation !== "all") {
+      filtered = filtered.filter(
+        (company) => company.location === selectedLocation
+      );
     }
 
     setFilteredCompanies(filtered);
   }, [searchTerm, selectedIndustry, selectedLocation, companyProfiles]);
-
-  
 
   if (loading) {
     return (
@@ -89,8 +106,11 @@ const { companyProfiles, loading, error } = useCompany();
         </div>
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="bg-white rounded-xl shadow-md p-6 animate-pulse">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="bg-white rounded-xl shadow-md p-6 animate-pulse"
+              >
                 <div className="h-16 bg-gray-200 rounded-lg mb-4"></div>
                 <div className="h-6 bg-gray-200 rounded mb-2"></div>
                 <div className="h-4 bg-gray-100 rounded mb-4"></div>
@@ -115,22 +135,31 @@ const { companyProfiles, loading, error } = useCompany();
             Partner Companies
           </h1>
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-blue-100 mb-8">
-            Discover leading companies offering exciting internship opportunities for EEE students
+            Discover leading companies offering exciting internship
+            opportunities for EEE students
           </p>
-          
+
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-4">
-              <div className="text-2xl md:text-3xl font-bold">{companyProfiles.length}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+
+            <div className="bg-white/10 backdrop-blur-md rounded-lg p-4 text-center">
+              <div className="text-2xl md:text-3xl font-bold">
+                {companyProfiles.length}
+              </div>
               <div className="text-blue-100 text-sm">Companies</div>
             </div>
-           
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-4">
-              <div className="text-2xl md:text-3xl font-bold">{industries.length}</div>
+
+            <div className="bg-white/10 backdrop-blur-md rounded-lg p-4 text-center">
+              <div className="text-2xl md:text-3xl font-bold">
+                {industries.length}
+              </div>
               <div className="text-blue-100 text-sm">Industries</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-4">
-              <div className="text-2xl md:text-3xl font-bold">{locations.length}</div>
+
+            <div className="bg-white/10 backdrop-blur-md rounded-lg p-4 text-center">
+              <div className="text-2xl md:text-3xl font-bold">
+                {locations.length}
+              </div>
               <div className="text-blue-100 text-sm">Locations</div>
             </div>
           </div>
@@ -163,8 +192,10 @@ const { companyProfiles, loading, error } = useCompany();
                   className="pl-10 pr-8 py-3 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                 >
                   <option value="all">All Industries</option>
-                  {industries.map(industry => (
-                    <option key={industry} value={industry}>{industry}</option>
+                  {industries.map((industry) => (
+                    <option key={industry} value={industry}>
+                      {industry}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -177,8 +208,10 @@ const { companyProfiles, loading, error } = useCompany();
                   className="pl-10 pr-8 py-3 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                 >
                   <option value="all">All Locations</option>
-                  {locations.map(location => (
-                    <option key={location} value={location}>{location}</option>
+                  {locations.map((location) => (
+                    <option key={location} value={location}>
+                      {location}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -193,8 +226,12 @@ const { companyProfiles, loading, error } = useCompany();
           {filteredCompanies.length === 0 ? (
             <div className="text-center py-12">
               <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-600 mb-2">No companies found</h3>
-              <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                No companies found
+              </h3>
+              <p className="text-gray-500">
+                Try adjusting your search or filter criteria
+              </p>
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -217,7 +254,9 @@ const { companyProfiles, loading, error } = useCompany();
                         <h3 className="text-lg font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-200">
                           {company.companyName}
                         </h3>
-                        <p className="text-sm text-gray-500 mb-2">{company.industry}</p>
+                        <p className="text-sm text-gray-500 mb-2">
+                          {company.industry}
+                        </p>
                         <div className="flex items-center space-x-4 text-xs text-gray-400">
                           <div className="flex items-center space-x-1">
                             <MapPin className="w-3 h-3" />
@@ -240,7 +279,6 @@ const { companyProfiles, loading, error } = useCompany();
                   </div>
 
                   {/* Internships Preview */}
-                
 
                   {/* Company Actions */}
                   <div className="px-6 pb-6">
@@ -286,9 +324,12 @@ const { companyProfiles, loading, error } = useCompany();
       {/* Call to Action */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Start Your Career Journey?</h2>
+          <h2 className="text-3xl font-bold mb-4">
+            Ready to Start Your Career Journey?
+          </h2>
           <p className="text-blue-100 mb-8 text-lg">
-            Join thousands of engineering students who have found their dream internships through Inturnix
+            Join thousands of engineering students who have found their dream
+            internships through Inturnix
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
