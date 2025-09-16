@@ -51,7 +51,11 @@ const applicationSchema = new mongoose.Schema(
     ,
     coverLetter:{
       type:String
-    }
+    },
+
+     interestLevel: {
+    type: Number
+  },
   },
   { timestamps: true } // adds createdAt & updatedAt
 );

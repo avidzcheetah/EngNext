@@ -238,6 +238,23 @@ static async verifyCompany(req, res) {
   }
 }
 
+// Delete a company by ID
+static async deleteCompanyById(req, res) {
+  try {
+    const companyId = req.params.id;
+
+    const deletedCompany = await companySchema.findByIdAndDelete(companyId);
+
+    if (!deletedCompany) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    res.status(200).json({ message: "Company deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error });
+  }
+}
 
 
 

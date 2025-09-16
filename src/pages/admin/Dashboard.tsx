@@ -4,17 +4,18 @@ import { PlusCircle, Briefcase, Building2, Users, Edit3, Eye, Trash2 } from "luc
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import { useAuth } from "../../contexts/AuthContext";
+import { useCompany } from "../../contexts/CompanyContext";
 
 const AdminDashboard: React.FC = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const { user } = useAuth(); // contains admin info incl. department
   const navigate = useNavigate();
-
+  const { refetch } = useCompany();
   const [companies, setCompanies] = useState<any[]>([]);
   const [internships, setInternships] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
+  const { companyProfiles } = useCompany();
   // Fetch data for this admin's department only
   useEffect(() => {
     if (user?.department) {
@@ -64,12 +65,13 @@ const AdminDashboard: React.FC = () => {
     }
     
     try {
-      const res = await fetch(`${baseUrl}/api/companyRoutes/deleteCompany/${companyId}`, {
+      const res = await fetch(`${baseUrl}/api/companyRoutes/deleteCompanyById/${companyId}`, {
         method: 'DELETE'
       });
       
       if (res.ok) {
         alert("Company deleted successfully");
+         await refetch(); 
         fetchCompanies();
         fetchInternships();
       } else {
@@ -86,9 +88,12 @@ const AdminDashboard: React.FC = () => {
     navigate(`/admin/manageCompany/${companyId}`);
   };
 
-  const handleViewCompany = (companyId: string) => {
-    navigate(`/admin/viewCompany/${companyId}`);
-  };
+ const handleViewCompany = (companyId: string) => {
+  navigate('/company/dashboard', {
+    state: { companyId },
+  });
+};
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -100,7 +105,9 @@ const AdminDashboard: React.FC = () => {
             Welcome Admin, {user?.firstName}
           </h1>
           <p className="text-gray-600">
-            Manage companies, internships, and student applications for the <span className="font-semibold">{user?.department}</span> department.
+            Manage companies, internships, and student applications for the <span className="font-semibold">{user?.department?.toLocaleLowerCase() === 'com'
+    ? 'Computer'
+    : 'Electrical and Electronic'}</span> department.
           </p>
         </div>
 
@@ -110,7 +117,7 @@ const AdminDashboard: React.FC = () => {
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
               <Building2 className="w-6 h-6 text-blue-600" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">{companies.length}</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-1">{companyProfiles.length}</h3>
             <p className="text-gray-600 text-sm">Total Companies</p>
           </Card>
           
@@ -150,7 +157,7 @@ const AdminDashboard: React.FC = () => {
             <Card className="p-6 shadow-sm hover:shadow-md transition">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-blue-600" /> Companies ({companies.length})
+                  <Building2 className="w-5 h-5 text-blue-600" /> Companies ({companyProfiles.length})
                 </h3>
                 <Button
                   onClick={() => navigate("/register/company")}
@@ -160,19 +167,19 @@ const AdminDashboard: React.FC = () => {
                 </Button>
               </div>
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {companies.map((company) => (
-                  <Card key={company._id} className="p-4">
+                {companyProfiles.map((company) => (
+                  <Card key={company.id} className="p-4">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-3">
                         {company.logoUrl && (
                           <img 
                             src={company.logoUrl} 
-                            alt={company.name}
+                            alt={company.companyName || 'Company Logo'}
                             className="w-10 h-10 rounded-full object-cover"
                           />
                         )}
                         <div>
-                          <h4 className="font-bold text-gray-900">{company.name || company.companyName}</h4>
+                          <h4 className="font-bold text-gray-900">{company.companyName ?? 'Unnamed Company'}</h4>
                           <p className="text-sm text-gray-600">{company.email}</p>
                           <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                             {company.industry || 'Technology'}
@@ -183,7 +190,7 @@ const AdminDashboard: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleViewCompany(company._id)}
+                          onClick={() => handleViewCompany(company.id!)}
                           title="View Company Profile"
                         >
                           <Eye className="w-4 h-4" />
@@ -191,7 +198,7 @@ const AdminDashboard: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleManageCompany(company._id)}
+                          onClick={() => handleManageCompany(company.id!)}
                           title="Manage Company & Internships"
                         >
                           <Edit3 className="w-4 h-4" />
@@ -199,7 +206,7 @@ const AdminDashboard: React.FC = () => {
                         <Button
                           variant="danger"
                           size="sm"
-                          onClick={() => handleDeleteCompany(company._id)}
+                          onClick={() => handleDeleteCompany(company.id!)}
                           title="Delete Company"
                         >
                           <Trash2 className="w-4 h-4" />

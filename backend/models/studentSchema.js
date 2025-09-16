@@ -84,6 +84,9 @@ const studentSchema = new Schema({
     filename: String,
     uploadDate: { type: Date, default: Date.now }
   },
+  interestLevel: {
+    type: Number
+  },
   // ✅ New fields
   profileCompletion: {
     type: Number,
