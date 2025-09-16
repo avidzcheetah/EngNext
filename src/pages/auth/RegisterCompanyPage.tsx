@@ -228,7 +228,7 @@ const RegisterCompanyPage: React.FC = () => {
             <div className="flex items-center justify-between bg-gray-100 px-4 py-3 border-b">
               <Button
                 onClick={() => navigate('/admin/dashboard')}
-                variant="ghost"
+                variant="outline"
                 className="flex items-center gap-2 text-gray-700 hover:text-gray-900"
               >
                 <ArrowLeft className="w-4 h-4" />
