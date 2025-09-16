@@ -5,12 +5,12 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { useAuth } from '../../contexts/AuthContext';
-
+import { useCompany } from "../../contexts/CompanyContext";
 interface LoginResponse {
   exists: boolean;
   id: string;
   email: string;
-  profilePicture?: string | null;
+  firstName?: string | null;
   department?: string | null;
   createdAt: string;
 }
@@ -22,6 +22,7 @@ const AdminLogin: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { companyProfiles, } = useCompany();
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const AdminLogin: React.FC = () => {
     setError('');
 
     try {
-      const url = `${baseUrl}/api/adminRoutes/loginAdmin`;
+      const url = `${baseUrl}/api/adminRoutes/verifyAdmin`;
 
       const response = await fetch(url, {
         method: 'POST',
@@ -59,7 +60,6 @@ const AdminLogin: React.FC = () => {
         id: data.id,
         email: data.email,
         role: 'admin',
-        profilePicture: data.profilePicture || '',
         department: data.department || '',
         createdAt: new Date(),
       });

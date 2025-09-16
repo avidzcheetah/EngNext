@@ -21,5 +21,7 @@ router.get("/getAll", CompanyController.getAllCompanies);
 router.get("/getById/:id", CompanyController.getCompanyById);
 // verifies
 router.post("/verifyCompany",CompanyController.verifyCompany)
+//Delete company by ID
+router.delete("/deleteCompanyById/:id",CompanyController.deleteCompanyById)
 
 export default router;

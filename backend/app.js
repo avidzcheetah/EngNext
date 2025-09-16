@@ -4,6 +4,7 @@ import studentRoutes from "./routes/studentRoutes.js";
 import companyRoutes from "./routes/companyRoutes.js";
 import InternshipRoutes from "./routes/InternshipRoutes.js";
 import applicationRoutes from "./routes/applicationRoutes.js"
+import adminRoutes from "./routes/adminRoutes.js"
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -22,6 +23,7 @@ app.use("/api/studentRoutes", studentRoutes);
 app.use("/api/companyRoutes", companyRoutes);
 app.use("/api/InternshipRoutes", InternshipRoutes);
 app.use("/api/applicationRoutes",applicationRoutes)
+app.use("/api/adminRoutes",adminRoutes)
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,

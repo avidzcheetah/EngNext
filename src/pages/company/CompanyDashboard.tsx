@@ -15,9 +15,9 @@ import {
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 
-
+import { useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
-import { useAuth } from '../../contexts/AuthContext';
+;
 
 const CompanyDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -31,6 +31,11 @@ const CompanyDashboard: React.FC = () => {
   const [error, setError] = useState("");
   const [coverletter,setCoverletter]=useState(false);
   const [coverletterstudentID,setcoverletterstudentId]=useState("");
+  const location = useLocation();
+  const { companyId } = location.state 
+  || { companyId: null };
+  const id = companyId ;
+  console.log("Company ID from state:", id);
 interface CompanyProfileData {
   id?: string;
   description?: string;
@@ -62,8 +67,8 @@ interface CompanyProfileData {
   const [companyProfile, setCompanyProfile] = useState<CompanyProfileData | null>(
       null
     );
- const { user, isAuthenticated, logout } = useAuth();
-  let id =user?.id;
+
+  
 
   
   const handleEdit = (internshipId: string) => {
@@ -243,6 +248,7 @@ const sendRejectemail = (studentid: string) => {
   createdAt: string;
   updatedAt: string;
   coverLetter:string;
+  interestLevel?:number;
   __v: number;
 }
 
@@ -879,11 +885,22 @@ const handleDownloadCV = async (id:string) => {
       {/* Applications Tab */}
 {activeTab === "applications" && (
   <div className="space-y-6">
-    {[
-      ...applications.filter((app) => app.status === "pending"),
-      ...applications.filter((app) => app.status === "accepted"),
-      ...applications.filter((app) => app.status === "rejected"),
-    ].map((forms) => (
+  {[
+  // Pending first, sorted by interestLevel descending
+  ...applications
+    .filter((app) => app.status === "pending")
+    .sort((a, b) => (b.interestLevel ?? 0) - (a.interestLevel ?? 0)),
+
+  // Accepted next, sorted by interestLevel descending
+  ...applications
+    .filter((app) => app.status === "accepted")
+    .sort((a, b) => (b.interestLevel ?? 0) - (a.interestLevel ?? 0)),
+
+  // Rejected last, sorted by interestLevel descending
+  ...applications
+    .filter((app) => app.status === "rejected")
+    .sort((a, b) => (b.interestLevel ?? 0) - (a.interestLevel ?? 0)),
+].map((forms) => (
       <Card
         key={forms._id}
         className="p-6 hover:shadow-lg transition rounded-xl bg-white"
@@ -941,7 +958,7 @@ const handleDownloadCV = async (id:string) => {
           </div>
           <div>
             <h4 className="text-sm font-medium text-gray-900 mb-2">GPA:</h4>
-            <p className="text-lg font-semibold text-green-600">{forms.gpa} </p>
+            <p className="text-lg font-semibold text-green-600">{forms.gpa} {forms.interestLevel || "0"} </p>
           </div>
         </div>
 
