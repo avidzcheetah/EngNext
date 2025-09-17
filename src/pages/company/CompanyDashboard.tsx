@@ -956,10 +956,21 @@ const handleDownloadCV = async (id:string) => {
               ))}
             </div>
           </div>
-          <div>
-            <h4 className="text-sm font-medium text-gray-900 mb-2">GPA:</h4>
-            <p className="text-lg font-semibold text-green-600">{forms.gpa} {forms.interestLevel || "0"} </p>
-          </div>
+          <div className="flex items-center space-x-2">
+  <span className="text-sm font-medium text-gray-700">Interest Level:</span>
+  <span
+    className={`px-3 py-1 rounded-full font-semibold text-white ${
+      (forms.interestLevel ?? 0) >= 80
+        ? "bg-green-600"
+        : (forms.interestLevel ?? 0) >= 50
+        ? "bg-yellow-500"
+        : "bg-red-500"
+    }`}
+  >
+    {forms.interestLevel ?? 0}
+  </span>
+</div>
+
         </div>
 
         <div className="flex flex-wrap gap-3">

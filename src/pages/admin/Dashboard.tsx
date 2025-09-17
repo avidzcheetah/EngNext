@@ -13,14 +13,53 @@ const AdminDashboard: React.FC = () => {
   const { refetch } = useCompany();
   const [companies, setCompanies] = useState<any[]>([]);
   const [internships, setInternships] = useState<any[]>([]);
-  const [applications, setApplications] = useState<any[]>([]);
+ 
   const [isLoading, setIsLoading] = useState(false);
   const { companyProfiles } = useCompany();
   // Fetch data for this admin's department only
+
+interface Application {
+  _id: string;
+  studentId: string;
+  companyId: string;
+  studentName: string;
+  email: string;
+  internshipTitle: string;
+  appliedDate: string;
+  status: string;
+  skills: string[];
+  gpa: number;
+  createdAt: string;
+  updatedAt: string;
+  coverLetter:string;
+  interestLevel?:number;
+  __v: number;
+}
+
+const [applications, setApplications] = useState<Application[]>([
+  {
+    _id: "",
+    studentId: "",
+    companyId: "",
+    studentName: "",
+    email: "",
+    internshipTitle: "",
+    appliedDate: "",
+    status: "",
+    skills: [], // ✅ corrected from [string]
+    gpa: 0,     // start with 0 or any default
+    coverLetter:"",
+    createdAt: "",
+    updatedAt: "",
+    __v: 0,
+  },
+]);
+
   useEffect(() => {
     if (user?.department) {
       fetchCompanies();
-      fetchInternships();
+      fetchInternships(); 
+      fetchRecentApplications
     }
   }, [user]);
 
@@ -31,12 +70,29 @@ const AdminDashboard: React.FC = () => {
       const res = await fetch(`${baseUrl}/api/companyRoutes/getByDepartment/${user.department}`);
       const data = await res.json();
       setCompanies(data);
+      
     } catch (err) {
       console.error("Failed to fetch companies:", err);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const fetchRecentApplications = async () => {
+    
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${baseUrl}/api/companyRoutes/fetchAllPendingApplications`);
+      const data = await res.json();
+      setApplications(data);
+      console.log("Fetched companies:", data);
+    } catch (err) {
+      console.error("Failed to fetch companies:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
 
   const fetchInternships = async () => {
     if (!user || !user.department) return;
