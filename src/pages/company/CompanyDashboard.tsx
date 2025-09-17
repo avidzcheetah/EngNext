@@ -17,7 +17,6 @@ import Button from "../../components/ui/Button";
 
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
-;
 
 const CompanyDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -36,6 +35,7 @@ const CompanyDashboard: React.FC = () => {
   || { companyId: null };
   const id = companyId ;
   console.log("Company ID from state:", id);
+
 interface CompanyProfileData {
   id?: string;
   description?: string;
@@ -48,29 +48,14 @@ interface CompanyProfileData {
   companyName?: string;
   location?: string;
   industry?: string;
-  employees?: string;
+  subfield?: string;
   phoneNo?:string;
-  OurValues?:[string];
-  WorkCulture?:string;
-  internBenifits?:[string];
-    
-    fullTimeOpportunities?: boolean;
-    certification?: boolean;
-    mentorship?: boolean;
-    stipend?: boolean;
-  
-   foundedYear?:string,
-   companyType?:string,
-   address? :string,
-
 }
+
   const [companyProfile, setCompanyProfile] = useState<CompanyProfileData | null>(
       null
     );
 
-  
-
-  
   const handleEdit = (internshipId: string) => {
   const foundJob = Job.find(j => j._id === internshipId) || null;
   setEditJob(foundJob);
@@ -116,6 +101,7 @@ const handleCancel =()=>{
 const handleViewApplication=(internshipId:string)=>{
    navigate("/company/application",{state:{internshipId}})
 }
+
 const [Job, setJob] = useState<
   Array<{
     _id?: string;
@@ -126,7 +112,6 @@ const [Job, setJob] = useState<
     duration?: string;
     location?: string;
     isActive?: boolean;
-    
   }>
 >([]);
 
@@ -140,8 +125,6 @@ const [editJob, setEditJob] = useState<{
   location?: string;
   isActive?: boolean;
 } | null>(null);
-
-
 
 const sendAcceptmail = (studentid: string) => {
   // find the student details first
@@ -173,7 +156,6 @@ const sendAcceptmail = (studentid: string) => {
       }
     );
 };
-
 
 const sendRejectemail = (studentid: string) => {
   // find the student details first
@@ -207,7 +189,6 @@ const sendRejectemail = (studentid: string) => {
     );
 };
 
-
   const [fData, setFdata] = useState<{
   companyName?:string
   title?: string;
@@ -216,10 +197,6 @@ const sendRejectemail = (studentid: string) => {
   duration?: string;
   location?: string;
 } | null>(null);
-
-  
-
-  
 
   const handleViewProfile = (id: string,ID:string) => {
     
@@ -232,9 +209,7 @@ const sendRejectemail = (studentid: string) => {
 
   };
 
-
-
-  interface Application {
+interface Application {
   _id: string;
   studentId: string;
   companyId: string;
@@ -326,9 +301,6 @@ const [applications, setApplications] = useState<Application[]>([
     setLoading(false);
   }
 };
-  
-
-
 
 // Helper to increment profile view
 const incrementProfileView = async (ID: string) => {
@@ -428,21 +400,8 @@ const sendMessageToStudent = async (ID: string, message: string) => {
      logoFile: null as File | null,
      location: "",
      industry: "",
-     employees: "",
+     subfield: "",
      phoneNo:"",
-     WorkCulture:"",
-     OurValues:[""],
-     internBenifits:[""],
-     foundedYear:"",
-     companyType:"",
-     address :"",
-     
-     fullTimeOpportunities:false,
-     certification:false,
-     mentorship:false,
-     stipend:false
-     
- 
    });
 
   useEffect(() => {
@@ -456,20 +415,8 @@ const sendMessageToStudent = async (ID: string, message: string) => {
       logoFile: prev.logoFile || null, // keep file if already uploaded
       location: companyProfile.location || "",
       industry: companyProfile.industry || "",
-      employees: companyProfile.employees || "",
+      subfield: companyProfile.subfield || "",
       phoneNo: companyProfile.phoneNo || "",
-      OurValues: companyProfile.OurValues || [],
-      WorkCulture: companyProfile.WorkCulture || "",
-      internBenifits: companyProfile.internBenifits|| [],
-      foundedYear: companyProfile.foundedYear || "",
-      companyType: companyProfile.companyType || "",
-      address: companyProfile.address || "",
-       
-        fullTimeOpportunities: companyProfile.fullTimeOpportunities ||false,
-        certification: companyProfile.certification || false,
-        mentorship: companyProfile.mentorship || false,
-        stipend: companyProfile.stipend || false,
-
       }));
     }
   }, [companyProfile]);
@@ -502,20 +449,14 @@ const sendMessageToStudent = async (ID: string, message: string) => {
   const handleSaveChanges = async () => {
     try {
       const formToSend = new FormData();
+      formToSend.append("companyName", formData.companyName);
+      formToSend.append("website", formData.website);
+      formToSend.append("email", formData.email);
+      formToSend.append("description", formData.description);
+      formToSend.append("location", formData.location);
       formToSend.append("industry", formData.industry);
-formToSend.append("employees", formData.employees);
-formToSend.append("location", formData.location);
-formToSend.append("phoneNo", formData.phoneNo);
-formToSend.append("WorkCulture", formData.WorkCulture);
-formToSend.append("OurValues", JSON.stringify(formData.OurValues));
-formToSend.append("internBenifits", JSON.stringify(formData.internBenifits));
-formToSend.append("foundedYear", formData.foundedYear);
-formToSend.append("companyType", formData.companyType);
-formToSend.append("address", formData.address);
-formToSend.append("fullTimeOpportunities", formData.fullTimeOpportunities ? "true" : "false");
-formToSend.append("certification", formData.certification ? "true" : "false");
-formToSend.append("mentorship", formData.mentorship ? "true" : "false");
-formToSend.append("stipend", formData.stipend ? "true" : "false");
+      formToSend.append("subfield", formData.subfield);
+      formToSend.append("phoneNo", formData.phoneNo);
 
       if (formData.logoFile) formToSend.append("logo", formData.logoFile);
 
@@ -561,9 +502,6 @@ formToSend.append("stipend", formData.stipend ? "true" : "false");
       return;
     }
 
-    // Optional: remove deleted internship from local state if you have a list
-    
-
     alert("Internship deleted successfully!");
      fetchJobs();
   } catch (error) {
@@ -571,7 +509,6 @@ formToSend.append("stipend", formData.stipend ? "true" : "false");
     alert("Something went wrong while deleting.");
   }
 };
-
 
 const handleJobPosition = async (e: React.MouseEvent<HTMLButtonElement>) => {
   e.preventDefault();
@@ -706,7 +643,6 @@ const handleAccept = async (ID: string) => {
   }
 };
 
-
 const handleReject = async (ID: string) => {
   try {
     const response = await fetch(
@@ -724,8 +660,6 @@ const handleReject = async (ID: string) => {
       alert(errorData.message || "Failed to update the status. Try again.");
       throw new Error(errorData.message || "Failed to update the status");
     }
-
-
 
     const data = await response.json();
     console.log("Application status updated:", data);
@@ -782,9 +716,6 @@ const handleDownloadCV = async (id:string) => {
   }
 };
 
-
-  
-
   const getStatusBadge = (status: string) => {
     const colors = {
       pending: "bg-yellow-100 text-yellow-800",
@@ -801,7 +732,7 @@ const handleDownloadCV = async (id:string) => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
-            Company Dashboard
+            Company Dashboard - {formData.companyName}
           </h1>
           <p className="text-gray-600">
             Manage your internship programs and candidates
@@ -1018,7 +949,6 @@ const handleDownloadCV = async (id:string) => {
   </div>
 )}
 
-
         {/* Positions Tab */}
         {activeTab === "positions" && (
           <div>
@@ -1026,7 +956,6 @@ const handleDownloadCV = async (id:string) => {
               <h2 className="text-xl font-semibold">Job Positions</h2>
               <Button
                 onClick={handleAddPosition}
-
                 className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-105 transition"
               >
                 <Plus className="w-4 h-4 mr-2" /> Add New Position
@@ -1076,10 +1005,10 @@ const handleDownloadCV = async (id:string) => {
                       <Eye className="w-4 h-4 mr-1" /> View Applications
                     </Button>
                     <Button
-                                   variant="danger"
-                                  size="sm"
-                                  onClick={() => handleDelete(internship._id||"")}
-                                     >
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDelete(internship._id||"")}
+                    >
                       <Trash2 className="w-4 h-4 mr-1" /> Delete
                     </Button>
                   </div>
@@ -1124,7 +1053,7 @@ const handleDownloadCV = async (id:string) => {
                   />
                 </div>
 
-                  {/*Location */}
+                {/* Location */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Location
@@ -1138,35 +1067,8 @@ const handleDownloadCV = async (id:string) => {
                   />
                 </div>
 
-
-          <div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Founded Year
-  </label>
-  <input
-    type="text"
-    name="foundedYear"
-    value={formData.foundedYear}
-    onChange={handleChange}
-    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-  />
-</div>
-
-
+                {/* Email */}
                 <div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Address
-  </label>
-  <input
-    type="text"
-    name="address"
-    value={formData.address}
-    onChange={handleChange}
-    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-  />
-</div>
-                      {/* Email */}
-               <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Email
                   </label>
@@ -1179,259 +1081,52 @@ const handleDownloadCV = async (id:string) => {
                   />
                 </div>
 
-                    {/*Employee count */}
-               <div>
+                {/* Contact Number */}
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Employee count
+                    Contact Number
                   </label>
                   <input
                     type="text"
-                    name="employees"
-                    value={formData.employees}
+                    name="phoneNo"
+                    value={formData.phoneNo}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
                   />
                 </div>
 
-
-<div className="mb-4">
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    Internship Program
-  </label>
-
-  <div className="flex flex-col space-y-2">
-    <label className="inline-flex items-center">
-      <input
-        type="checkbox"
-        checked={formData.fullTimeOpportunities}
-        onChange={(e) =>
-          setFormData((prev) => ({
-            ...prev,
-            fullTimeOpportunities: e.target.checked,
-          }))
-        }
-        className="mr-2"
-      />
-      Full-time Opportunities
-    </label>
-
-    <label className="inline-flex items-center">
-      <input
-        type="checkbox"
-        checked={formData.certification}
-        onChange={(e) =>
-          setFormData((prev) => ({
-            ...prev,
-            certification: e.target.checked,
-          }))
-        }
-        className="mr-2"
-      />
-      Certification
-    </label>
-
-    <label className="inline-flex items-center">
-      <input
-        type="checkbox"
-        checked={formData.mentorship}
-        onChange={(e) =>
-          setFormData((prev) => ({
-            ...prev,
-            mentorship: e.target.checked,
-          }))
-        }
-        className="mr-2"
-      />
-      Mentorship
-    </label>
-
-    <label className="inline-flex items-center">
-      <input
-        type="checkbox"
-        checked={formData.stipend}
-        onChange={(e) =>
-          setFormData((prev) => ({
-            ...prev,
-            stipend: e.target.checked,
-          }))
-        }
-        className="mr-2"
-      />
-      Stipend
-    </label>
-  </div>
-</div>
-
- <div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Founded Year
-  </label>
-  <input
-    type="text"
-    name="foundedYear"
-    value={formData.foundedYear}
-    onChange={handleChange}
-    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-  />
-</div>
-
-
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Company Type
-  </label>
-  <select
-    name="companyType"
-    value={formData.companyType}
-    onChange={(e) =>
-      setFormData((prev) => ({ ...prev, companyType: e.target.value }))
-    }
-    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500 ${
-      {
-        Startup: "bg-green-100 text-green-800",
-        MNC: "bg-blue-100 text-blue-800",
-        SME: "bg-purple-100 text-purple-800",
-        Other: "bg-gray-100 text-gray-800",
-      }[formData.companyType] || "bg-gray-100 text-gray-800"
-    }`}
-  >
-    <option value="">Select Company Type</option>
-    <option value="Startup">Startup</option>
-    <option value="MNC">MNC</option>
-    <option value="SME">SME</option>
-    <option value="Other">Other</option>
-  </select>
-</div>
-
-
-
-
-
-                 <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Contact Number
-            </label>
-            <input
-              type="text"
-              name="phoneNo"
-              value={formData.phoneNo}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-            />
-          </div>
-
-           {formData.internBenifits.map((benefit, index) => (
-  <div key={index} className="flex gap-2 mb-2">
-    <input
-      type="text"
-      value={benefit}
-      onChange={(e) => {
-        const newBenefits = [...formData.internBenifits];
-        newBenefits[index] = e.target.value;
-        setFormData((prev) => ({ ...prev, internBenifits: newBenefits }));
-      }}
-      className="flex-1 px-3 py-2 border rounded-lg"
-    />
-    <button
-      type="button"
-      onClick={() => {
-        const newBenefits = formData.internBenifits.filter((_, i) => i !== index);
-        setFormData((prev) => ({ ...prev, internBenifits: newBenefits }));
-      }}
-      className="px-3 py-2 bg-red-500 text-white rounded"
-    >
-      Delete
-    </button>
-  </div>
-))}
-<button
-  type="button"
-  onClick={() =>
-    setFormData((prev) => ({
-      ...prev,
-      internBenifits: [...prev.internBenifits, ""],
-    }))
-  }
-  className="px-3 py-2 bg-blue-500 text-white rounded"
->
-  Add Intern Benefits
-</button>
-
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Our Values
-  </label>
-
-  {formData.OurValues.map((value, index) => (
-    <div key={index} className="flex gap-2 mb-2">
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => {
-          const newValues = [...formData.OurValues];
-          newValues[index] = e.target.value;
-          setFormData((prev) => ({ ...prev, OurValues: newValues }));
-        }}
-        className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-      />
-      <button
-        type="button"
-        onClick={() => {
-          const newValues = formData.OurValues.filter((_, i) => i !== index);
-          setFormData((prev) => ({ ...prev, OurValues: newValues }));
-        }}
-        className="px-3 py-2 bg-red-500 text-white rounded"
-      >
-        Delete
-      </button>
-    </div>
-  ))}
-
-  <button
-    type="button"
-    onClick={() =>
-      setFormData((prev) => ({
-        ...prev,
-        OurValues: [...prev.OurValues, ""],
-      }))
-    }
-    className="px-3 py-2 bg-blue-500 text-white rounded"
-  >
-    Add Company Value
-  </button>
-</div>
-
-          
-
-            <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Work Culture
-            </label>
-            <input
-              type="text"
-              name="WorkCulture"
-              value={formData.WorkCulture}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-            />
-          </div>
-
-                    {/*Industry */}
-               <div>
+                {/* Industry */}
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    industry
+                    Industry
+                  </label>
+                  <select
+                    name="industry"
+                    value={formData.industry}
+                    onChange={(e) => setFormData(prev => ({...prev, industry: e.target.value}))}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                  >
+                    <option value="">Select Industry</option>
+                    <option value="EEE">Electrical and Electronic Engineering</option>
+                    <option value="Computer Science">Computer Science</option>
+                  </select>
+                </div>
+
+                {/* Subfield */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Subfield
                   </label>
                   <input
                     type="text"
-                    name="industry"
-                    value={formData.industry}
+                    name="subfield"
+                    value={formData.subfield || ""}
                     onChange={handleChange}
+                    placeholder="e.g., Power Systems, Web Development, AI/ML"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
                   />
                 </div>
               </div>
-            
-              
 
               {/* Right Column */}
               <div className="space-y-4">
@@ -1518,30 +1213,29 @@ const handleDownloadCV = async (id:string) => {
                     title: e.target.value,     // ✅ update title
                   }))
                     } 
-  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-/>
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                />
                   </div>
                  <div>
-  <label className="block text-sm font-medium mb-1">
-    Duration
-  </label>
-  <select
-    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-    value={fData?.duration || ""}  // ✅ controlled value
-    onChange={(e) =>
-      setFdata((prev) => ({
-        ...prev,
-        duration: e.target.value,   // ✅ update duration
-      }))
-    }
-  >
-    <option value="">Select duration</option>
-    <option value="3 months">3 months</option>
-    <option value="6 months">6 months</option>
-    <option value="12 months">12 months</option>
-  </select>
-</div>
-
+                  <label className="block text-sm font-medium mb-1">
+                    Duration
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                    value={fData?.duration || ""}  // ✅ controlled value
+                    onChange={(e) =>
+                      setFdata((prev) => ({
+                        ...prev,
+                        duration: e.target.value,   // ✅ update duration
+                      }))
+                    }
+                  >
+                    <option value="">Select duration</option>
+                    <option value="3 months">3 months</option>
+                    <option value="6 months">6 months</option>
+                    <option value="12 months">12 months</option>
+                  </select>
+                </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">
@@ -1559,24 +1253,6 @@ const handleDownloadCV = async (id:string) => {
                 }
                   />
                 </div>
-
-  </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    InterShip Status
-                  </label>
-                  <input
-                    value={fData?.location}
-                    type="text"
-                    placeholder="e.g., Colombo, Remote, Hybrid"
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-                    onChange={(e)=> setFdata((prev) => ({
-                     ...prev,
-                    location: e.target.value,     // ✅ update location
-                  }))
-                }
-                  />
-                
                 
                 <div>
                   <label className="block text-sm font-medium mb-1">
@@ -1628,139 +1304,135 @@ const handleDownloadCV = async (id:string) => {
             </Card>
           </div>
         )}
-  {/*Cover Letter */}
+
+        {/*Cover Letter Modal */}
         {coverletter && (
-  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
-      <h3 className="text-xl font-bold mb-6">Cover Letter</h3>
-      <div className="space-y-4">
-        <p className="text-gray-700 leading-relaxed">
-    {
-  applications.find(
-    (app) =>
-      String(app.studentId) === String(coverletterstudentID) &&
-      String(app._id) === String(coverletterID)
-  )?.coverLetter || "No cover letter submitted"
-}
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
+              <h3 className="text-xl font-bold mb-6">Cover Letter</h3>
+              <div className="space-y-4">
+                <p className="text-gray-700 leading-relaxed">
+                  {
+                    applications.find(
+                      (app) =>
+                        String(app.studentId) === String(coverletterstudentID) &&
+                        String(app._id) === String(coverletterID)
+                    )?.coverLetter || "No cover letter submitted"
+                  }
+                </p>
+              </div>
 
-    
-       
-        </p>
-      </div>
+              <div className="flex justify-end mt-6">
+                <Button variant="outline" onClick={handleCancelCoverLetter}>
+                  Close
+                </Button>
+              </div>
+            </Card>
+          </div>
+        )}
 
-      <div className="flex justify-end mt-6">
-        <Button variant="outline" onClick={handleCancelCoverLetter}>
-          Close
-        </Button>
-      </div>
-    </Card>
-  </div>
-)}
-
-
-
-        {/*Edit job Model*/}
+        {/*Edit job Modal*/}
         {edit && (
-  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
-      <h3 className="text-xl font-bold mb-6">Edit Internship Position</h3>
-      <div className="space-y-4">
-        {/* Position & Duration */}
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Position Title</label>
-            <input
-              type="text"
-              value={fData?.title || ""}
-              onChange={(e) =>
-                setFdata(prev => ({ ...prev, title: e.target.value }))
-              }
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-            />
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
+              <h3 className="text-xl font-bold mb-6">Edit Internship Position</h3>
+              <div className="space-y-4">
+                {/* Position & Duration */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Position Title</label>
+                    <input
+                      type="text"
+                      value={fData?.title || ""}
+                      onChange={(e) =>
+                        setFdata(prev => ({ ...prev, title: e.target.value }))
+                      }
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Duration</label>
+                    <select
+                      value={fData?.duration || ""}
+                      onChange={(e) =>
+                        setFdata(prev => ({ ...prev, duration: e.target.value }))
+                      }
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                    >
+                      <option value="">Select duration</option>
+                      <option value="3 months">3 months</option>
+                      <option value="6 months">6 months</option>
+                      <option value="12 months">12 months</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Location */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={fData?.location || ""}
+                    onChange={(e) =>
+                      setFdata(prev => ({ ...prev, location: e.target.value }))
+                    }
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Description</label>
+                  <textarea
+                    rows={4}
+                    value={fData?.description || ""}
+                    onChange={(e) =>
+                      setFdata(prev => ({ ...prev, description: e.target.value }))
+                    }
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                  />
+                </div>
+
+                {/* Requirements */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Requirements</label>
+                  <input
+                    type="text"
+                    value={fData?.requirements?.join(", ") || ""}
+                    onChange={(e) =>
+                      setFdata(prev => ({
+                        ...prev,
+                        requirements: e.target.value
+                          .split(",")
+                          .map(req => req.trim())
+                          .filter(req => req.length > 0),
+                      }))
+                    }
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Enter multiple requirements separated by commas
+                  </p>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex gap-3">
+                  <Button variant="outline" fullWidth onClick={handleCancel}>
+                    Cancel
+                  </Button>
+                  <Button
+                    fullWidth
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                    onClick={handleEditPosition}
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            </Card>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Duration</label>
-            <select
-              value={fData?.duration || ""}
-              onChange={(e) =>
-                setFdata(prev => ({ ...prev, duration: e.target.value }))
-              }
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-            >
-              <option value="">Select duration</option>
-              <option value="3 months">3 months</option>
-              <option value="6 months">6 months</option>
-              <option value="12 months">12 months</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Location */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Location</label>
-          <input
-            type="text"
-            value={fData?.location || ""}
-            onChange={(e) =>
-              setFdata(prev => ({ ...prev, location: e.target.value }))
-            }
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-          />
-        </div>
-
-        {/* Description */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
-          <textarea
-            rows={4}
-            value={fData?.description || ""}
-            onChange={(e) =>
-              setFdata(prev => ({ ...prev, description: e.target.value }))
-            }
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-          />
-        </div>
-
-        {/* Requirements */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Requirements</label>
-          <input
-            type="text"
-            value={fData?.requirements?.join(", ") || ""}
-            onChange={(e) =>
-              setFdata(prev => ({
-                ...prev,
-                requirements: e.target.value
-                  .split(",")
-                  .map(req => req.trim())
-                  .filter(req => req.length > 0),
-              }))
-            }
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Enter multiple requirements separated by commas
-          </p>
-        </div>
-
-        {/* Buttons */}
-        <div className="flex gap-3">
-          <Button variant="outline" fullWidth onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button
-            fullWidth
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white"
-            onClick={ handleEditPosition} // call your save/update function
-          >
-            Save Changes
-          </Button>
-        </div>
-      </div>
-    </Card>
-  </div>
-)}
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PlusCircle, Briefcase, Building2, Users, Edit3, Eye, Trash2 } from "lucide-react";
+import { PlusCircle, Briefcase, Building2, Users, Eye, Trash2 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import { useAuth } from "../../contexts/AuthContext";
@@ -10,12 +10,12 @@ const AdminDashboard: React.FC = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const { user } = useAuth(); // contains admin info incl. department
   const navigate = useNavigate();
-  const { refetch } = useCompany();
+  const { refetch, companyProfiles } = useCompany();
   const [companies, setCompanies] = useState<any[]>([]);
   const [internships, setInternships] = useState<any[]>([]);
  
   const [isLoading, setIsLoading] = useState(false);
-  const { companyProfiles } = useCompany();
+
   // Fetch data for this admin's department only
 
 interface Application {
@@ -58,8 +58,8 @@ const [applications, setApplications] = useState<Application[]>([
   useEffect(() => {
     if (user?.department) {
       fetchCompanies();
-      fetchInternships(); 
-      fetchRecentApplications
+      fetchInternships();
+      fetchRecentApplications();
     }
   }, [user]);
 
@@ -105,9 +105,10 @@ const [applications, setApplications] = useState<Application[]>([
     }
   };
 
-  const fetchApplications = async (internshipId: string) => {
+  const fetchRecentApplications = async () => {
+    if (!user || !user.department) return;
     try {
-      const res = await fetch(`${baseUrl}/api/applicationRoutes/getByInternship/${internshipId}`);
+      const res = await fetch(`${baseUrl}/api/applicationRoutes/getRecentByDepartment/${user.department}`);
       const data = await res.json();
       setApplications(data);
     } catch (err) {
@@ -127,7 +128,7 @@ const [applications, setApplications] = useState<Application[]>([
       
       if (res.ok) {
         alert("Company deleted successfully");
-         await refetch(); 
+        await refetch(); 
         fetchCompanies();
         fetchInternships();
       } else {
@@ -140,16 +141,11 @@ const [applications, setApplications] = useState<Application[]>([
     }
   };
 
-  const handleManageCompany = (companyId: string) => {
-    navigate(`/admin/manageCompany/${companyId}`);
+  const handleViewCompany = (companyId: string) => {
+    navigate('/company/dashboard', {
+      state: { companyId },
+    });
   };
-
- const handleViewCompany = (companyId: string) => {
-  navigate('/company/dashboard', {
-    state: { companyId },
-  });
-};
-
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -162,8 +158,8 @@ const [applications, setApplications] = useState<Application[]>([
           </h1>
           <p className="text-gray-600">
             Manage companies, internships, and student applications for the <span className="font-semibold">{user?.department?.toLocaleLowerCase() === 'com'
-    ? 'Computer'
-    : 'Electrical and Electronic'}</span> department.
+              ? 'Computer'
+              : 'Electrical and Electronic'}</span> department.
           </p>
         </div>
 
@@ -252,14 +248,6 @@ const [applications, setApplications] = useState<Application[]>([
                           <Eye className="w-4 h-4" />
                         </Button>
                         <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleManageCompany(company.id!)}
-                          title="Manage Company & Internships"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </Button>
-                        <Button
                           variant="danger"
                           size="sm"
                           onClick={() => handleDeleteCompany(company.id!)}
@@ -271,7 +259,7 @@ const [applications, setApplications] = useState<Application[]>([
                     </div>
                   </Card>
                 ))}
-                {companies.length === 0 && (
+                {companyProfiles.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
                     No companies added yet. Click "Add Company" to get started.
                   </div>
@@ -279,14 +267,14 @@ const [applications, setApplications] = useState<Application[]>([
               </div>
             </Card>
 
-            {/* Recent Internships Section */}
+            {/* Recent Applications Section */}
             <Card className="p-6 shadow-sm hover:shadow-md transition">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <Briefcase className="w-5 h-5 text-purple-600" /> Recent Internships
+                  <Users className="w-5 h-5 text-green-600" /> Recent Applications
                 </h3>
                 <Button
-                  onClick={() => navigate("/admin/allInternships")}
+                  onClick={() => navigate("/admin/applications")}
                   variant="outline"
                   size="sm"
                 >
@@ -294,39 +282,31 @@ const [applications, setApplications] = useState<Application[]>([
                 </Button>
               </div>
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {internships.slice(0, 5).map((internship) => (
-                  <Card key={internship._id} className="p-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h4 className="font-bold text-gray-900">{internship.title}</h4>
-                        <p className="text-sm text-gray-600">{internship.companyName}</p>
-                        <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
-                          <span>{internship.location}</span>
-                          <span>{internship.duration}</span>
-                          <span className={`px-2 py-1 rounded-full ${
-                            internship.isActive 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {internship.isActive ? 'Active' : 'Inactive'}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate(`/admin/viewInternship/${internship._id}`)}
-                        >
-                          <Eye className="w-4 h-4 mr-1" /> View
-                        </Button>
-                      </div>
+                {applications.slice(0, 5).map((app) => (
+                  <Card key={app._id} className="p-4">
+                    <div>
+                      <h4 className="font-bold text-gray-900">
+                        {app.studentName ?? "Unknown Student"}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        applied to <span className="font-semibold">{app.companyName}</span> 
+                        for <span className="italic">{app.internshipTitle}</span>
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {new Date(app.createdAt).toLocaleDateString()} • Status:{" "}
+                        <span className={`font-medium ${
+                          app.status === "pending" ? "text-yellow-600" :
+                          app.status === "accepted" ? "text-green-600" : "text-red-600"
+                        }`}>
+                          {app.status}
+                        </span>
+                      </p>
                     </div>
                   </Card>
                 ))}
-                {internships.length === 0 && (
+                {applications.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
-                    No internships posted yet.
+                    No applications submitted yet.
                   </div>
                 )}
               </div>
