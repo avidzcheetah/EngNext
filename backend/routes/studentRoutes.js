@@ -42,4 +42,13 @@ router.put("/addRecentNotification/:studentId", StudentController.addRecentNotif
 // increment profile views
 router.put("/incrementProfileView/:studentId", StudentController.incrementProfileView);
 
+// increment max applications for all students
+router.put("/setMaximumApplicationsForAll", StudentController.setMaximumApplicationsForAll);
+
+// increment applications sent by a student
+router.put("/incrementApplicationsSent/:studentId", StudentController.incrementApplicationsSent);
+
+// get maximum profile views
+router.get("/getMaximumApplications", StudentController.getMaximumApplications);
+
 export default router;

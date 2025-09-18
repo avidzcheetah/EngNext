@@ -33,6 +33,7 @@ interface Application {
   updatedAt: string;
   coverLetter:string;
   interestLevel?:number;
+  companyName:string;
   __v: number;
 }
 
@@ -51,38 +52,26 @@ const [applications, setApplications] = useState<Application[]>([
     coverLetter:"",
     createdAt: "",
     updatedAt: "",
+    companyName:"",
     __v: 0,
   },
 ]);
 
   useEffect(() => {
     if (user?.department) {
-      fetchCompanies();
+      
       fetchInternships();
       fetchRecentApplications();
     }
   }, [user]);
 
-  const fetchCompanies = async () => {
-    if (!user || !user.department) return;
-    setIsLoading(true);
-    try {
-      const res = await fetch(`${baseUrl}/api/companyRoutes/getByDepartment/${user.department}`);
-      const data = await res.json();
-      setCompanies(data);
-      
-    } catch (err) {
-      console.error("Failed to fetch companies:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
 
   const fetchRecentApplications = async () => {
     
     setIsLoading(true);
     try {
-      const res = await fetch(`${baseUrl}/api/companyRoutes/fetchAllPendingApplications`);
+      const res = await fetch(`${baseUrl}/api/applicationRoutes/fetchAllApplications`);
       const data = await res.json();
       setApplications(data);
       console.log("Fetched companies:", data);
@@ -105,16 +94,7 @@ const [applications, setApplications] = useState<Application[]>([
     }
   };
 
-  const fetchRecentApplications = async () => {
-    if (!user || !user.department) return;
-    try {
-      const res = await fetch(`${baseUrl}/api/applicationRoutes/getRecentByDepartment/${user.department}`);
-      const data = await res.json();
-      setApplications(data);
-    } catch (err) {
-      console.error("Failed to fetch applications:", err);
-    }
-  };
+
 
   const handleDeleteCompany = async (companyId: string) => {
     if (!confirm("Are you sure you want to delete this company? This will also delete all associated internships.")) {
@@ -129,7 +109,7 @@ const [applications, setApplications] = useState<Application[]>([
       if (res.ok) {
         alert("Company deleted successfully");
         await refetch(); 
-        fetchCompanies();
+        
         fetchInternships();
       } else {
         const error = await res.json();
@@ -230,13 +210,24 @@ const [applications, setApplications] = useState<Application[]>([
                             className="w-10 h-10 rounded-full object-cover"
                           />
                         )}
+                        {/* 🔴 Notification Badge */}
+           
+
                         <div>
                           <h4 className="font-bold text-gray-900">{company.companyName ?? 'Unnamed Company'}</h4>
                           <p className="text-sm text-gray-600">{company.email}</p>
                           <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                             {company.industry || 'Technology'}
                           </span>
+               
                         </div>
+                                 {applications.filter(app => app.companyId === company.id && app.status === "pending").length > 0 && (
+  <span className="top-0.1 -left-1 bg-green-500 text-white text-xs font-bold rounded-full px-3 py-2">
+    {
+      applications.filter(app => app.companyId === company.id && app.status === "pending").length
+    } New Applications
+  </span>
+)}
                       </div>
                       <div className="flex space-x-2">
                         <Button
@@ -282,28 +273,35 @@ const [applications, setApplications] = useState<Application[]>([
                 </Button>
               </div>
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {applications.slice(0, 5).map((app) => (
-                  <Card key={app._id} className="p-4">
-                    <div>
-                      <h4 className="font-bold text-gray-900">
-                        {app.studentName ?? "Unknown Student"}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        applied to <span className="font-semibold">{app.companyName}</span> 
-                        for <span className="italic">{app.internshipTitle}</span>
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {new Date(app.createdAt).toLocaleDateString()} • Status:{" "}
-                        <span className={`font-medium ${
-                          app.status === "pending" ? "text-yellow-600" :
-                          app.status === "accepted" ? "text-green-600" : "text-red-600"
-                        }`}>
-                          {app.status}
-                        </span>
-                      </p>
-                    </div>
-                  </Card>
-                ))}
+             {applications
+  .sort((a, b) => {
+    const order = { pending: 1, accepted: 2, rejected: 3 };
+    return order[a.status as keyof typeof order] - order[b.status as keyof typeof order];
+  })
+  .slice(0, 20)
+  .map((app) => (
+    <Card key={app._id} className="p-4">
+      <div>
+        <h4 className="font-bold text-gray-900">
+          {app.studentName ?? "Unknown Student"}
+        </h4>
+        <p className="text-sm text-gray-600">
+          applied to <span className="font-semibold">{app.companyName} </span> 
+           for <span className="italic">{app.internshipTitle}</span>
+        </p>
+        <p className="text-xs text-gray-500 mt-1">
+          {new Date(app.createdAt).toLocaleDateString()} • Status:{" "}
+          <span className={`font-medium ${
+            app.status === "pending" ? "text-yellow-600" :
+            app.status === "accepted" ? "text-green-600" : "text-red-600"
+          }`}>
+            {app.status}
+          </span>
+        </p>
+      </div>
+    </Card>
+))}
+
                 {applications.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
                     No applications submitted yet.

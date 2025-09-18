@@ -61,15 +61,16 @@ export const fetchByCompanyId = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-// ✅ Fetch all pending applications
-export const fetchAllPendingApplications = async (req, res) => {
+// ✅ Fetch all  applications
+export const fetchAllApplications = async (req, res) => {
   try {
-    const apps = await Application.find({ status: "pending" }); // only pending
+    const apps = await Application.find(); // fetch all documents
     res.json(apps);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // ✅ Fetch applications by studentId
 export const fetchByStudentId = async (req, res) => {

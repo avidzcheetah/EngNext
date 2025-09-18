@@ -7,7 +7,7 @@ import {
   fetchByCompanyId,
   fetchByStudentId,
   fetchByInternshipId,
-  fetchAllPendingApplications
+  fetchAllApplications
 } from "../controllers/applicationController.js";
 
 
@@ -17,6 +17,6 @@ router.put("/acceptApplication/:id", acceptApplication);
 router.put("/rejectApplication/:id", rejectApplication);
 router.get("/fetchByCompanyId/:companyId", fetchByCompanyId);
 router.get("/fetchByStudentId/:studentId", fetchByStudentId);
-router.get("/fetchAllPendingApplications", fetchAllPendingApplications);
+router.get("/fetchAllApplications", fetchAllApplications);
 router.get("/fetchByInternshipId/:internshipId", fetchByInternshipId);
 export default router;
