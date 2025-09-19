@@ -120,6 +120,7 @@ interface CompanyProfileData {
       duration?: string;
       location?: string;
       isActive?: boolean;
+      industry?: string;
     }>
   >([]);
 
@@ -132,6 +133,7 @@ interface CompanyProfileData {
     duration?: string;
     location?: string;
     isActive?: boolean;
+    industry?: string;
   } | null>(null);
 
   const sendAcceptmail = (studentid: string) => {
@@ -202,6 +204,7 @@ interface CompanyProfileData {
     requirements?: string[];
     duration?: string;
     location?: string;
+    industry?: string;
   } | null>(null);
 
   const handleViewProfile = (id: string, ID: string) => {
@@ -514,6 +517,7 @@ interface Application {
           description: fData?.description,
           title: fData?.title,
           location: fData?.location,
+          industry: companyProfile?.industry,
         }),
       });
 
@@ -556,6 +560,7 @@ interface Application {
           description: fData?.description,
           title: fData?.title,
           location: fData?.location,
+          industry: companyProfile?.industry,
         }),
       });
 
@@ -572,6 +577,7 @@ interface Application {
         requirements: [],
         duration: "",
         location: "",
+      
       });
 
     } catch (error) {

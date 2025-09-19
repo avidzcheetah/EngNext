@@ -114,6 +114,7 @@ const StudentDashboard: React.FC = () => {
     location?: string;
     isActive?: boolean;
     createdAt?: string;
+    industry?: string;
   };
 
   const [fData, setFdata] = useState<Internships[] | null>(null);
@@ -195,6 +196,7 @@ const StudentDashboard: React.FC = () => {
 
       const data = await response.json();
       setFdata(data);
+      console.log("Fetched internships:", data);
     } catch (err) {
       console.error("Error fetching internships:", err);
     }
@@ -314,14 +316,20 @@ const StudentDashboard: React.FC = () => {
   };
 
   const filteredInternships = fData?.filter((internship) => {
-    const title = internship.title ?? "";
-    const company = internship.companyName ?? "";
-    const field = internship.title ?? "";
-    const matchesSearch =
-      title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch && internship.isActive;
-  });
+  const title = internship.title ?? "";
+  const company = internship.companyName ?? "";
+  const industry = internship.industry ?? "";
+  
+  const matchesSearch =
+    title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    company.toLowerCase().includes(searchTerm.toLowerCase());
+
+  const matchesFilter =
+    selectedFilter === "all" || industry.toLowerCase() === selectedFilter.toLowerCase();
+
+  return matchesSearch && matchesFilter && internship.isActive;
+});
+
 
   const handleApply = (internshipId: string) => {
     setSelectedInternship(internshipId);
@@ -365,10 +373,9 @@ const StudentDashboard: React.FC = () => {
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500"
                   >
                     <option value="all">All Fields</option>
-                    <option value="eee">Electronic and Electrical</option>
-                    <option value="com">Computer</option>
-                    <option value="mech">Mechanical</option>
-                    <option value="civil">Civil</option>
+                    <option value="EEE">Electronic and Electrical</option>
+                    <option value="com">Computer Engineering</option>
+                   
                   </select>
                   <Button variant="outline" className="hover:shadow-md transition-all">
                     <Filter className="w-4 h-4 mr-2" />
@@ -379,75 +386,81 @@ const StudentDashboard: React.FC = () => {
             </Card>
 
             <div className="space-y-6">
-              {filteredInternships?.map((internship) => {
-                const company = mockCompanies.find((c) => c.id === internship.companyId);
-                return (
-                  <Card
-                    key={internship._id}
-                    className="p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px] bg-white"
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center space-x-4">
-                        <div>
-                          <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                            {internship.title}
-                          </h3>
-                          <p className="text-blue-600 font-medium">{internship?.companyName}</p>
-                        </div>
-                      </div>
-                      <span className="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-                        Active
-                      </span>
-                    </div>
+             {filteredInternships
+  ?.sort(
+    (a, b) =>
+      new Date(b.createdAt ?? '').getTime() - new Date(a.createdAt ?? '').getTime()
+  ) // sort by recent first
+  .map((internship) => {
+    const company = mockCompanies.find((c) => c.id === internship.companyId);
+    return (
+      <Card
+        key={internship._id}
+        className="p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px] bg-white"
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center space-x-4">
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                {internship.title}
+              </h3>
+              <p className="text-blue-600 font-medium">{internship?.companyName}</p>
+            </div>
+          </div>
+          <span className="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+            Active
+          </span>
+        </div>
 
-                    <p className="text-gray-600 mb-4">{internship.description}</p>
+        <p className="text-gray-600 mb-4">{internship.description}</p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                      <div className="flex items-center space-x-2">
-                        <MapPin className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">{internship.location}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Clock className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">{internship.duration}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Building2 className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">Full-time</span>
-                      </div>
-                    </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div className="flex items-center space-x-2">
+            <MapPin className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-600">{internship.location}</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Clock className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-600">{internship.duration}</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Building2 className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-600">Full-time</span>
+          </div>
+        </div>
 
-                    <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">Requirements:</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {internship.requirements && internship.requirements.map((req, index) => (
-                          <span
-                            key={index}
-                            className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm hover:bg-blue-100 transition"
-                          >
-                            {req}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+        <div className="mb-4">
+          <h4 className="text-sm font-medium text-gray-900 mb-2">Requirements:</h4>
+          <div className="flex flex-wrap gap-2">
+            {internship.requirements && internship.requirements.map((req, index) => (
+              <span
+                key={index}
+                className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm hover:bg-blue-100 transition"
+              >
+                {req}
+              </span>
+            ))}
+          </div>
+        </div>
 
-                    <div className="flex justify-end space-x-3">
-                      <Link to={`/company/PublicProfile/${internship.companyId}`}>
-                        <Button variant="outline" className="hover:bg-gray-80">
-                          View Company
-                        </Button>
-                      </Link>
-                      <Button
-                        onClick={() => handleApply(internship._id || "")}
-                        className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02] transition"
-                      >
-                        <Send className="w-4 h-4 mr-2" />
-                        Apply Now
-                      </Button>
-                    </div>
-                  </Card>
-                );
-              })}
+        <div className="flex justify-end space-x-3">
+          <Link to={`/company/PublicProfile/${internship.companyId}`}>
+            <Button variant="outline" className="hover:bg-gray-80">
+              View Company
+            </Button>
+          </Link>
+          <Button
+            onClick={() => handleApply(internship._id || "")}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02] transition"
+          >
+            <Send className="w-4 h-4 mr-2" />
+            Apply Now
+          </Button>
+        </div>
+      </Card>
+    );
+  })}
+
             </div>
           </div>
 

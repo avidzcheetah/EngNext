@@ -505,10 +505,10 @@ const AdminDashboard: React.FC = () => {
                 <Button
                   fullWidth
                   variant="outline"
-                  onClick={() => navigate("/admin/allInternships")}
+                  onClick={() => navigate("/register/admin")}
                 >
                   <Briefcase className="w-4 h-4 mr-2" />
-                  Manage Internships
+                  Create New Admin
                 </Button>
                 <Button
                   fullWidth

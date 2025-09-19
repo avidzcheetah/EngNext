@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation} from "react-router-dom";
 import emailjs from "emailjs-com";
 
-
-// Components (replace with your UI components)
 import {
   Eye,
   Download,
@@ -11,7 +9,6 @@ import {
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 
-// -------------------- Types --------------------
 interface Application {
   _id: string;
   studentId: string;
@@ -27,6 +24,7 @@ interface Application {
   updatedAt: string;
   __v: number;
   coverLetter:string;
+  interestLevel?: number;
 }
 
 interface CompanyProfile {
@@ -34,7 +32,6 @@ interface CompanyProfile {
   companyName: string;
 }
 
-// -------------------- Page --------------------
 const ApplicationsPage: React.FC = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const location = useLocation();
@@ -47,20 +44,21 @@ const ApplicationsPage: React.FC = () => {
   const [error, setError] = useState("");
   const [coverletter,setCoverletter]=useState(false);
   const [coverletterstudentID,setcoverletterstudentId]=useState("");
-  const [coverletterID,setcoverletterID]=useState("")
+  const [coverletterID,setcoverletterID]=useState("");
+
+  const [cvLoadingId, setCvLoadingId] = useState<string | null>(null); // NEW
 
   const handleViewCoverletter=(id :string,id2:string)=>{
-  setCoverletter(true);
-  setcoverletterstudentId(id);
-  setcoverletterID(id2);
-}
+    setCoverletter(true);
+    setcoverletterstudentId(id);
+    setcoverletterID(id2);
+  }
 
-const handleCancelCoverLetter =()=>{
-  setCoverletter(false);
-  setcoverletterstudentId("");
-}
+  const handleCancelCoverLetter =()=>{
+    setCoverletter(false);
+    setcoverletterstudentId("");
+  }
 
-  // -------------------- Fetch Applications --------------------
   const fetchApplications = async () => {
     try {
       setLoading(true);
@@ -83,7 +81,6 @@ const handleCancelCoverLetter =()=>{
     fetchApplications();
   }, [internshipId]);
 
-  // -------------------- Email --------------------
   const sendEmail = (studentId: string, templateId: string) => {
     const app = applications.find(app => app._id === studentId);
     if (!app) return;
@@ -129,7 +126,7 @@ const handleCancelCoverLetter =()=>{
 
       await res.json();
       fetchApplications();
-      sendEmail(ID, "template_mogx38j"); // Accept template
+      sendEmail(ID, "template_mogx38j");
       sendMessageToStudent(ID, `${companyProfile?.companyName} has accepted your application`);
     } catch (error) {
       console.error(error);
@@ -151,7 +148,7 @@ const handleCancelCoverLetter =()=>{
 
       await res.json();
       fetchApplications();
-      sendEmail(ID, "template_06tm1fa"); // Reject template
+      sendEmail(ID, "template_06tm1fa");
       sendMessageToStudent(ID, `${companyProfile?.companyName} has rejected your application`);
     } catch (error) {
       console.error(error);
@@ -159,7 +156,6 @@ const handleCancelCoverLetter =()=>{
     }
   };
 
-  // -------------------- Notifications --------------------
   const sendMessageToStudent = async (ID: string, message: string) => {
     const studentID = applications.find(app => app._id === ID)?.studentId;
     if (!studentID) return;
@@ -180,7 +176,6 @@ const handleCancelCoverLetter =()=>{
     }
   };
 
-  // -------------------- Profile View --------------------
   const incrementProfileView = async (ID: string) => {
     const studentID = applications.find(app => app._id === ID)?.studentId;
     if (!studentID) return;
@@ -202,34 +197,43 @@ const handleCancelCoverLetter =()=>{
     navigate("/student/PublicProfile", { state: { id: studentId } });
   };
 
-  // -------------------- Download CV --------------------
   const handleDownloadCV = async (id: string) => {
     try {
-      const res = await fetch(`${baseUrl}/studentRoutes/getCV/${id}`);
-      if (!res.ok) throw new Error("CV download failed");
+      setCvLoadingId(id); // NEW start loading
 
-      const blob = await res.blob();
+      const response = await fetch(
+        `http://localhost:5000/api/studentRoutes/getCV/${id}`
+      );
+
+      if (!response.ok) {
+        throw new Error("CV download failed");
+      }
+
+      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
 
-      const disposition = res.headers.get("Content-Disposition");
+      const disposition = response.headers.get("Content-Disposition");
       let filename = "CV.pdf";
       if (disposition && disposition.includes("filename=")) {
         filename = disposition.split("filename=")[1].replace(/"/g, "");
       }
       a.download = filename;
+
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
+
     } catch (error) {
       console.error(error);
-      alert(error instanceof Error ? error.message : "Something went wrong");
+      alert(error instanceof Error ? error.message : String(error));
+    } finally {
+      setCvLoadingId(null); // NEW stop loading
     }
   };
 
-  // -------------------- Helpers --------------------
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
@@ -243,7 +247,6 @@ const handleCancelCoverLetter =()=>{
     }
   };
 
-  // -------------------- Render --------------------
   if (loading) return <p>Loading applications...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
@@ -305,8 +308,8 @@ const handleCancelCoverLetter =()=>{
                     </div>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">GPA:</h4>
-                    <p className="text-lg font-semibold text-green-600">{app.gpa}</p>
+                    <h4 className="text-sm font-medium text-gray-900 mb-2">Intrest Level:</h4>
+                    <p className="text-lg font-semibold text-green-600">{app.interestLevel}%</p>
                   </div>
                 </div>
 
@@ -323,17 +326,26 @@ const handleCancelCoverLetter =()=>{
                     variant="outline"
                     size="sm"
                     onClick={() => handleDownloadCV(app.studentId)}
+                    disabled={cvLoadingId === app.studentId} // NEW
                   >
-                    <Download className="w-4 h-4 mr-1" /> Download CV
+                    {cvLoadingId === app.studentId ? (
+                      <>
+                        <span className="animate-spin w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full mr-2"></span>
+                        Downloading...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4 mr-1" /> Download CV
+                      </>
+                    )}
                   </Button>
                   <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleViewCoverletter(app.studentId,app._id)}
-          >
-            <Download className="w-4 h-4 mr-1" /> View Cover Letter
-          </Button>
-                  
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleViewCoverletter(app.studentId,app._id)}
+                  >
+                    <Download className="w-4 h-4 mr-1" /> View Cover Letter
+                  </Button>
 
                   <Button
                     size="sm"
@@ -348,40 +360,33 @@ const handleCancelCoverLetter =()=>{
                 </div>
               </Card>
             ))}
-        
-
         </div>
       )}
       
-        {/*Cover Letter */}
-        {coverletter && (
-  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
-      <h3 className="text-xl font-bold mb-6">Cover Letter</h3>
-      <div className="space-y-4">
-        <p className="text-gray-700 leading-relaxed">
-    {
-  applications.find(
-    (app) =>
-      String(app.studentId) === String(coverletterstudentID) &&
-      String(app._id) === String(coverletterID)
-  )?.coverLetter || "No cover letter submitted"
-}
+      {coverletter && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
+            <h3 className="text-xl font-bold mb-6">Cover Letter</h3>
+            <div className="space-y-4">
+              <p className="text-gray-700 leading-relaxed">
+                {
+                  applications.find(
+                    (app) =>
+                      String(app.studentId) === String(coverletterstudentID) &&
+                      String(app._id) === String(coverletterID)
+                  )?.coverLetter || "No cover letter submitted"
+                }
+              </p>
+            </div>
 
-    
-       
-        </p>
-      </div>
-
-      <div className="flex justify-end mt-6">
-        <Button variant="outline" onClick={handleCancelCoverLetter}>
-          Close
-        </Button>
-      </div>
-    </Card>
-  </div>
-)}
-        
+            <div className="flex justify-end mt-6">
+              <Button variant="outline" onClick={handleCancelCoverLetter}>
+                Close
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
