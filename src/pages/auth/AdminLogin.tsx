@@ -22,7 +22,7 @@ const AdminLogin: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { companyProfiles, } = useCompany();
+
 
   const { login } = useAuth();
   const navigate = useNavigate();

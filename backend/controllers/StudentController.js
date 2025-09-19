@@ -270,6 +270,81 @@ static async incrementProfileView(req, res) {
   }
 }
 
+//set maximum number of applications for all students
+static async setMaximumApplicationsForAll(req, res) {
+  try {
+    const { maxApplications } = req.body; // get value from request body
+
+    const result = await Student.updateMany(
+      {}, // empty filter means all documents
+      { $set: { maximumApplications: maxApplications } }
+    );
+
+    res.status(200).json({
+      message: "Maximum applications updated for all students",
+      modifiedCount: result.modifiedCount
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error });
+  }
+}
+
+//increment ApplicationsSent only if below maximumApplications
+static async incrementApplicationsSent(req, res) {
+  try {
+    const id = req.params.studentId;
+
+    // First find the student
+    const student = await Student.findById(id);
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    // Check if already at maximum
+    if (student.ApplicationsSent >= student.maximumApplications) {
+      return res.status(400).json({ 
+        message: "Maximum application limit reached",
+        current: student.ApplicationsSent,
+        maximum: student.maximumApplications
+      });
+    }
+
+    // Increment if not reached max
+    student.ApplicationsSent += 1;
+    await student.save();
+
+    res.status(200).json({
+      message: "ApplicationsSent incremented successfully",
+      ApplicationsSent: student.ApplicationsSent,
+      maximumApplications: student.maximumApplications
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error });
+  }
+}
+
+//get maximum number of applications allowed
+static async getMaximumApplications(req, res) {
+  try {
+    const student = await Student.findOne({}, { maximumApplications: 1, _id: 0 });
+
+    if (!student) {
+      return res.status(404).json({ message: "No students found" });
+    }
+
+    res.status(200).json({
+      maximumApplications: student.maximumApplications
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error });
+  }
+}
+
 
 
 }

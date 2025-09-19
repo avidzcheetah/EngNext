@@ -50,6 +50,7 @@ const StudentDashboard: React.FC = () => {
     internshipId: string;
     coverLetter: string;
     interestLevel: number; // Added interest level to interface
+    companyName: string; // Added companyName to interface
   }
 
 // Initialize with empty array, will populate later with setApplications
@@ -245,6 +246,7 @@ const StudentDashboard: React.FC = () => {
         internshipId: selectedInternship || "",
         coverLetter: coverLetter,
         interestLevel: interestLevel, // Include interest level in application
+        companyName: fData?.find((item) => item._id === selectedInternship)?.companyName || "",
       };
 
       // 1️⃣ Send application to backend
