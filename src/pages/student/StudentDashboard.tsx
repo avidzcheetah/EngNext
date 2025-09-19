@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Search,
   Filter,
@@ -17,7 +17,6 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { mockInternships, mockCompanies } from '../../data/mockData';
 import { useLocation } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const StudentDashboard: React.FC = () => {
@@ -28,19 +27,20 @@ const StudentDashboard: React.FC = () => {
   const [selectedInternship, setSelectedInternship] = useState<string | null>(null);
   const location = useLocation();
   const [applicationsInfo, setApplicationsInfo] = useState<{
-  ApplicationsSent: number;
-  maximumApplications: number;
-  message: string;
-} | null>(null);
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const navigate = useNavigate()
+    ApplicationsSent: number;
+    maximumApplications: number;
+    message: string;
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   // Updated state variables for CV upload, cover letter, and interest level
   const [uploadedCV, setUploadedCV] = useState<File | null>(null);
   const [coverLetter, setCoverLetter] = useState('');
   const [interestLevel, setInterestLevel] = useState(60); // Default to 60%
-   const [maximumApplications, setMaximumApplications] = useState<number>(0);
+  const [maximumApplications, setMaximumApplications] = useState<number>(0);
+
   interface Application {
     studentId: string;
     companyId: string;
@@ -53,15 +53,10 @@ const StudentDashboard: React.FC = () => {
     gpa: number;
     internshipId: string;
     coverLetter: string;
-    interestLevel: number; // Added interest level to interface
-    companyName: string; // Added companyName to interface
+    interestLevel: number;
+    companyName: string;
   }
 
-// Initialize with empty array, will populate later with setApplications
-
-   
-   
-  // Initialize with empty array, will populate later with setApplications
   const [applications, setApplications] = useState<Application[]>([]);
   const { user, isAuthenticated, logout } = useAuth();
   console.log(user);
@@ -122,18 +117,14 @@ const StudentDashboard: React.FC = () => {
   };
 
   const [fData, setFdata] = useState<Internships[] | null>(null);
-
   const [cvPreview, setCvPreview] = useState<string | null>(null);
   const [CVPreview, setCVPreview] = useState<{
     filename: string;
     uploadDate: string;
     size: string;
   } | null>(null);
-
   const [profilepreview, setProfilePreview] = useState<string | null>(null);
-  
 
-  // Function to get interest level color and text
   const getInterestLevelInfo = (level: number) => {
     if (level <= 20) return { color: 'bg-red-400', text: 'Low Interest', textColor: 'text-red-600' };
     if (level <= 40) return { color: 'bg-orange-400', text: 'Moderate Interest', textColor: 'text-orange-600' };
@@ -144,7 +135,7 @@ const StudentDashboard: React.FC = () => {
 
   const handleUpdateprofile = () => {
     navigate("/student/profile", { state: { id: id } });
-  }
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -172,7 +163,7 @@ const StudentDashboard: React.FC = () => {
       console.log(data);
       setProfileData(data);
     } catch (err) {
-      console.log("Error fetching data")
+      console.log("Error fetching data");
     } finally {
       setIsLoading(false);
     }
@@ -187,9 +178,8 @@ const StudentDashboard: React.FC = () => {
       if (!response.ok) throw new Error("Failed to fetch image");
 
       const blob = await response.blob();
-      const imageUrl = URL.createObjectURL(blob); // create a temporary URL
+      const imageUrl = URL.createObjectURL(blob);
       setProfilePreview(imageUrl);
-
     } catch (err) {
       console.error(err);
     }
@@ -203,16 +193,15 @@ const StudentDashboard: React.FC = () => {
 
       if (!response.ok) throw new Error("Failed to fetch internships");
 
-      const data = await response.json(); // ✅ parse JSON body
-      setFdata(data); // ✅ update state with actual data
+      const data = await response.json();
+      setFdata(data);
     } catch (err) {
       console.error("Error fetching internships:", err);
     }
   };
 
-
-const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
-      setIsLoading(true);
+  const fetchTotalNumberOfApplicableInternshipsperStudent = async () => {
+    setIsLoading(true);
     try {
       const res = await fetch(`${baseUrl}/api/studentRoutes/getMaximumApplications`);
       const data = await res.json();
@@ -223,8 +212,7 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
     } finally {
       setIsLoading(false);
     }
-
-}
+  };
 
   const fetchCV = async () => {
     setIsLoading(true);
@@ -233,7 +221,6 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
         `${baseUrl}/api/studentRoutes/getCV/${id}`,
         {
           method: "GET",
-          // No need for 'Content-Type' when getting a file
         }
       );
 
@@ -241,9 +228,9 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
         throw new Error("Failed to fetch CV");
       }
 
-      const blob = await response.blob(); // get the file as a Blob
-      const fileUrl = URL.createObjectURL(blob); // create temporary URL
-      setCvPreview(fileUrl); // store in state
+      const blob = await response.blob();
+      const fileUrl = URL.createObjectURL(blob);
+      setCvPreview(fileUrl);
     } catch (err) {
       console.log("Error fetching CV:", err);
       setError("Failed to fetch CV");
@@ -266,30 +253,28 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
         gpa: profileData.gpa,
         internshipId: selectedInternship || "",
         coverLetter: coverLetter,
-        interestLevel: interestLevel, // Include interest level in application
+        interestLevel: interestLevel,
         companyName: fData?.find((item) => item._id === selectedInternship)?.companyName || "",
       };
 
-      // 1️⃣ Send application to backend
       const res = await fetch(`${baseUrl}/api/applicationRoutes/createApplication`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newApplication),
       });
-       
-      // 2 Increment the numper of inter Applications sent by student
-       const res2 = await fetch(`${baseUrl}/api/studentRoutes/incrementApplicationsSent/${id}`, {
+
+      const res2 = await fetch(`${baseUrl}/api/studentRoutes/incrementApplicationsSent/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newApplication),
       });
 
-      if(res2.ok){
+      if (res2.ok) {
         const data2 = await res2.json();
-        console.log("Application sent incremented",data2);
-        setApplicationsInfo(data2)
+        console.log("Application sent incremented", data2);
+        setApplicationsInfo(data2);
         fetchTotalNumberOfApplicableInternshipsperStudent();
-      }else{
+      } else {
         console.warn("Incrementing application sent failed");
       }
 
@@ -303,17 +288,14 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
       const data = await res.json();
       console.log("Application submitted to backend:", data);
 
-      // 2️⃣ Update UI only after success
       setApplications((prev) => [...prev, data]);
       alert("Applied successfully");
       setShowApplicationModal(false);
-      
-      // Reset form state
+
       setUploadedCV(null);
       setCoverLetter('');
-      setInterestLevel(60); // Reset interest level to default
+      setInterestLevel(60);
 
-      // 3️⃣ Increment ApplicationsSent
       const res1 = await fetch(
         `${baseUrl}/api/studentRoutes/incrementApplicationsSent/${id}`,
         { method: "PUT" }
@@ -324,8 +306,6 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
       } else {
         const updated = await res1.json();
         console.log("Updated ApplicationsSent:", updated);
-        // Optionally update local profileData state:
-        // setProfileData((prev) => ({ ...prev, ApplicationsSent: updated.ApplicationsSent }));
       }
     } catch (error) {
       console.error(error);
@@ -336,24 +316,22 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
   const filteredInternships = fData?.filter((internship) => {
     const title = internship.title ?? "";
     const company = internship.companyName ?? "";
-    const field   =internship.title ??"";
+    const field = internship.title ?? "";
     const matchesSearch =
       title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.toLowerCase().includes(searchTerm.toLowerCase()); // ✅ use API field
-      field.toLocaleLowerCase().includes(selectedFilter.toLocaleLowerCase())
+      company.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch && internship.isActive;
   });
 
   const handleApply = (internshipId: string) => {
     setSelectedInternship(internshipId);
     setShowApplicationModal(true);
-    setInterestLevel(60); // Reset to default when opening modal
+    setInterestLevel(60);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
         <div className="mb-8 text-center md:text-left">
           <h1 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-2">
             Welcome back, {profileData.firstName} !
@@ -364,9 +342,7 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content */}
           <div className="lg:col-span-3">
-            {/* Search and Filters */}
             <Card className="p-6 mb-8 border border-gray-100 shadow-sm hover:shadow-md transition-all bg-white/80 backdrop-blur-sm">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
@@ -402,7 +378,6 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
               </div>
             </Card>
 
-            {/* Internship Listings */}
             <div className="space-y-6">
               {filteredInternships?.map((internship) => {
                 const company = mockCompanies.find((c) => c.id === internship.companyId);
@@ -457,9 +432,11 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
                     </div>
 
                     <div className="flex justify-end space-x-3">
-                      <Button variant="outline" className="hover:bg-gray-80">
-                        View Details
-                      </Button>
+                      <Link to={`/company/PublicProfile/${internship.companyId}`}>
+                        <Button variant="outline" className="hover:bg-gray-80">
+                          View Company
+                        </Button>
+                      </Link>
                       <Button
                         onClick={() => handleApply(internship._id || "")}
                         className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02] transition"
@@ -474,14 +451,12 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
             </div>
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Profile Quick View */}
             <Card className="p-6 text-center shadow-sm hover:shadow-md transition">
               <div className="">
                 {profileData.profilePicture ? (
                   <img
-                    src={user?.profilePicture} // ✅ blob URL from state, never null
+                    src={user?.profilePicture}
                     alt="Profile"
                     className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 ring-2 ring-blue-200"
                   />
@@ -494,7 +469,7 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
               <h3 className="font-bold text-gray-900">{profileData.firstName} {profileData.lastName}</h3>
               <p className="text-sm text-gray-600">Engineering Undergraduate</p>
 
-               <Button fullWidth className="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white" onClick={handleUpdateprofile}>
+              <Button fullWidth className="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white" onClick={handleUpdateprofile}>
                 <User className="w-4 h-4 mr-2" />
                 Update Profile
               </Button>
@@ -511,11 +486,8 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
                   ></div>
                 </div>
               </div>
-
-             
             </Card>
 
-            {/* Notifications */}
             <Card className="p-6 shadow-sm hover:shadow-md transition">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900">Recent Notifications</h3>
@@ -531,7 +503,7 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
                           (note as string).toLowerCase().includes("accepted") ||
                           (note as string).toLowerCase().includes("rejected")
                       )
-                      .slice(-3) // ✅ only last 3
+                      .slice(-3)
                       .map((note, index) => (
                         <div key={index}>{note}</div>
                       ))}
@@ -554,7 +526,6 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
               </div>
             </Card>
 
-            {/* Quick Stats */}
             <Card className="p-6 shadow-sm hover:shadow-md transition">
               <h3 className="font-semibold text-gray-900 mb-4">Your Stats</h3>
               {[
@@ -571,7 +542,6 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
         </div>
       </div>
 
-      {/* Updated Application Modal with Interest Level */}
       {showApplicationModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
           <Card className="max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
@@ -587,7 +557,6 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
               </button>
             </div>
 
-            {/* Profile Completeness Check */}
             {(!profileData.skills.length || !cvPreview) ? (
               <div className="text-center py-6">
                 <div className="mb-4">
@@ -607,7 +576,6 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
               </div>
             ) : (
               <div className="space-y-6">
-                {/* Profile Summary */}
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h4 className="font-medium text-gray-900 mb-3">Your Application Profile</h4>
                   <div className="grid grid-cols-2 gap-4 text-sm">
@@ -639,7 +607,6 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
                   </div>
                 </div>
 
-                {/* Interest Level Slider */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     <Heart className="w-4 h-4 inline mr-2" />
@@ -647,16 +614,12 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
                   </label>
                   <div className="space-y-3">
                     <div className="relative">
-                      {/* Background bar */}
                       <div className="w-full h-4 bg-gray-200 rounded-full shadow-inner">
-                        {/* Progress bar that changes color */}
                         <div 
                           className={`h-4 rounded-full transition-all duration-300 ease-out ${getInterestLevelInfo(interestLevel).color} shadow-sm`}
                           style={{ width: `${interestLevel}%` }}
                         ></div>
                       </div>
-                      
-                      {/* Invisible slider overlay */}
                       <input
                         type="range"
                         min="20"
@@ -666,8 +629,6 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
                         onChange={(e) => setInterestLevel(Number(e.target.value))}
                         className="absolute top-0 w-full h-4 opacity-0 cursor-pointer"
                       />
-                      
-                      {/* Slider thumb indicator */}
                       <div 
                         className="absolute top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white border-2 border-gray-300 rounded-full shadow-md pointer-events-none transition-all duration-300"
                         style={{ 
@@ -677,7 +638,6 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
                       >
                         <div className={`w-2 h-2 ${getInterestLevelInfo(interestLevel).color} rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`}></div>
                       </div>
-                      
                       <div className="relative mt-2">
                         <div className="flex justify-between text-xs text-gray-500">
                           <span style={{ position: 'absolute', left: '0%', transform: 'translateX(-50%)' }}>0%</span>
@@ -698,7 +658,6 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
                   </div>
                 </div>
 
-                {/* Cover Letter */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Cover Letter (Recommended)
@@ -712,7 +671,6 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
                   />
                 </div>
 
-                {/* Info Notice */}
                 <div className="bg-blue-50 text-blue-700 p-4 rounded-lg text-sm">
                   <p className="flex items-center">
                     <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -722,7 +680,6 @@ const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
                   </p>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex space-x-3">
                   <Button
                     variant="outline"

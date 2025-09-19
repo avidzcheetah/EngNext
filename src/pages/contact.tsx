@@ -76,7 +76,7 @@ const Contact: React.FC = () => {
       details: [
         "+94 21 222 8000 (Main)",
         "+94 21 222 8001 (EEE Dept)",
-        "+94 77 123 4567 (Inturnix Support)",
+        "+94 21 228 2211 (Com Dept)",
       ],
       color: "text-green-600",
       bgColor: "bg-green-100",
@@ -87,7 +87,7 @@ const Contact: React.FC = () => {
       details: [
         "info@eng.jfn.ac.lk",
         "eee@eng.jfn.ac.lk",
-        "inturnix@eng.jfn.ac.lk",
+        "intriux@gmail.com",
       ],
       color: "text-purple-600",
       bgColor: "bg-purple-100",
@@ -555,7 +555,7 @@ const Contact: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="mailto:inturnix@eng.jfn.ac.lk"
+              href="mailto:intriux@gmail.com"
               className="px-8 py-3 bg-white text-blue-700 font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2"
             >
               <Mail className="w-5 h-5" />
