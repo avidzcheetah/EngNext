@@ -46,7 +46,7 @@ router.put("/incrementProfileView/:studentId", StudentController.incrementProfil
 router.put("/setMaximumApplicationsForAll", StudentController.setMaximumApplicationsForAll);
 
 // increment applications sent by a student
-router.put("/incrementApplicationsSent/:studentId", StudentController.incrementApplicationsSent);
+router.put("/incrementApplicationsSent/:id", StudentController.incrementApplicationsSent);
 
 // get maximum profile views
 router.get("/getMaximumApplications", StudentController.getMaximumApplications);

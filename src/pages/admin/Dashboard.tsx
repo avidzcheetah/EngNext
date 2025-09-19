@@ -13,8 +13,14 @@ const AdminDashboard: React.FC = () => {
   const { refetch, companyProfiles } = useCompany();
   const [companies, setCompanies] = useState<any[]>([]);
   const [internships, setInternships] = useState<any[]>([]);
-  const [allActiveInternships, setAllActiveInternships] = useState<any[]>([]);
+
+  const [maximumApplications, setMaximumApplications] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [showform,setshowForm]=useState(false);
+  const [restrictionNumber,setRestrictionNumber]=useState(0);
+
+  // Fetch data for this admin's department only
+
   const [isLoadingInternships, setIsLoadingInternships] = useState(false);
   const [isLoadingApplications, setIsLoadingApplications] = useState(false);
 
@@ -43,7 +49,7 @@ const [applications, setApplications] = useState<Application[]>([]);
     if (user?.department) {
       fetchInternships();
       fetchRecentApplications();
-      fetchAllActiveInternships();
+      fetchTotalNumberOfApplicableInternshipsperStudent();
     }
   }, [user]);
 
@@ -61,6 +67,49 @@ const [applications, setApplications] = useState<Application[]>([]);
       setIsLoadingInternships(false);
     }
   };
+
+const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
+      setIsLoading(true);
+    try {
+      const res = await fetch(`${baseUrl}/api/studentRoutes/getMaximumApplications`);
+      const data = await res.json();
+      setMaximumApplications(data.maximumApplications);
+      console.log("Fetched companies:", data.maximumApplications);
+    } catch (err) {
+      console.error("Failed to fetch companies:", err);
+    } finally {
+      setIsLoading(false);
+    }
+
+}
+
+const handleForm=()=>{
+  setshowForm(true);
+}
+
+const HandleSave = async () => {
+  try {
+    const res = await fetch(`${baseUrl}/api/studentRoutes/setMaximumApplicationsForAll`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json", // tell backend it's JSON
+      },
+      body: JSON.stringify({ maxApplications: maximumApplications }), // send number directly
+    });
+
+    if (res.ok) {
+      alert("Maximum applications updated successfully");
+      setshowForm(false);
+      fetchTotalNumberOfApplicableInternshipsperStudent(); // refresh the value
+    } else {
+      const error = await res.json();
+      alert(error.message || "Failed to update maximum applications");
+    }
+  } catch (err) {
+    console.error("Error updating maximum applications:", err);
+    alert("Failed to update maximum applications");
+  }
+};
 
   const fetchRecentApplications = async () => {
     setIsLoadingApplications(true);
@@ -179,14 +228,10 @@ const [applications, setApplications] = useState<Application[]>([]);
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
               <Briefcase className="w-6 h-6 text-purple-600" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">
-              {isLoadingInternships ? (
-                <Loader2 className="w-6 h-6 animate-spin mx-auto" />
-              ) : (
-                allActiveInternships.length
-              )}
-            </h3>
-            <p className="text-gray-600 text-sm">Active Internships</p>
+
+            <h3 className="text-2xl font-bold text-gray-900 mb-1">{maximumApplications}</h3>
+            <p className="text-gray-600 text-sm">Applicable Internships per Student</p>
+
           </Card>
           
           <Card className="p-6 text-center hover:shadow-lg transition-all bg-white rounded-xl">
@@ -327,43 +372,44 @@ const [applications, setApplications] = useState<Application[]>([]);
                 </Button>
               </div>
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {isLoadingApplications ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-8 h-8 animate-spin text-green-600" />
-                    <span className="ml-2 text-gray-600">Loading applications...</span>
-                  </div>
-                ) : (
-                  applications
-                    .sort((a, b) => {
-                      const order = { pending: 1, accepted: 2, rejected: 3 };
-                      return order[a.status as keyof typeof order] - order[b.status as keyof typeof order];
-                    })
-                    .slice(0, 20)
-                    .map((app) => (
-                      <Card key={app._id} className="p-4">
-                        <div>
-                          <h4 className="font-bold text-gray-900">
-                            {app.studentName ?? "Unknown Student"}
-                          </h4>
-                          <p className="text-sm text-gray-600">
-                            applied to <span className="font-semibold">{app.companyName} </span> 
-                             for <span className="italic">{app.internshipTitle}</span>
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {new Date(app.createdAt).toLocaleDateString()} • Status:{" "}
-                            <span className={`font-medium ${
-                              app.status === "pending" ? "text-yellow-600" :
-                              app.status === "accepted" ? "text-green-600" : "text-red-600"
-                            }`}>
-                              {app.status}
-                            </span>
-                          </p>
-                        </div>
-                      </Card>
-                    ))
-                )}
 
-                {!isLoadingApplications && applications.length === 0 && (
+{applications
+  .sort((a, b) => {
+    // First, sort by status
+    const order = { pending: 1, accepted: 2, rejected: 3 };
+    const statusDiff = order[a.status as keyof typeof order] - order[b.status as keyof typeof order];
+    if (statusDiff !== 0) return statusDiff;
+
+    // If same status, sort by createdAt descending (latest first)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  })
+  .slice(0, 20)
+  .map((app) => (
+    <Card key={app._id} className="p-4">
+      <div>
+        <h4 className="font-bold text-gray-900">
+          {app.studentName ?? "Unknown Student"}
+        </h4>
+        <p className="text-sm text-gray-600">
+          applied to <span className="font-semibold">{app.companyName} </span> 
+          for <span className="italic">{app.internshipTitle}</span>
+        </p>
+        <p className="text-xs text-gray-500 mt-1">
+          {new Date(app.createdAt).toLocaleDateString()} • Status:{" "}
+          <span className={`font-medium ${
+            app.status === "pending" ? "text-yellow-600" :
+            app.status === "accepted" ? "text-green-600" : "text-red-600"
+          }`}>
+            {app.status}
+          </span>
+        </p>
+      </div>
+    </Card>
+))}
+
+
+                {applications.length === 0 && (
+
                   <div className="text-center py-8 text-gray-500">
                     No applications submitted yet.
                   </div>
@@ -409,12 +455,48 @@ const [applications, setApplications] = useState<Application[]>([]);
                 <Button
                   fullWidth
                   variant="outline"
-                  onClick={() => navigate("/admin/applications")}
+                  onClick={handleForm}
                 >
                   <Users className="w-4 h-4 mr-2" />
-                  Review Applications
+                  Restrict applications per student
                 </Button>
               </div>
+
+                        {/* 🔽 Conditional Form */}
+          {showform && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                // handle form submission logic
+              }}
+              className="mt-4 space-y-4 border-t pt-4"
+            >
+              <label className="block text-sm font-medium text-gray-700">
+                Maximum Applications
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={maximumApplications}
+                onChange={(e) => setMaximumApplications(Number(e.target.value))}
+                className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter maximum number"
+              />
+              <Button type="submit" fullWidth className="bg-blue-600 text-white"
+              onClick={HandleSave}>
+                Save
+              </Button>
+              <Button
+                type="button"
+                fullWidth
+                className="bg-blue-600 text-white"
+                onClick={() => setshowForm(false)}
+              >
+                Cancel
+              </Button>
+            </form>
+          )}
+
             </Card>
           </div>
         </div>
