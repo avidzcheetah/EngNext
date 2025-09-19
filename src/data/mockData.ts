@@ -3,31 +3,45 @@ import { Lecturer, Partner, Internship, Company } from '../types';
 export const lecturers: Lecturer[] = [
   {
     id: '1',
-    name: 'Prof. T. Thiruvaran',
-    title: 'Professor & HOD of EEE',
-    photo: 'https://www.eng.jfn.ac.lk/wp-content/uploads/Staff_photos/Tharmarajah_Thiruvaran.png',
-    specialization: 'Automatic speaker recognition, Speech signal processing, Pattern recognition'
+    name: 'Dr. A. Kaneswaran',
+    title: 'Dean of the Faculty',
+    photo: 'https://www.eng.jfn.ac.lk/wp-content/uploads/Staff_photos/dr_kanes.jpg',
+    specialization: 'BSc. Eng (Hons) (Peradeniya), PhD (QUT, Australia), AMIE(SL), MIEEE'
   },
   {
     id: '2',
-    name: 'Dr. T. Mukunthan',
-    title: 'Senior Lecturer Grade II',
-    photo: 'https://www.eng.jfn.ac.lk/wp-content/uploads/Staff_photos/mukunthan.jpg',
-    specialization: 'IoT, Electronic design and application, Network design, Signal Processing'
+    name: 'Prof. T. Thiruvaran',
+    title: 'Professor & HOD of EEE',
+    photo: 'https://www.eng.jfn.ac.lk/wp-content/uploads/Staff_photos/Tharmarajah_Thiruvaran.png',
+    specialization: 'B.Sc.Eng.(Hons)(Peradeniya), PhD (UNSW, Australia), AMIE(SL), MIEEE'
   },
   {
     id: '3',
-    name: 'Mr. R. Valluvan',
-    title: 'Senior Lecturer',
-    photo: 'https://www.eng.jfn.ac.lk/wp-content/uploads/Staff_photos/valluvan_EEE.jpg',
-    specialization: ' Machine Learning, Communication Systems, Innovation Management and Technology Commercialization'
+    name: 'Dr. (Mrs.) P. Jeyananthan',
+    title: 'HOD of Computer Engineering',
+    photo: 'https://www.eng.jfn.ac.lk/wp-content/uploads/2017/01/pratheeba.jpg',
+    specialization: 'B.Sc (Hons) in Computer Science (Jaffna), PhD (Southampton, UK)'
   },
   {
     id: '4',
-    name: 'Lec1 Name',
-    title: 'Lecturer',
-    photo: 'https://images.pexels.com/photos/3783725/pexels-photo-3783725.jpeg?auto=compress&cs=tinysrgb&w=400',
-    specialization: 'Specialization here'
+    name: 'Dr. (Mrs.) J. Jananie',
+    title: 'Senior Lecturer Grade II, Com Dept.',
+    photo: 'https://www.eng.jfn.ac.lk/wp-content/uploads/Staff_photos/jananie.jpg',
+    specialization: 'B.Sc [Hons] in Computer Science, PhD(University of Louisiana)'
+  },
+  {
+    id: '5',
+    name: 'Dr. T. Mukunthan',
+    title: 'Senior Lecturer Grade II, EEE Dept.',
+    photo: 'https://www.eng.jfn.ac.lk/wp-content/uploads/Staff_photos/mukunthan.jpg',
+    specialization: 'B.Sc.Eng.(Hons)(Moratuwa), AMIE(SL)'
+  },
+  {
+    id: '6',
+    name: 'Mr. R. Valluvan',
+    title: 'Senior Lecturer, EEE Dept.',
+    photo: 'https://www.eng.jfn.ac.lk/wp-content/uploads/Staff_photos/valluvan_EEE.jpg',
+    specialization: ' B.Sc. Eng (Hons) (Peradeniya), M.Sc in Electrical Engineering, AMIE(SL)'
   }
 ];
 
