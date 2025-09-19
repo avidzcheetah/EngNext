@@ -27,7 +27,11 @@ const StudentDashboard: React.FC = () => {
   const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [selectedInternship, setSelectedInternship] = useState<string | null>(null);
   const location = useLocation();
-
+  const [applicationsInfo, setApplicationsInfo] = useState<{
+  ApplicationsSent: number;
+  maximumApplications: number;
+  message: string;
+} | null>(null);
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const navigate = useNavigate()
@@ -36,7 +40,7 @@ const StudentDashboard: React.FC = () => {
   const [uploadedCV, setUploadedCV] = useState<File | null>(null);
   const [coverLetter, setCoverLetter] = useState('');
   const [interestLevel, setInterestLevel] = useState(60); // Default to 60%
-
+   const [maximumApplications, setMaximumApplications] = useState<number>(0);
   interface Application {
     studentId: string;
     companyId: string;
@@ -147,6 +151,7 @@ const StudentDashboard: React.FC = () => {
     fetchCV();
     fetchProfilePicture();
     fetchAllJobs();
+    fetchTotalNumberOfApplicableInternshipsperStudent();
   }, []);
 
   const fetchProfile = async () => {
@@ -205,6 +210,22 @@ const StudentDashboard: React.FC = () => {
     }
   };
 
+
+const fetchTotalNumberOfApplicableInternshipsperStudent =async ()=>{
+      setIsLoading(true);
+    try {
+      const res = await fetch(`${baseUrl}/api/studentRoutes/getMaximumApplications`);
+      const data = await res.json();
+      setMaximumApplications(data.maximumApplications);
+      console.log("Fetched companies:", data.maximumApplications);
+    } catch (err) {
+      console.error("Failed to fetch companies:", err);
+    } finally {
+      setIsLoading(false);
+    }
+
+}
+
   const fetchCV = async () => {
     setIsLoading(true);
     try {
@@ -255,6 +276,22 @@ const StudentDashboard: React.FC = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newApplication),
       });
+       
+      // 2 Increment the numper of inter Applications sent by student
+       const res2 = await fetch(`${baseUrl}/api/studentRoutes/incrementApplicationsSent/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newApplication),
+      });
+
+      if(res2.ok){
+        const data2 = await res2.json();
+        console.log("Application sent incremented",data2);
+        setApplicationsInfo(data2)
+        fetchTotalNumberOfApplicableInternshipsperStudent();
+      }else{
+        console.warn("Incrementing application sent failed");
+      }
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
@@ -457,23 +494,25 @@ const StudentDashboard: React.FC = () => {
               <h3 className="font-bold text-gray-900">{profileData.firstName} {profileData.lastName}</h3>
               <p className="text-sm text-gray-600">Engineering Undergraduate</p>
 
+               <Button fullWidth className="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white" onClick={handleUpdateprofile}>
+                <User className="w-4 h-4 mr-2" />
+                Update Profile
+              </Button>
+
               <div className="mt-4 space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Profile Completion:</span>
-                  <span className="text-green-600 font-medium">85%</span>
+                  <span className="text-gray-600">Internships Applied:</span>
+                  <span className="text-green-600 font-medium">{profileData?.ApplicationsSent}/{maximumApplications}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
                     className="bg-green-500 h-2 rounded-full transition-all"
-                    style={{ width: '85%' }}
+                    style={{ width: `${(Number(profileData?.ApplicationsSent) && maximumApplications ? (Number(profileData?.ApplicationsSent) / maximumApplications) * 100 : 0)}%` }}
                   ></div>
                 </div>
               </div>
 
-              <Button fullWidth className="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white" onClick={handleUpdateprofile}>
-                <User className="w-4 h-4 mr-2" />
-                Update Profile
-              </Button>
+             
             </Card>
 
             {/* Notifications */}

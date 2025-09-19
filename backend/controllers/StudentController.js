@@ -270,31 +270,39 @@ static async incrementProfileView(req, res) {
   }
 }
 
-//set maximum number of applications for all students
+// set maximum number of applications for all students
 static async setMaximumApplicationsForAll(req, res) {
   try {
-    const { maxApplications } = req.body; // get value from request body
+    let { maxApplications } = req.body;
+    console.log("Received maxApplications:", maxApplications);
+    // Ensure it's converted to a number
+    const parsedValue = Number(maxApplications);
+
+    if (isNaN(parsedValue) || parsedValue <= 0) {
+      return res.status(400).json({ message: "Invalid maximumApplications value" });
+    }
 
     const result = await Student.updateMany(
-      {}, // empty filter means all documents
-      { $set: { maximumApplications: maxApplications } }
+      {}, // empty filter means all students
+      { $set: { maximumApplications: parsedValue } }
     );
 
     res.status(200).json({
       message: "Maximum applications updated for all students",
-      modifiedCount: result.modifiedCount
+      modifiedCount: result.modifiedCount,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error updating maximum applications:", error);
     res.status(500).json({ message: "Server error", error });
   }
 }
 
+
 //increment ApplicationsSent only if below maximumApplications
 static async incrementApplicationsSent(req, res) {
   try {
-    const id = req.params.studentId;
-
+    const id = req.params.id;
+    console.log("Increment request for student ID:", id);
     // First find the student
     const student = await Student.findById(id);
     if (!student) {
