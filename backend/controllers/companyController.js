@@ -8,15 +8,17 @@ class CompanyController {
 
       // Required fields validation
       const { email, companyName } = companyData;
-      if (!email || !companyName) {
+     /* if (!email || !companyName) {
         return res.status(400).json({ message: "Email and Company Name are required" });
-      }
+      }*/
 
       // Check if email already exists
+      if(email){
       const existingCompany = await companySchema.findOne({ email });
       if (existingCompany) {
         return res.status(400).json({ message: "Company with this email already exists" });
       }
+    }
 
       // If a logo file is uploaded
       if (req.file) {
@@ -120,6 +122,7 @@ static async getAllCompanies(req, res) {
       OurValues:c.OurValues ||[],
       createdAt: c.createdAt,
       updatedAt: c.updatedAt,
+      subfield:c.subfield || "",
     }));
 
     res.status(200).json({ companies: formattedCompanies });
@@ -170,7 +173,7 @@ static async getAllCompanies(req, res) {
         address:company.address,
         createdAt: company.createdAt,
         updatedAt: company.updatedAt,
-        
+        subfield:company.subfield || "",
       };
 
       res.status(200).json({ company: formattedCompany });

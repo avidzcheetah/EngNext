@@ -41,7 +41,7 @@ const CompanyDashboard: React.FC = () => {
   const [isUpdatingJob, setIsUpdatingJob] = useState(false);
   const [isDeletingJob, setIsDeletingJob] = useState(false);
   const [isUpdatingApplication, setIsUpdatingApplication] = useState(false);
-
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const location = useLocation();
   const { companyId } = location.state || { companyId: null };
   const id = companyId;
@@ -507,7 +507,8 @@ interface Application {
     setIsCreatingJob(true);
 
     try {
-      const response = await fetch("${baseUrl}/api/InternshipRoutes/createInternship", {
+      const response = await fetch(`${baseUrl}/api/InternshipRoutes/createInternship`, {
+
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

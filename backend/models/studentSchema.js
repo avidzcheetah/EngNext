@@ -29,6 +29,9 @@ const studentSchema = new Schema({
   dateOfBirth: {
     type: String,
   },
+  department: {
+    type: String,
+  },
   address: {
     type: String,
   },
