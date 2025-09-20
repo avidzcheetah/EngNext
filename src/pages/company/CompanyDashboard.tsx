@@ -20,7 +20,6 @@ import { useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 
 const CompanyDashboard: React.FC = () => {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<
     "applications" | "positions" | "company"
