@@ -487,11 +487,11 @@ interface Application {
       const data = await res.json();
 
       if (!res.ok) {
-        alert("Error deleting internship: " + data.message);
+        alert("Error deleting job position: " + data.message);
         return;
       }
 
-      alert("Internship deleted successfully!");
+      alert("Job deleted successfully!");
       fetchJobs();
     } catch (error) {
       console.error("Delete error:", error);
@@ -521,11 +521,11 @@ interface Application {
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to create internship");
+      if (!response.ok) throw new Error("Failed to create job position");
 
       const data = await response.json();
-      alert("Internship created successfully!");
-      console.log("Internship created:", data);
+      alert("job created successfully!");
+      console.log("job created:", data);
       setShowJobModal(false);
       fetchJobs();
       setFdata({
@@ -537,8 +537,8 @@ interface Application {
       });
 
     } catch (error) {
-      console.error("Error creating internship:", error);
-      alert("Failed to create internship. Please try again.");
+      console.error("Error creating job:", error);
+      alert("Failed to create job. Please try again.");
     } finally {
       setIsCreatingJob(false);
     }
@@ -564,11 +564,11 @@ interface Application {
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to edit the internship");
+      if (!response.ok) throw new Error("Failed to edit the job");
 
       const data = await response.json();
       alert("Changes saved successfully!");
-      console.log("Internship edited successfully:", data);
+      console.log("job edited successfully:", data);
       setEdit(false);
       fetchJobs();
       setFdata({
@@ -581,7 +581,7 @@ interface Application {
       });
 
     } catch (error) {
-      console.error("Error editing internship:", error);
+      console.error("Error editing job:", error);
       alert("Failed to save changes. Please try again.");
     } finally {
       setIsUpdatingJob(false);
@@ -738,7 +738,7 @@ interface Application {
             )}
           </h1>
           <p className="text-gray-600">
-            Manage your internship programs and candidates
+            Manage your job programs and candidates
           </p>
         </div>
 
@@ -1241,7 +1241,7 @@ interface Application {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
               <h3 className="text-xl font-bold mb-6">
-                Add New Internship Position
+                Add New job Position
               </h3>
               <div className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
@@ -1308,7 +1308,7 @@ interface Application {
                   <textarea
                     value={fData?.description}
                     rows={4}
-                    placeholder="Describe the internship role..."
+                    placeholder="Describe the job role..."
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
                     onChange={(e) =>
                       setFdata((prev) => ({
@@ -1390,7 +1390,7 @@ interface Application {
         {edit && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
-              <h3 className="text-xl font-bold mb-6">Edit Internship Position</h3>
+              <h3 className="text-xl font-bold mb-6">Edit job Position</h3>
               <div className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>

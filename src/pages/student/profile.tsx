@@ -402,7 +402,7 @@ const StudentProfile: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     <div className={`w-3 h-3 rounded-full ${profileData.availability ? 'bg-green-500' : 'bg-gray-400'}`}></div>
                     <span className="text-sm text-gray-600">
-                      {profileData.availability ? 'Available for internships' : 'Not available'}
+                      {profileData.availability ? 'Available for jobs' : 'Not available'}
                     </span>
                   </div>
                 </div>
@@ -697,7 +697,7 @@ const StudentProfile: React.FC = () => {
                 className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:bg-gray-50"
               />
               <label className="text-gray-700">
-                I am currently available for internship opportunities
+                I am currently available for job opportunities
               </label>
             </div>
             <p className="text-sm text-gray-500 mt-2">

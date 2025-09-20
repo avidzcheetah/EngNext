@@ -412,7 +412,7 @@ const RegisterStudentPage: React.FC = () => {
             Student Registration
           </h2>
           <p className="mt-2 text-gray-600">
-            Join the Engineering internship network
+            Join the Engineering job network
           </p>
         </div>
 

@@ -135,7 +135,7 @@ const Companies: React.FC = () => {
             Partner Companies
           </h1>
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-blue-100 mb-8">
-            Discover leading companies offering exciting internship
+            Discover leading companies offering exciting job
             opportunities for EEE students
           </p>
 
@@ -278,7 +278,7 @@ const Companies: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* Internships Preview */}
+                  {/* jobs Preview */}
 
                   {/* Company Actions */}
                   <div className="px-6 pb-6">
@@ -329,7 +329,7 @@ const Companies: React.FC = () => {
           </h2>
           <p className="text-blue-100 mb-8 text-lg">
             Join thousands of engineering students who have found their dream
-            internships through Inturnix
+            jobs through EngNext
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

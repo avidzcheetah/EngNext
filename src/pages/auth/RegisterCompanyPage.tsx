@@ -234,7 +234,7 @@ const RegisterCompanyPage: React.FC = () => {
                 Application Submitted
               </h2>
               <p className="text-gray-600 mb-6">
-                Thank you for registering with Inturnix! Your company
+                Thank you for registering with EngNext! Your company
                 application has been submitted and is now pending approval from
                 our administrators.
               </p>

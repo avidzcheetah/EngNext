@@ -203,13 +203,13 @@ const StudentDashboard: React.FC = () => {
         `${baseUrl}/api/InternshipRoutes/getAllInternships`
       );
 
-      if (!response.ok) throw new Error("Failed to fetch internships");
+      if (!response.ok) throw new Error("Failed to fetch jobs");
 
       const data = await response.json();
       setFdata(data);
-      console.log("Fetched internships:", data);
+      console.log("Fetched jobs:", data);
     } catch (err) {
-      console.error("Error fetching internships:", err);
+      console.error("Error fetching jobs:", err);
     } finally {
       setJobsLoading(false);
     }
@@ -253,7 +253,7 @@ const StudentDashboard: React.FC = () => {
 
   const handleSubmitApplication = async () => {
     if (Number(profileData.ApplicationsSent) >= maximumApplications) {
-      alert("You have reached the maximum number of internship applications allowed.");
+      alert("You have reached the maximum number of job applications allowed.");
       return;
     }
     setIsSubmitting(true);
@@ -340,7 +340,7 @@ const StudentDashboard: React.FC = () => {
 
   const handleApply = (internshipId: string) => {
     if (Number(profileData.ApplicationsSent) >= maximumApplications) {
-      alert("You have reached the maximum number of internship applications allowed.");
+      alert("You have reached the maximum number of job applications allowed.");
       return;
     }
     setSelectedInternship(internshipId);
@@ -372,7 +372,7 @@ const StudentDashboard: React.FC = () => {
             Welcome back, {profileData.firstName} !
           </h1>
           <p className="text-gray-600 animate-fade-in delay-100">
-            Discover your next internship opportunity and take your career forward.
+            Discover your next job opportunity and take your career forward.
           </p>
         </div>
 
@@ -384,8 +384,8 @@ const StudentDashboard: React.FC = () => {
               <div>
                 <h3 className="text-lg font-semibold text-red-800">Application Limit Reached</h3>
                 <p className="text-sm text-red-700">
-                  You have reached the maximum limit of {maximumApplications} internship applications.
-                  You can't apply for any more internships. Apply Now button is disabled.
+                  You have reached the maximum limit of {maximumApplications} job applications.
+                  You can't apply for any more jobs. Apply Now button is disabled.
                 </p>
               </div>
             </div>
@@ -415,7 +415,7 @@ const StudentDashboard: React.FC = () => {
                     <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                     <Input
                       type="text"
-                      placeholder="Search internships or companies..."
+                      placeholder="Search jobs or companies..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-10 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-300 transition-all"
@@ -467,7 +467,7 @@ const StudentDashboard: React.FC = () => {
                 </div>
               ) : filteredInternships?.length === 0 ? (
                 <Card className="p-6 text-center border border-gray-100 shadow-sm bg-white rounded-xl">
-                  <p className="text-gray-600">No internships found matching your criteria.</p>
+                  <p className="text-gray-600">No jobs found matching your criteria.</p>
                 </Card>
               ) : (
                 filteredInternships

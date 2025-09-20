@@ -151,7 +151,7 @@ const RegisterAdminPage: React.FC = () => {
             </div>
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Admin Registration</h2>
-          <p className="mt-2 text-gray-600">Manage internship opportunities for students</p>
+          <p className="mt-2 text-gray-600">Manage job opportunities for students</p>
         </div>
 
         <Card className="p-8">

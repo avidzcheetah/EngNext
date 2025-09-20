@@ -197,7 +197,7 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
               >
                 <span>
                   {profileData.availability
-                    ? "Available for Internships"
+                    ? "Available for jobs"
                     : "Not Available"}
                 </span>
               </div>
