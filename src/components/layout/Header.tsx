@@ -38,8 +38,8 @@ const Header: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                 <img
-                  src= "https://www.jfn.ac.lk/wp-content/uploads/2022/02/Logo-Color-300x300.png"
-                  alt= "UoJ logo"
+                  src= "https://i.postimg.cc/qhNBT1DC/inturnix.png"
+                  alt= "Inturnix logo"
                 />
                 </div>
                 <div className="hidden md:block">
