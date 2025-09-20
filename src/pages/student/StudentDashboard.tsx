@@ -10,7 +10,8 @@ import {
   Send,
   Bell,
   User,
-  Heart
+  Heart,
+  AlertTriangle
 } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -31,15 +32,18 @@ const StudentDashboard: React.FC = () => {
     maximumApplications: number;
     message: string;
   } | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [jobsLoading, setJobsLoading] = useState(true);
+  const [cvLoading, setCvLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // Updated state variables for CV upload, cover letter, and interest level
   const [uploadedCV, setUploadedCV] = useState<File | null>(null);
   const [coverLetter, setCoverLetter] = useState('');
-  const [interestLevel, setInterestLevel] = useState(60); // Default to 60%
+  const [interestLevel, setInterestLevel] = useState(60);
   const [maximumApplications, setMaximumApplications] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   interface Application {
     studentId: string;
@@ -62,7 +66,6 @@ const StudentDashboard: React.FC = () => {
   console.log(user);
   const id = user?.id;
 
-  // Updated CV upload handler with proper validation
   const handleCVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -70,7 +73,7 @@ const StudentDashboard: React.FC = () => {
         alert('Please upload a PDF file');
         return;
       }
-      if (file.size > 4 * 1024 * 1024) { // 4MB limit
+      if (file.size > 4 * 1024 * 1024) {
         alert('File size should be less than 4MB');
         return;
       }
@@ -139,15 +142,22 @@ const StudentDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProfile();
-    fetchCV();
-    fetchProfilePicture();
-    fetchAllJobs();
-    fetchTotalNumberOfApplicableInternshipsperStudent();
+    const loadData = async () => {
+      setIsLoading(true);
+      await Promise.all([
+        fetchProfile(),
+        fetchCV(),
+        fetchProfilePicture(),
+        fetchAllJobs(),
+        fetchTotalNumberOfApplicableInternshipsperStudent()
+      ]);
+      setIsLoading(false);
+    };
+    loadData();
   }, []);
 
   const fetchProfile = async () => {
-    setIsLoading(true);
+    setProfileLoading(true);
     try {
       const response = await fetch(`${baseUrl}/api/studentRoutes/getStudentById/${id}`, {
         method: 'GET',
@@ -166,7 +176,7 @@ const StudentDashboard: React.FC = () => {
     } catch (err) {
       console.log("Error fetching data");
     } finally {
-      setIsLoading(false);
+      setProfileLoading(false);
     }
   };
 
@@ -187,6 +197,7 @@ const StudentDashboard: React.FC = () => {
   };
 
   const fetchAllJobs = async () => {
+    setJobsLoading(true);
     try {
       const response = await fetch(
         `${baseUrl}/api/InternshipRoutes/getAllInternships`
@@ -199,11 +210,12 @@ const StudentDashboard: React.FC = () => {
       console.log("Fetched internships:", data);
     } catch (err) {
       console.error("Error fetching internships:", err);
+    } finally {
+      setJobsLoading(false);
     }
   };
 
   const fetchTotalNumberOfApplicableInternshipsperStudent = async () => {
-    setIsLoading(true);
     try {
       const res = await fetch(`${baseUrl}/api/studentRoutes/getMaximumApplications`);
       const data = await res.json();
@@ -211,13 +223,11 @@ const StudentDashboard: React.FC = () => {
       console.log("Fetched companies:", data.maximumApplications);
     } catch (err) {
       console.error("Failed to fetch companies:", err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const fetchCV = async () => {
-    setIsLoading(true);
+    setCvLoading(true);
     try {
       const response = await fetch(
         `${baseUrl}/api/studentRoutes/getCV/${id}`,
@@ -237,11 +247,16 @@ const StudentDashboard: React.FC = () => {
       console.log("Error fetching CV:", err);
       setError("Failed to fetch CV");
     } finally {
-      setIsLoading(false);
+      setCvLoading(false);
     }
   };
 
   const handleSubmitApplication = async () => {
+    if (Number(profileData.ApplicationsSent) >= maximumApplications) {
+      alert("You have reached the maximum number of internship applications allowed.");
+      return;
+    }
+    setIsSubmitting(true);
     try {
       const newApplication = {
         studentId: id,
@@ -265,6 +280,15 @@ const StudentDashboard: React.FC = () => {
         body: JSON.stringify(newApplication),
       });
 
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        alert("You have already applied for this");
+        return;
+      }
+
+      const data = await res.json();
+      console.log("Application submitted to backend:", data);
+
       const res2 = await fetch(`${baseUrl}/api/studentRoutes/incrementApplicationsSent/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -275,20 +299,14 @@ const StudentDashboard: React.FC = () => {
         const data2 = await res2.json();
         console.log("Application sent incremented", data2);
         setApplicationsInfo(data2);
+        setProfileData((prev) => ({
+          ...prev,
+          ApplicationsSent: data2.ApplicationsSent || prev.ApplicationsSent,
+        }));
         fetchTotalNumberOfApplicableInternshipsperStudent();
       } else {
         console.warn("Incrementing application sent failed");
       }
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        alert("You have already applied for this");
-        setShowApplicationModal(false);
-        return;
-      }
-
-      const data = await res.json();
-      console.log("Application submitted to backend:", data);
 
       setApplications((prev) => [...prev, data]);
       alert("Applied successfully");
@@ -297,61 +315,100 @@ const StudentDashboard: React.FC = () => {
       setUploadedCV(null);
       setCoverLetter('');
       setInterestLevel(60);
-
-      const res1 = await fetch(
-        `${baseUrl}/api/studentRoutes/incrementApplicationsSent/${id}`,
-        { method: "PUT" }
-      );
-
-      if (!res1.ok) {
-        console.warn("Increment failed:", res1.statusText);
-      } else {
-        const updated = await res1.json();
-        console.log("Updated ApplicationsSent:", updated);
-      }
     } catch (error) {
       console.error(error);
       setError(error instanceof Error ? error.message : "Something went wrong");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const filteredInternships = fData?.filter((internship) => {
-  const title = internship.title ?? "";
-  const company = internship.companyName ?? "";
-  const industry = internship.industry ?? "";
-  
-  const matchesSearch =
-    title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    company.toLowerCase().includes(searchTerm.toLowerCase());
+    const title = internship.title ?? "";
+    const company = internship.companyName ?? "";
+    const industry = internship.industry ?? "";
+    
+    const matchesSearch =
+      title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      company.toLowerCase().includes(searchTerm.toLowerCase());
 
-  const matchesFilter =
-    selectedFilter === "all" || industry.toLowerCase() === selectedFilter.toLowerCase();
+    const matchesFilter =
+      selectedFilter === "all" || industry.toLowerCase() === selectedFilter.toLowerCase();
 
-  return matchesSearch && matchesFilter && internship.isActive;
-});
-
+    return matchesSearch && matchesFilter && internship.isActive;
+  });
 
   const handleApply = (internshipId: string) => {
+    if (Number(profileData.ApplicationsSent) >= maximumApplications) {
+      alert("You have reached the maximum number of internship applications allowed.");
+      return;
+    }
     setSelectedInternship(internshipId);
     setShowApplicationModal(true);
     setInterestLevel(60);
   };
 
+  // Determine if warning messages should be displayed
+  const applicationsSent = Number(profileData.ApplicationsSent);
+  const isAtLimit = applicationsSent >= maximumApplications;
+  const isNearLimit = applicationsSent >= maximumApplications - 2 && applicationsSent < maximumApplications;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 text-center md:text-left">
-          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-2 animate-fade-in">
             Welcome back, {profileData.firstName} !
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 animate-fade-in delay-100">
             Discover your next internship opportunity and take your career forward.
           </p>
         </div>
 
+        {/* Warning Messages */}
+        {isAtLimit && (
+          <Card className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm">
+            <div className="flex items-center">
+              <AlertTriangle className="w-6 h-6 text-red-600 mr-3" />
+              <div>
+                <h3 className="text-lg font-semibold text-red-800">Application Limit Reached</h3>
+                <p className="text-sm text-red-700">
+                  You have reached the maximum limit of {maximumApplications} internship applications.
+                  You can't apply for any more internships. Apply Now button is disabled.
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
+        {isNearLimit && !isAtLimit && (
+          <Card className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm">
+            <div className="flex items-center">
+              <AlertTriangle className="w-6 h-6 text-yellow-600 mr-3" />
+              <div>
+                <h3 className="text-lg font-semibold text-yellow-800">Approaching Application Limit</h3>
+                <p className="text-sm text-yellow-700">
+                  You have {maximumApplications - applicationsSent} application(s) remaining out of {maximumApplications}.
+                  Choose your remaining applications carefully!
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-3">
-            <Card className="p-6 mb-8 border border-gray-100 shadow-sm hover:shadow-md transition-all bg-white/80 backdrop-blur-sm">
+            <Card className="p-6 mb-8 border border-gray-100 shadow-sm hover:shadow-md transition-all bg-white/80 backdrop-blur-sm rounded-xl">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
                   <div className="relative">
@@ -361,7 +418,7 @@ const StudentDashboard: React.FC = () => {
                       placeholder="Search internships or companies..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-300"
+                      className="pl-10 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-300 transition-all"
                       fullWidth
                     />
                   </div>
@@ -370,14 +427,13 @@ const StudentDashboard: React.FC = () => {
                   <select
                     value={selectedFilter}
                     onChange={(e) => setSelectedFilter(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500"
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500 transition-all"
                   >
                     <option value="all">All Fields</option>
                     <option value="EEE">Electronic and Electrical</option>
                     <option value="com">Computer Engineering</option>
-                   
                   </select>
-                  <Button variant="outline" className="hover:shadow-md transition-all">
+                  <Button variant="outline" className="hover:shadow-md transition-all rounded-lg">
                     <Filter className="w-4 h-4 mr-2" />
                     More Filters
                   </Button>
@@ -386,122 +442,164 @@ const StudentDashboard: React.FC = () => {
             </Card>
 
             <div className="space-y-6">
-             {filteredInternships
-  ?.sort(
-    (a, b) =>
-      new Date(b.createdAt ?? '').getTime() - new Date(a.createdAt ?? '').getTime()
-  ) // sort by recent first
-  .map((internship) => {
-    const company = mockCompanies.find((c) => c.id === internship.companyId);
-    return (
-      <Card
-        key={internship._id}
-        className="p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px] bg-white"
-      >
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center space-x-4">
-            <div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                {internship.title}
-              </h3>
-              <p className="text-blue-600 font-medium">{internship?.companyName}</p>
-            </div>
-          </div>
-          <span className="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-            Active
-          </span>
-        </div>
+              {jobsLoading ? (
+                <div className="space-y-6">
+                  {[1, 2, 3].map((i) => (
+                    <Card key={i} className="p-6 border border-gray-100 shadow-sm bg-white rounded-xl animate-pulse">
+                      <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                      <div className="grid grid-cols-3 gap-4 mb-4">
+                        <div className="h-4 bg-gray-200 rounded"></div>
+                        <div className="h-4 bg-gray-200 rounded"></div>
+                        <div className="h-4 bg-gray-200 rounded"></div>
+                      </div>
+                      <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                      <div className="flex gap-2">
+                        <div className="h-4 bg-gray-200 rounded w-16"></div>
+                        <div className="h-4 bg-gray-200 rounded w-16"></div>
+                      </div>
+                      <div className="flex justify-end gap-3 mt-4">
+                        <div className="h-10 bg-gray-200 rounded w-32"></div>
+                        <div className="h-10 bg-gray-200 rounded w-32"></div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              ) : filteredInternships?.length === 0 ? (
+                <Card className="p-6 text-center border border-gray-100 shadow-sm bg-white rounded-xl">
+                  <p className="text-gray-600">No internships found matching your criteria.</p>
+                </Card>
+              ) : (
+                filteredInternships
+                  ?.sort(
+                    (a, b) =>
+                      new Date(b.createdAt ?? '').getTime() - new Date(a.createdAt ?? '').getTime()
+                  )
+                  .map((internship) => {
+                    const company = mockCompanies.find((c) => c.id === internship.companyId);
+                    return (
+                      <Card
+                        key={internship._id}
+                        className="p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px] bg-white rounded-xl"
+                      >
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center space-x-4">
+                            <div>
+                              <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                                {internship.title}
+                              </h3>
+                              <p className="text-blue-600 font-medium">{internship?.companyName}</p>
+                            </div>
+                          </div>
+                          <span className="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                            Active
+                          </span>
+                        </div>
 
-        <p className="text-gray-600 mb-4">{internship.description}</p>
+                        <p className="text-gray-600 mb-4">{internship.description}</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div className="flex items-center space-x-2">
-            <MapPin className="w-4 h-4 text-gray-400" />
-            <span className="text-sm text-gray-600">{internship.location}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-gray-400" />
-            <span className="text-sm text-gray-600">{internship.duration}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Building2 className="w-4 h-4 text-gray-400" />
-            <span className="text-sm text-gray-600">Full-time</span>
-          </div>
-        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                          <div className="flex items-center space-x-2">
+                            <MapPin className="w-4 h-4 text-gray-400" />
+                            <span className="text-sm text-gray-600">{internship.location}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Clock className="w-4 h-4 text-gray-400" />
+                            <span className="text-sm text-gray-600">{internship.duration}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Building2 className="w-4 h-4 text-gray-400" />
+                            <span className="text-sm text-gray-600">Full-time</span>
+                          </div>
+                        </div>
 
-        <div className="mb-4">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Requirements:</h4>
-          <div className="flex flex-wrap gap-2">
-            {internship.requirements && internship.requirements.map((req, index) => (
-              <span
-                key={index}
-                className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm hover:bg-blue-100 transition"
-              >
-                {req}
-              </span>
-            ))}
-          </div>
-        </div>
+                        <div className="mb-4">
+                          <h4 className="text-sm font-medium text-gray-900 mb-2">Requirements:</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {internship.requirements && internship.requirements.map((req, index) => (
+                              <span
+                                key={index}
+                                className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm hover:bg-blue-100 transition"
+                              >
+                                {req}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
 
-        <div className="flex justify-end space-x-3">
-          <Link to={`/company/PublicProfile/${internship.companyId}`}>
-            <Button variant="outline" className="hover:bg-gray-80">
-              View Company
-            </Button>
-          </Link>
-          <Button
-            onClick={() => handleApply(internship._id || "")}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02] transition"
-          >
-            <Send className="w-4 h-4 mr-2" />
-            Apply Now
-          </Button>
-        </div>
-      </Card>
-    );
-  })}
-
+                        <div className="flex justify-end space-x-3">
+                          <Link to={`/company/PublicProfile/${internship.companyId}`}>
+                            <Button variant="outline" className="hover:bg-gray-80 rounded-lg transition-all">
+                              View Company
+                            </Button>
+                          </Link>
+                          <Button
+                            onClick={() => handleApply(internship._id || "")}
+                            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02] transition rounded-lg"
+                            disabled={isAtLimit}
+                          >
+                            <Send className="w-4 h-4 mr-2" />
+                            Apply Now
+                          </Button>
+                        </div>
+                      </Card>
+                    );
+                  })
+              )}
             </div>
           </div>
 
           <div className="space-y-6">
-            <Card className="p-6 text-center shadow-sm hover:shadow-md transition">
-              <div className="">
-                {profileData.profilePicture ? (
-                  <img
-                    src={user?.profilePicture}
-                    alt="Profile"
-                    className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 ring-2 ring-blue-200"
-                  />
-                ) : (
-                  <div className="w-21 h-21 bg-gradient-to-br from-blue-150 to-purple-150 flex items-center justify-center">
-                    <User className="w-12 h-12 text-blue-600" />
+            {profileLoading ? (
+              <Card className="p-6 text-center shadow-sm hover:shadow-md transition rounded-xl animate-pulse">
+                <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-3"></div>
+                <div className="h-6 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto mb-4"></div>
+                <div className="h-10 bg-gray-200 rounded mb-4"></div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-2 bg-gray-200 rounded"></div>
+                </div>
+              </Card>
+            ) : (
+              <Card className="p-6 text-center shadow-sm hover:shadow-md transition rounded-xl">
+                <div className="">
+                  {profileData.profilePicture ? (
+                    <img
+                      src={user?.profilePicture}
+                      alt="Profile"
+                      className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 ring-2 ring-blue-200 object-cover"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 ring-2 ring-blue-200">
+                      <User className="w-12 h-12 text-blue-600" />
+                    </div>
+                  )}
+                </div>
+                <h3 className="font-bold text-gray-900">{profileData.firstName} {profileData.lastName}</h3>
+                <p className="text-sm text-gray-600">Engineering Undergraduate</p>
+
+                <Button fullWidth className="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg transition-all hover:scale-[1.02]" onClick={handleUpdateprofile}>
+                  <User className="w-4 h-4 mr-2" />
+                  Update Profile
+                </Button>
+
+                <div className="mt-4 space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Internships Applied:</span>
+                    <span className="text-green-600 font-medium">{profileData?.ApplicationsSent}/{maximumApplications}</span>
                   </div>
-                )}
-              </div>
-              <h3 className="font-bold text-gray-900">{profileData.firstName} {profileData.lastName}</h3>
-              <p className="text-sm text-gray-600">Engineering Undergraduate</p>
-
-              <Button fullWidth className="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white" onClick={handleUpdateprofile}>
-                <User className="w-4 h-4 mr-2" />
-                Update Profile
-              </Button>
-
-              <div className="mt-4 space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Internships Applied:</span>
-                  <span className="text-green-600 font-medium">{profileData?.ApplicationsSent}/{maximumApplications}</span>
+                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      className="bg-green-500 h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${(Number(profileData?.ApplicationsSent) && maximumApplications ? (Number(profileData?.ApplicationsSent) / maximumApplications) * 100 : 0)}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-green-500 h-2 rounded-full transition-all"
-                    style={{ width: `${(Number(profileData?.ApplicationsSent) && maximumApplications ? (Number(profileData?.ApplicationsSent) / maximumApplications) * 100 : 0)}%` }}
-                  ></div>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            )}
 
-            <Card className="p-6 shadow-sm hover:shadow-md transition">
+            <Card className="p-6 shadow-sm hover:shadow-md transition rounded-xl">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900">Recent Notifications</h3>
                 <Bell className="w-5 h-5 text-gray-400" />
@@ -539,13 +637,13 @@ const StudentDashboard: React.FC = () => {
               </div>
             </Card>
 
-            <Card className="p-6 shadow-sm hover:shadow-md transition">
+            <Card className="p-6 shadow-sm hover:shadow-md transition rounded-xl">
               <h3 className="font-semibold text-gray-900 mb-4">Your Stats</h3>
               {[
                 { label: "Applications Sent:", value: profileData?.ApplicationsSent },
                 { label: "Profile Views:", value: profileData?.ProfileViews },
               ].map((stat) => (
-                <div className="flex justify-between" key={stat.label}>
+                <div className="flex justify-between mb-2" key={stat.label}>
                   <span className="text-gray-600">{stat.label}</span>
                   <span className="font-medium">{stat.value ?? 0}</span>
                 </div>
@@ -557,12 +655,12 @@ const StudentDashboard: React.FC = () => {
 
       {showApplicationModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <Card className="max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+          <Card className="max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-semibold">Submit Application</h3>
               <button
                 onClick={() => setShowApplicationModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 transition"
               >
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -570,7 +668,12 @@ const StudentDashboard: React.FC = () => {
               </button>
             </div>
 
-            {(!profileData.skills.length || !cvPreview) ? (
+            {cvLoading ? (
+              <div className="text-center py-6">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading profile details...</p>
+              </div>
+            ) : (!profileData.skills.length || !cvPreview) ? (
               <div className="text-center py-6">
                 <div className="mb-4">
                   <FileText className="w-16 h-16 text-gray-400 mx-auto mb-3" />
@@ -582,7 +685,7 @@ const StudentDashboard: React.FC = () => {
                 </div>
                 <Button
                   onClick={() => navigate('/student/profile')}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg transition-all hover:scale-[1.02]"
                 >
                   Complete Profile
                 </Button>
@@ -627,7 +730,7 @@ const StudentDashboard: React.FC = () => {
                   </label>
                   <div className="space-y-3">
                     <div className="relative">
-                      <div className="w-full h-4 bg-gray-200 rounded-full shadow-inner">
+                      <div className="w-full h-4 bg-gray-200 rounded-full shadow-inner overflow-hidden">
                         <div 
                           className={`h-4 rounded-full transition-all duration-300 ease-out ${getInterestLevelInfo(interestLevel).color} shadow-sm`}
                           style={{ width: `${interestLevel}%` }}
@@ -679,7 +782,7 @@ const StudentDashboard: React.FC = () => {
                     rows={4}
                     value={coverLetter}
                     onChange={(e) => setCoverLetter(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500 transition-all"
                     placeholder="Why are you interested in this position? Share a brief message with the employer..."
                   />
                 </div>
@@ -698,16 +801,24 @@ const StudentDashboard: React.FC = () => {
                     variant="outline"
                     fullWidth
                     onClick={() => setShowApplicationModal(false)}
-                    className="hover:bg-red-300 hover:text-white transition"
+                    className="hover:bg-red-300 hover:text-white transition rounded-lg"
                   >
                     Cancel
                   </Button>
                   <Button 
                     fullWidth 
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-[1.02] transition"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-[1.02] transition rounded-lg flex items-center justify-center"
                     onClick={handleSubmitApplication}
+                    disabled={isSubmitting || isAtLimit}
                   >
-                    Submit Application
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Submitting...
+                      </>
+                    ) : (
+                      'Submit Application'
+                    )}
                   </Button>
                 </div>
               </div>

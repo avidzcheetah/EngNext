@@ -413,13 +413,6 @@ const AdminDashboard: React.FC = () => {
                   <Users className="w-5 h-5 text-green-600" /> Recent
                   Applications
                 </h3>
-                <Button
-                  onClick={() => navigate("/admin/applications")}
-                  variant="outline"
-                  size="sm"
-                >
-                  View All
-                </Button>
               </div>
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {applications
