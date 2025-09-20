@@ -298,7 +298,7 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
 
                   {/* Quick Stats */}
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-3">Internship Statistics</h3>
+                    <h3 className="font-semibold text-gray-900 mb-3">job Statistics</h3>
                     <div className="grid grid-cols-2 gap-3 ">
                       <div className="bg-blue-50 rounded-lg p-3 text-center">
                         <div className="text-2xl font-bold text-blue-600">{Job.length}</div>
@@ -312,11 +312,11 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
             </div>
           </div>
 
-          {/* Internship Program Features */}
+          {/* job Program Features */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center space-x-2">
               <Award className="w-6 h-6 text-blue-600" />
-              <span>Internship Program</span>
+              <span>job Program</span>
             </h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="text-center">
@@ -371,7 +371,7 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
                 </div>
                 <h4 className="font-medium text-gray-900 mb-1">Full-time Opportunities</h4>
                 <p className="text-sm text-gray-600">
-                  {companyProfile.fullTimeOpportunities ? 'Potential for full-time roles' : 'Internship only'}
+                  {companyProfile.fullTimeOpportunities ? 'Potential for full-time roles' : 'job only'}
                 </p>
               </div>
             </div>

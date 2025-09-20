@@ -273,7 +273,7 @@ formToSend.append("stipend", formData.stipend ? "true" : "false");
 
 <div className="mb-4">
   <label className="block text-sm font-medium text-gray-700 mb-2">
-    Internship Program
+    job Program
   </label>
 
   <div className="flex flex-col space-y-2">

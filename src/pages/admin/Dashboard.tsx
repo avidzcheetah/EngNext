@@ -132,7 +132,7 @@ const AdminDashboard: React.FC = () => {
       const data = await res.json();
       setInternships(data);
     } catch (err) {
-      console.error("Failed to fetch internships:", err);
+      console.error("Failed to fetch jobs:", err);
     } finally {
       setIsLoadingInternships(false);
     }
@@ -141,7 +141,7 @@ const AdminDashboard: React.FC = () => {
   const handleDeleteCompany = async (companyId: string) => {
     if (
       !confirm(
-        "Are you sure you want to delete this company? This will also delete all associated internships."
+        "Are you sure you want to delete this company? This will also delete all associated job positions."
       )
     ) {
       return;
@@ -213,7 +213,7 @@ const AdminDashboard: React.FC = () => {
             Welcome Admin, {user?.firstName}
           </h1>
           <p className="text-gray-600">
-            Manage companies, internships, and student applications for the{" "}
+            Manage companies, job positions, and student applications for the{" "}
             <span className="font-semibold">{deptName}</span> department.
           </p>
         </div>
@@ -242,7 +242,7 @@ const AdminDashboard: React.FC = () => {
               {maximumApplications}
             </h3>
             <p className="text-gray-600 text-sm">
-              Applicable Internships per Student
+              Applicable positions per Student
             </p>
           </Card>
 
@@ -414,13 +414,6 @@ const AdminDashboard: React.FC = () => {
                   <Users className="w-5 h-5 text-green-600" /> Recent
                   Applications
                 </h3>
-                <Button
-                  onClick={() => navigate("/admin/applications")}
-                  variant="outline"
-                  size="sm"
-                >
-                  View All
-                </Button>
               </div>
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {applications
@@ -486,7 +479,7 @@ const AdminDashboard: React.FC = () => {
               <p className="text-sm text-gray-600">{user?.department} Admin</p>
               <p className="text-sm text-gray-600 mt-2">
                 You are logged in using a {deptName} Admin account. You have access
-                to add, remove, or manage companies and internships related to the{" "}
+                to add, remove, or manage companies and jobs related to the{" "}
                 {deptName} Department.
               </p>
             </Card>

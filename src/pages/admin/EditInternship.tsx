@@ -24,7 +24,7 @@ const EditInternship: React.FC = () => {
         setCompanyName(data.companyName);
         setSkills(data.skills.join(", "));
       } catch (err) {
-        console.error("Failed to fetch internship:", err);
+        console.error("Failed to fetch job:", err);
       }
     };
     if (id) fetchInternship();
@@ -44,11 +44,11 @@ const EditInternship: React.FC = () => {
           skills: skills.split(",").map(s => s.trim()),
         }),
       });
-      if (!res.ok) throw new Error("Failed to update internship");
+      if (!res.ok) throw new Error("Failed to update job position");
       navigate("/admin");
     } catch (err) {
       console.error(err);
-      alert("Error updating internship");
+      alert("Error updating job position");
     } finally {
       setLoading(false);
     }
@@ -57,7 +57,7 @@ const EditInternship: React.FC = () => {
   return (
     <div className="min-h-screen flex justify-center items-start bg-gray-50 py-10">
       <Card className="w-full max-w-lg p-6 shadow-md">
-        <h2 className="text-2xl font-bold mb-4">Edit Internship</h2>
+        <h2 className="text-2xl font-bold mb-4">Edit job</h2>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label className="block text-sm font-medium text-gray-700">Title</label>
@@ -100,7 +100,7 @@ const EditInternship: React.FC = () => {
             className="w-full bg-purple-600 text-white"
             disabled={loading}
           >
-            {loading ? "Updating..." : "Update Internship"}
+            {loading ? "Updating..." : "Update job"}
           </Button>
         </form>
       </Card>

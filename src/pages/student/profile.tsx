@@ -7,8 +7,6 @@ import {
   Edit3, 
   Phone, 
   Mail, 
-  MapPin, 
-  Calendar, 
   FileText, 
   Plus, 
   X, 
@@ -26,17 +24,12 @@ interface StudentProfile {
   lastName: string;
   email: string;
   phone?: string;
-  dateOfBirth?: string;
-  address?: string;
-  city?: string;
-  postalCode?: string;
- profilePicture?: File | null
-
-
+  profilePicture?: File | null;
   bio?: string;
   skills: string[];
   gpa?: number;
   year: string;
+  department: string;
   registrationNumber: string;
   cv?: {
     filename: string;
@@ -66,42 +59,36 @@ const StudentProfile: React.FC = () => {
   const [newSkill, setNewSkill] = useState('');
 
   const [profileData, setProfileData] = useState<StudentProfile>({
-    id:  '',
-    firstName:  '',
-    lastName:  '',
+    id: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
-    dateOfBirth: '',
-    address: '',
-    city: '',
-    postalCode: '',
-    profilePicture: null ,
+    profilePicture: null,
     bio: '',
     skills: [],
     gpa: 0,
     year: '1st Year',
+    department: 'Electrical & Electronic Engineering',
     registrationNumber: '',
     portfolio: '',
     linkedin: '',
     github: '',
     availability: true,
-   
   });
 
-  
-  const [cv, setCV] = useState<File | null>(null)
+  const [cv, setCV] = useState<File | null>(null);
   const [cvPreview, setCvPreview] = useState<string | null>(null);
   const [CVPreview, setCVPreview] = useState<{
-  filename: string;
-  uploadDate: string;
-  size: string;
-} | null>(null);
+    filename: string;
+    uploadDate: string;
+    size: string;
+  } | null>(null);
   const location = useLocation();
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
   
-  const [profilepreview,setProfilePreview]=useState<string | null>(null);
-  
-  
-  let id=user?.id
+  let id = user?.id;
+
   // Load profile data on component mount
   useEffect(() => {
     fetchProfile();
@@ -114,11 +101,9 @@ const StudentProfile: React.FC = () => {
     setError(null);
     
     try {
-      
       const response = await fetch(`${baseUrl}/api/studentRoutes/getStudentById/${id}`, {
         method: 'GET',
         headers: {
-          
           'Content-Type': 'application/json'
         }
       });
@@ -129,63 +114,59 @@ const StudentProfile: React.FC = () => {
 
       const data = await response.json();
       console.log(data);
-      setProfileData(data);
+      setProfileData({
+        ...data,
+        department: data.department || 'Electrical & Electronic Engineering'
+      });
     } catch (err) {
-      console.log("Error fetching data")
-     
+      console.log("Error fetching data");
+      setError("Failed to fetch profile");
     } finally {
       setIsLoading(false);
     }
   };
 
   const fetchProfilePicture = async () => {
-  try {
-    const response = await fetch(
-      `${baseUrl}/api/studentRoutes/getProfilePicture/${id}`
-    );
-    if (!response.ok) throw new Error("Failed to fetch image");
+    try {
+      const response = await fetch(
+        `${baseUrl}/api/studentRoutes/getProfilePicture/${id}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch image");
 
-    const blob = await response.blob();
-    const imageUrl = URL.createObjectURL(blob); // create a temporary URL
-    setProfilePreview( imageUrl );
-   
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-
+      const blob = await response.blob();
+      const imageUrl = URL.createObjectURL(blob);
+      setProfilePreview(imageUrl);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchCV = async () => {
-  setIsLoading(true);
-  setError(null);
+    setIsLoading(true);
+    setError(null);
 
-  try {
-    const response = await fetch(
-      `${baseUrl}/api/studentRoutes/getCV/${id}`,
-      {
-        method: "GET",
-        // No need for 'Content-Type' when getting a file
+    try {
+      const response = await fetch(
+        `${baseUrl}/api/studentRoutes/getCV/${id}`,
+        {
+          method: "GET",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch CV");
       }
-    );
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch CV");
+      const blob = await response.blob();
+      const fileUrl = URL.createObjectURL(blob);
+      setCvPreview(fileUrl);
+    } catch (err) {
+      console.log("Error fetching CV:", err);
+      setError("Failed to fetch CV");
+    } finally {
+      setIsLoading(false);
     }
-
-    const blob = await response.blob(); // get the file as a Blob
-    const fileUrl = URL.createObjectURL(blob); // create temporary URL
-    setCvPreview(fileUrl); // store in state
-  } catch (err) {
-    console.log("Error fetching CV:", err);
-    setError("Failed to fetch CV");
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-
-
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -205,16 +186,14 @@ const StudentProfile: React.FC = () => {
       setError('Profile picture must be less than 3MB');
       return;
     }
-        setProfileData(prev => ({
-          ...prev,
-          profilePicture: file as File
-        }));
+    setProfileData(prev => ({
+      ...prev,
+      profilePicture: file as File
+    }));
 
-         const previewUrl = URL.createObjectURL(file);
-         setProfilePreview(previewUrl);
-        setSuccess('Profile picture updated successfully!');
-     
-    
+    const previewUrl = URL.createObjectURL(file);
+    setProfilePreview(previewUrl);
+    setSuccess('Profile picture updated successfully!');
   };
 
   const handleCVUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -231,19 +210,16 @@ const StudentProfile: React.FC = () => {
       return;
     }
     const newCV = {
-    filename: file.name,
-    uploadDate: new Date().toISOString(),
-    size: `${(file.size / 1024).toFixed(2)} KB`,
-  };
-  setCV(file);
-  setCVPreview(newCV);
-  setProfileData(prev => ({
-    ...prev,
-    cv: newCV,
-  }));
-    
-
-   
+      filename: file.name,
+      uploadDate: new Date().toISOString(),
+      size: `${(file.size / 1024).toFixed(2)} KB`,
+    };
+    setCV(file);
+    setCvPreview(URL.createObjectURL(file));
+    setProfileData(prev => ({
+      ...prev,
+      cv: newCV,
+    }));
   };
 
   const addSkill = () => {
@@ -263,69 +239,67 @@ const StudentProfile: React.FC = () => {
     }));
   };
 
-
-
-const handleSave = async () => {
-  setIsSaving(true);
-  setError(null);
-  setSuccess(null);
-
-  try {
-    const formData = new FormData();
-
-    // Append text fields
- (Object.keys(profileData) as (keyof StudentProfile)[]).forEach(key => {
-      if (key !== "cv" && key !== "profilePicture" && key!=="skills") {
-        const value = profileData[key];
-        if (Array.isArray(value)) {
-          formData.append(key, JSON.stringify(value));
-        } else if (typeof value === "boolean") {
-          formData.append(key, value ? "true" : "false");
-        } else if (value !== null && value !== undefined) {
-          formData.append(key, value.toString());
-        }
-      }
-    });
-    if(profileData.skills){
-      formData.append("skills", JSON.stringify(profileData.skills));
-
-    }
-
-    // Append CV file if selected
-    if (cv) {
-      formData.append("cv", cv);
-    }
-
-    // Append profile picture if selected
-    if (profileData.profilePicture) {
-      formData.append("profilePicture", profileData.profilePicture);
-    }
-
-    const response = await fetch(`${baseUrl}/api/studentRoutes/updatestudents/${id}`, {
-      method: "PUT",
-      headers: {
-      },
-      body:formData
-    });
-
-    if (!response.ok) throw new Error("Failed to update profile ");
-
-    fetchCV();
-    fetchProfilePicture();
-    fetchProfile();
-  
-  } catch (err) {
-    console.error(err);
-    setError("Failed to update profile");
-  } finally {
-    setIsSaving(false);
-  }
-
-  setTimeout(() => {
-    setSuccess(null);
+  const handleSave = async () => {
+    setIsSaving(true);
     setError(null);
-  }, 5000);
-};
+    setSuccess(null);
+
+    try {
+      const formData = new FormData();
+
+      // Append text fields
+      (Object.keys(profileData) as (keyof StudentProfile)[]).forEach(key => {
+        if (key !== "cv" && key !== "profilePicture" && key !== "skills") {
+          const value = profileData[key];
+          if (Array.isArray(value)) {
+            formData.append(key, JSON.stringify(value));
+          } else if (typeof value === "boolean") {
+            formData.append(key, value ? "true" : "false");
+          } else if (value !== null && value !== undefined) {
+            formData.append(key, value.toString());
+          }
+        }
+      });
+      if (profileData.skills) {
+        formData.append("skills", JSON.stringify(profileData.skills));
+      }
+
+      // Append CV file if selected
+      if (cv) {
+        formData.append("cv", cv);
+      }
+
+      // Append profile picture if selected
+      if (profileData.profilePicture) {
+        formData.append("profilePicture", profileData.profilePicture);
+      }
+
+      const response = await fetch(`${baseUrl}/api/studentRoutes/updatestudents/${id}`, {
+        method: "PUT",
+        body: formData
+      });
+
+      if (!response.ok) throw new Error("Failed to update profile");
+
+      await Promise.all([
+        fetchCV(),
+        fetchProfilePicture(),
+        fetchProfile()
+      ]);
+      
+      setSuccess("Profile updated successfully!");
+    } catch (err) {
+      console.error(err);
+      setError("Failed to update profile");
+    } finally {
+      setIsSaving(false);
+    }
+
+    setTimeout(() => {
+      setSuccess(null);
+      setError(null);
+    }, 5000);
+  };
 
   if (isLoading) {
     return (
@@ -385,17 +359,16 @@ const handleSave = async () => {
                 <div className="relative">
                   <div className="w-32 h-32 rounded-full border-4 border-white bg-white overflow-hidden">
                     {profileData.profilePicture ? (
-                 <img
-                 src={profilepreview ?? undefined} // ✅ blob URL from state, never null
-                 alt="Profile"
-                 className="w-full h-full object-cover"
-                />
-             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-               <User className="w-12 h-12 text-blue-600" />
-             </div>
-              )}
-
+                      <img
+                        src={profilePreview ?? undefined}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                        <User className="w-12 h-12 text-blue-600" />
+                      </div>
+                    )}
                   </div>
                   {isEditing && (
                     <button
@@ -429,7 +402,7 @@ const handleSave = async () => {
                   <div className="flex items-center space-x-2">
                     <div className={`w-3 h-3 rounded-full ${profileData.availability ? 'bg-green-500' : 'bg-gray-400'}`}></div>
                     <span className="text-sm text-gray-600">
-                      {profileData.availability ? 'Available for internships' : 'Not available'}
+                      {profileData.availability ? 'Available for jobs' : 'Not available'}
                     </span>
                   </div>
                 </div>
@@ -475,7 +448,7 @@ const handleSave = async () => {
                     name="email"
                     value={profileData.email}
                     onChange={handleInputChange}
-                    disabled={true} // Email should not be editable
+                    disabled={true}
                     className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-500"
                   />
                 </div>
@@ -498,22 +471,17 @@ const handleSave = async () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="date"
-                    name="dateOfBirth"
-                    value={
-                   profileData.dateOfBirth
-                   ? new Date(profileData.dateOfBirth).toISOString().split("T")[0] // ✅ convert to YYYY-MM-DD
-                  : ""
-                  }
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
-                  />
-                </div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                <select
+                  name="department"
+                  value={profileData.department}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
+                >
+                  <option value="Electrical & Electronic Engineering">Electrical & Electronic Engineering</option>
+                  <option value="Computer Engineering">Computer Engineering</option>
+                </select>
               </div>
 
               <div>
@@ -574,73 +542,26 @@ const handleSave = async () => {
             </div>
           </div>
 
-          {/* Address Information */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Address Information</h3>
-            
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    name="address"
-                    value={profileData.address}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                <input
-                  type="text"
-                  name="city"
-                  value={profileData.city}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
-                <input
-                  type="text"
-                  name="postalCode"
-                  value={profileData.postalCode}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
-                />
-              </div>
-            </div>
-          </div>
-
           {/* Skills */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Skills & Expertise</h3>
             
-         <div className="mb-4 text-blue-700">
-     {profileData.skills.map((skill, index) => (
-    <span key={index} className="inline-flex items-center">
-      <span>{skill}</span>
-      {isEditing && (
-        <button
-          onClick={() => removeSkill(skill)}
-          className="ml-1 text-blue-500 hover:text-red-500 transition-colors"
-        >
-          <X className="w-3 h-3" />
-        </button>
-      )}
-      {index < profileData.skills.length - 1 && <span>,&nbsp;</span>}
-    </span>
-  ))}
-</div>
-
+            <div className="mb-4 text-blue-700">
+              {profileData.skills.map((skill, index) => (
+                <span key={index} className="inline-flex items-center">
+                  <span>{skill}</span>
+                  {isEditing && (
+                    <button
+                      onClick={() => removeSkill(skill)}
+                      className="ml-1 text-blue-500 hover:text-red-500 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                  {index < profileData.skills.length - 1 && <span>,&nbsp;</span>}
+                </span>
+              ))}
+            </div>
 
             {isEditing && (
               <div className="flex gap-2">
@@ -776,7 +697,7 @@ const handleSave = async () => {
                 className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:bg-gray-50"
               />
               <label className="text-gray-700">
-                I am currently available for internship opportunities
+                I am currently available for job opportunities
               </label>
             </div>
             <p className="text-sm text-gray-500 mt-2">

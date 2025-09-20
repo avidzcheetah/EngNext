@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, Mail, Lock, Eye, EyeOff, User, GraduationCap, CheckCircle, Clock } from 'lucide-react';
+import { Shield, Mail, Lock, Eye, EyeOff, User, GraduationCap, CheckCircle } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -125,19 +125,16 @@ const RegisterAdminPage: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full text-center">
           <Card className="p-8">
-            <Clock className="w-16 h-16 text-orange-500 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Application Submitted</h2>
+            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Account Successfully Created</h2>
             <p className="text-gray-600 mb-6">
-              Thank you for submitting your admin registration request! Your application has been submitted 
-              and is now pending approval from the system administrators.
+              Your admin account has been successfully created. You can now log in to access the admin dashboard.
             </p>
-            <p className="text-sm text-gray-500 mb-6">
-              You will receive an email notification once your admin account is approved. 
-              This typically takes 1-2 business days for verification.
-            </p>
-            <Button onClick={() => navigate('/')} fullWidth>
-              Return to Home
-            </Button>
+            <Link to="/adminlogin">
+              <Button fullWidth>
+                Go to Login
+              </Button>
+            </Link>
           </Card>
         </div>
       </div>
@@ -154,7 +151,7 @@ const RegisterAdminPage: React.FC = () => {
             </div>
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Admin Registration</h2>
-          <p className="mt-2 text-gray-600">Manage internship opportunities for students</p>
+          <p className="mt-2 text-gray-600">Manage job opportunities for students</p>
         </div>
 
         <Card className="p-8">

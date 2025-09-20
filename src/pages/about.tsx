@@ -8,7 +8,7 @@ const About: React.FC = () => {
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-4">About Inturnix</h1>
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-4">About EngNext</h1>
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-blue-100">
             Bridging the gap between Engineering Students and Industry Leaders
           </p>
@@ -23,13 +23,13 @@ const About: React.FC = () => {
             <h2 className="text-3xl font-extrabold text-gray-900 mb-4">Our Mission</h2>
             <p className="text-gray-600 mb-6">
               The Faculty of Engineering, University of Jaffna,
-              developed Inturnix to create a seamless online connection between Engineering students
-              and industry partners. We aim to streamline the internship search, application,
+              developed EngNext to create a seamless online connection between Engineering students
+              and industry partners. We aim to streamline the job search, application,
               and recruitment processes with an intuitive, secure, and interactive platform.
             </p>
             <p className="text-gray-600">
               By using institutional verification, modern communication tools, and smart
-              recruitment features, Inturnix empowers students to showcase their talents and
+              recruitment features, EngNext empowers students to showcase their talents and
               companies to find the best emerging professionals in the field.
             </p>
           </div>
@@ -86,13 +86,13 @@ const About: React.FC = () => {
           <div className="order-1 md:order-2">
             <h2 className="text-3xl font-extrabold text-gray-900 mb-4">Our Vision</h2>
             <p className="text-gray-600 mb-6">
-              Our vision is to be the leading platform in Sri Lanka for engineering internships,
+              Our vision is to be the create easy to use platform for engineering students to apply for jobs and for companies to find the best talent,
               fostering innovation, collaboration, and professional growth. By bridging
               academia and industry, we aim to prepare graduates who not only excel technically
               but also lead with integrity and adaptability.
             </p>
             <p className="text-gray-600">
-              Inturnix strives to embrace emerging technologies, enabling a smarter,
+              EngNext strives to embrace emerging technologies, enabling a smarter,
               data-driven approach to career development and talent acquisition.
             </p>
           </div>
@@ -102,10 +102,10 @@ const About: React.FC = () => {
       {/* Call to Action */}
       <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center">
         <div className="max-w-3xl mx-auto px-6">
-          <h2 className="text-3xl font-bold mb-4">Join the Inturnix Community</h2>
+          <h2 className="text-3xl font-bold mb-4">Join the EngNext Community</h2>
           <p className="mb-6 text-blue-100">
             Whether you’re a student ready to showcase your skills or a company looking for
-            top talent, Inturnix provides the tools to connect, collaborate, and succeed.
+            top talent, EngNext provides the tools to connect, collaborate, and succeed.
           </p>
           <Link
             to="/login"

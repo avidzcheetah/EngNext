@@ -109,12 +109,12 @@ const Contact: React.FC = () => {
   const quickLinks = [
     {
       title: "Student Registration",
-      description: "Register as a student to find internships",
+      description: "Register as a student to find jobs",
       link: "/register/student",
     },
     {
       title: "Company Registration",
-      description: "Register your company to post internships",
+      description: "Register your company to post jobs",
       link: "/register/company",
     },
     {
@@ -138,7 +138,7 @@ const Contact: React.FC = () => {
             Get In Touch
           </h1>
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-blue-100">
-            Have questions about Inturnix? We're here to help students,
+            Have questions about EngNext? We're here to help students,
             companies, and partners succeed
           </p>
         </div>
@@ -508,18 +508,18 @@ const Contact: React.FC = () => {
           <div className="space-y-6">
             {[
               {
-                question: "How do I register as a student on Inturnix?",
+                question: "How do I register as a student on EngNext?",
                 answer:
                   "Students can register using their university email address (@eng.jfn.ac.lk). After registration, you'll need to verify your email before accessing the platform.",
               },
               {
                 question:
-                  "Can companies from outside Sri Lanka post internships?",
+                  "Can companies from outside Sri Lanka post jobs?",
                 answer:
-                  "Yes, international companies are welcome to post internship opportunities. However, all postings need to be approved by our administrators before going live.",
+                  "Yes, international companies are welcome to post job opportunities. However, all postings need to be approved by our administrators before going live.",
               },
               {
-                question: "What documents do I need to apply for internships?",
+                question: "What documents do I need to apply for jobs?",
                 answer:
                   "Students need to upload their CV (PDF format, max 3MB) and complete their profile information. Some companies may request additional documents during the application process.",
               },
@@ -529,9 +529,9 @@ const Contact: React.FC = () => {
                   "Students are verified through their institutional email addresses. Companies go through a manual approval process by our administrators to ensure legitimacy.",
               },
               {
-                question: "Is there any cost to use Inturnix?",
+                question: "Is there any cost to use EngNext?",
                 answer:
-                  "No, Inturnix is completely free for both students and companies. It's a service provided by the University of Jaffna to support student career development.",
+                  "No, EngNext is completely free for both students and companies. It's a service provided by the University of Jaffna to support student career development.",
               },
             ].map((faq, index) => (
               <div key={index} className="bg-gray-50 rounded-xl p-6">
@@ -550,7 +550,7 @@ const Contact: React.FC = () => {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold mb-4">Still Have Questions?</h2>
           <p className="text-blue-100 mb-8 text-lg">
-            Our team is always ready to help you succeed in your internship
+            Our team is always ready to help you succeed in your job
             journey
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

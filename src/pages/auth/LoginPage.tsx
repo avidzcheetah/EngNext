@@ -211,7 +211,7 @@ const LoginPage: React.FC = () => {
             </div>
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
-          <p className="mt-2 text-gray-600">Sign in to your Inturnix account</p>
+          <p className="mt-2 text-gray-600">Sign in to your EngNext account</p>
         </div>
 
         <Card className="p-8 bg-white/90 backdrop-blur-sm">

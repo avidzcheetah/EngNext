@@ -32,11 +32,11 @@ const PostInternship: React.FC = () => {
           skills: skills.split(",").map(s => s.trim()),
         }),
       });
-      if (!res.ok) throw new Error("Failed to post internship");
+      if (!res.ok) throw new Error("Failed to post job position");
       navigate("/admin");
     } catch (err) {
       console.error(err);
-      alert("Error posting internship");
+      alert("Error posting job position");
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ const PostInternship: React.FC = () => {
   return (
     <div className="min-h-screen flex justify-center items-start bg-gray-50 py-10">
       <Card className="w-full max-w-lg p-6 shadow-md">
-        <h2 className="text-2xl font-bold mb-4">Post New Internship</h2>
+        <h2 className="text-2xl font-bold mb-4">Post New job</h2>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label className="block text-sm font-medium text-gray-700">Title</label>
@@ -88,7 +88,7 @@ const PostInternship: React.FC = () => {
             className="w-full bg-purple-600 text-white"
             disabled={loading}
           >
-            {loading ? "Posting..." : "Post Internship"}
+            {loading ? "Posting..." : "Post job"}
           </Button>
         </form>
       </Card>

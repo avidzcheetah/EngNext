@@ -263,12 +263,13 @@ const RegisterStudentPage: React.FC = () => {
           <Card className="p-8 bg-white/90 backdrop-blur-sm">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Check Your Email
+              Account Successfully Created
             </h2>
-            <p className="text-gray-600 mb-6">
-              We've sent a verification link to{" "}
-              <strong>{formData.email}</strong>. Please check your email and
-              click the verification link to activate your account.
+            <p className="text-gray-600 mb-4">
+              Your account has been created successfully.
+            </p>
+            <p className="text-yellow-600 bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm mb-6">
+              Note: Accounts with invalid emails will be automatically removed. Please ensure your email is in the format <strong>regno@eng.jfn.ac.lk</strong>.
             </p>
             <Button onClick={() => navigate("/login")} fullWidth>
               Go to Login
@@ -411,7 +412,7 @@ const RegisterStudentPage: React.FC = () => {
             Student Registration
           </h2>
           <p className="mt-2 text-gray-600">
-            Join the Engineering internship network
+            Join the Engineering job network
           </p>
         </div>
 

@@ -6,17 +6,17 @@ import Button from './Button';
 const slidesData = [
   { id: 1, 
     bg: 'https://i.postimg.cc/bv6pwHHx/Whats-App-Image-2025-09-10-at-20-18-04-251b45bb.jpg', 
-    text: 'Welcome to Inturnix',
-    desc: 'Bridging the gap between talented Engineering students and industry leaders. Your gateway to exceptional internship opportunities.' },
+    text: 'Welcome to EngNext',
+    desc: 'Bridging the gap between talented Engineering students and industry leaders. Your gateway to exceptional job opportunities.' },
   { id: 2, 
     bg: 'https://i.postimg.cc/gJXFk90p/474564388-1645851299349445-6805054092875662533-n.jpg', 
     text: 'Engineering Futures',
-    desc: 'Empowering the next generation of innovators through unmatched internship connections.'
+    desc: 'Empowering the next generation of innovators through unmatched professional connections.'
    },
   { id: 3, 
     bg: 'https://i.postimg.cc/nhpJKw3K/Whats-App-Image-2025-09-10-at-20-18-05-d16c7e81.jpg', 
     text: 'Talent Meets Opportunity',
-    desc: 'Bringing skilled engineering students face-to-face with industry trailblazers for meaningful internships.'
+    desc: 'Bringing skilled engineering students face-to-face with industry trailblazers for meaningful job positions.'
    },
 ];
 
