@@ -122,6 +122,7 @@ static async getAllCompanies(req, res) {
       OurValues:c.OurValues ||[],
       createdAt: c.createdAt,
       updatedAt: c.updatedAt,
+      subfield:c.subfield || "",
     }));
 
     res.status(200).json({ companies: formattedCompanies });
@@ -172,7 +173,7 @@ static async getAllCompanies(req, res) {
         address:company.address,
         createdAt: company.createdAt,
         updatedAt: company.updatedAt,
-        
+        subfield:company.subfield || "",
       };
 
       res.status(200).json({ company: formattedCompany });
