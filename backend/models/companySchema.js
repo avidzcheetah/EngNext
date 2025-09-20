@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 import { type } from "os";
 
 const companySchema = new Schema({
-  email: { type: String, required: true, unique: true },
+  email: { type: String, unique: true },
   password:{type:String},
   companyName: { type: String, required: true },
   role: { type: String, default: "company" },

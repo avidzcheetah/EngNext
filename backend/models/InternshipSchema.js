@@ -38,6 +38,8 @@ const InternshipSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+industry:{ type:String
+}
 });
 
 // Export model
