@@ -1148,7 +1148,7 @@ interface Application {
                     >
                       <option value="">Select Industry</option>
                       <option value="EEE">Electrical and Electronic Engineering</option>
-                      <option value="Computer Science">Computer Science</option>
+                      <option value="Com">Computer Engineering</option>
                     </select>
                   </div>
 

@@ -136,7 +136,7 @@ const Companies: React.FC = () => {
           </h1>
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-blue-100 mb-8">
             Discover leading companies offering exciting job
-            opportunities for EEE students
+            opportunities for Engineering students
           </p>
 
           {/* Stats */}
