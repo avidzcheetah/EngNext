@@ -202,7 +202,7 @@ const ApplicationsPage: React.FC = () => {
       setCvLoadingId(id); // NEW start loading
 
       const response = await fetch(
-        `http://localhost:5000/api/studentRoutes/getCV/${id}`
+        `${baseUrl}/api/studentRoutes/getCV/${id}`
       );
 
       if (!response.ok) {

@@ -20,6 +20,7 @@ import { useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 
 const CompanyDashboard: React.FC = () => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<
     "applications" | "positions" | "company"
@@ -242,7 +243,7 @@ interface Application {
       setError("");
 
       const res = await fetch(
-        `http://localhost:5000/api/InternshipRoutes/getInternshipsByCompanyId/${id}`
+        `${baseUrl}/api/InternshipRoutes/getInternshipsByCompanyId/${id}`
       );
 
       const data = await res.json();
@@ -270,7 +271,7 @@ interface Application {
       setError("");
 
       const res = await fetch(
-        `http://localhost:5000/api/applicationRoutes/fetchByCompanyId/${id}`
+        `${baseUrl}/api/applicationRoutes/fetchByCompanyId/${id}`
       );
 
       if (!res.ok) {
@@ -293,7 +294,7 @@ interface Application {
     const studentID = applications.find(app => app._id === ID)?.studentId;
     try {
       const res = await fetch(
-        `http://localhost:5000/api/studentRoutes/incrementProfileView/${studentID}`,
+        `${baseUrl}/api/studentRoutes/incrementProfileView/${studentID}`,
         {
           method: "PUT",
           headers: {
@@ -317,7 +318,7 @@ interface Application {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/studentRoutes/addRecentNotification/${studentID}`,
+        `${baseUrl}/api/studentRoutes/addRecentNotification/${studentID}`,
         {
           method: "PUT",
           headers: {
@@ -343,7 +344,7 @@ interface Application {
       setError("");
 
       const res = await fetch(
-        `http://localhost:5000/api/companyRoutes/getById/${id}`
+        `${baseUrl}/api/companyRoutes/getById/${id}`
       );
 
       if (!res.ok) {
@@ -443,7 +444,7 @@ interface Application {
       if (formData.logoFile) formToSend.append("logo", formData.logoFile);
 
       const res = await fetch(
-        `http://localhost:5000/api/companyRoutes/updateCompany/${companyProfile?.id}`,
+        `${baseUrl}/api/companyRoutes/updateCompany/${companyProfile?.id}`,
         {
           method: "PUT",
           body: formToSend,
@@ -478,7 +479,7 @@ interface Application {
     setIsDeletingJob(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/InternshipRoutes/deleteInternshipById/${ID}`,
+        `${baseUrl}/api/InternshipRoutes/deleteInternshipById/${ID}`,
         {
           method: "DELETE",
         }
@@ -506,7 +507,7 @@ interface Application {
     setIsCreatingJob(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/InternshipRoutes/createInternship", {
+      const response = await fetch("${baseUrl}/api/InternshipRoutes/createInternship", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -549,7 +550,7 @@ interface Application {
     setIsUpdatingJob(true);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/InternshipRoutes/editInternshipById/${editId}`, {
+      const response = await fetch(`${baseUrl}/api/InternshipRoutes/editInternshipById/${editId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -592,7 +593,7 @@ interface Application {
     setIsUpdatingApplication(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/applicationRoutes/acceptApplication/${ID}`,
+        `${baseUrl}/api/applicationRoutes/acceptApplication/${ID}`,
         {
           method: "PUT",
           headers: {
@@ -627,7 +628,7 @@ interface Application {
     setIsUpdatingApplication(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/applicationRoutes/rejectApplication/${ID}`,
+        `${baseUrl}/api/applicationRoutes/rejectApplication/${ID}`,
         {
           method: "PUT",
           headers: {
@@ -661,7 +662,7 @@ interface Application {
   const handleDownloadCV = async (id: string) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/studentRoutes/getCV/${id}`
+        `${baseUrl}/api/studentRoutes/getCV/${id}`
       );
 
       if (!response.ok) {
