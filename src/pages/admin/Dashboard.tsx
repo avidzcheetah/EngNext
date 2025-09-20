@@ -55,6 +55,7 @@ const AdminDashboard: React.FC = () => {
       fetchInternships();
       fetchRecentApplications();
       fetchTotalNumberOfApplicableInternshipsperStudent();
+      refetch();
     }
   }, [user]);
 

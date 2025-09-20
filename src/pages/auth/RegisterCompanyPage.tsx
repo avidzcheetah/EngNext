@@ -109,15 +109,15 @@ const RegisterCompanyPage: React.FC = () => {
 
     if (!formData.companyName.trim())
       newErrors.companyName = "Company name is required";
-    if (!formData.email.trim()) newErrors.email = "Email is required";
+   // if (!formData.email.trim()) newErrors.email = "Email is required";
     if (!formData.description.trim())
       newErrors.description = "Company description is required";
 
     if (isAdminMode) {
       if (!formData.industry.trim())
         newErrors.industry = "Industry is required";
-      if (!formData.subfield.trim())
-        newErrors.subfield = "Subfield is required";
+     /* if (!formData.subfield.trim())
+        newErrors.subfield = "Subfield is required";*/
     }
 
     if (formData.website && !validateURL(formData.website)) {
@@ -144,13 +144,13 @@ const RegisterCompanyPage: React.FC = () => {
     try {
       const fd = new FormData();
       fd.append("companyName", formData.companyName);
-      fd.append("email", formData.email);
+      fd.append("email", formData.email || "");
       fd.append("description", formData.description);
       if (formData.website) fd.append("website", formData.website);
 
       if (isAdminMode) {
         fd.append("industry", formData.industry);
-        fd.append("subfield", formData.subfield);
+        fd.append("subfield", formData.subfield || "");
         fd.append("addedByAdmin", "true");
       } else {
         fd.append("password", formData.password);
@@ -310,12 +310,12 @@ const RegisterCompanyPage: React.FC = () => {
               <Input
                 name="email"
                 type="email"
-                label="Official Email Address"
+                label="Official Email Address (Optional)"
                 value={formData.email}
                 onChange={handleInputChange}
                 error={errors.email}
                 fullWidth
-                required
+               
               />
 
               <Input
@@ -388,13 +388,13 @@ const RegisterCompanyPage: React.FC = () => {
                   <Input
                     name="subfield"
                     type="text"
-                    label="Subfield"
+                    label="Subfield (optional)"
                     placeholder="e.g., Software Development, Power Systems, etc."
                     value={formData.subfield}
                     onChange={handleInputChange}
                     error={errors.subfield}
                     fullWidth
-                    required
+                    
                   />
                 </>
               )}
