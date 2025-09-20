@@ -69,7 +69,7 @@ const StudentProfile: React.FC = () => {
     skills: [],
     gpa: 0,
     year: '1st Year',
-    department: 'Electrical & Electronic Engineering',
+    department: '',
     registrationNumber: '',
     portfolio: '',
     linkedin: '',
