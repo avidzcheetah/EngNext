@@ -208,9 +208,9 @@ const { companyProfiles, loading, error } = useCompany();
                 Register as Student
               </Button>
             </Link>
-            <Link to="/register/company">
+            <Link to="/adminlogin">
               <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-black">
-                Register as Company
+                Admin Login
               </Button>
             </Link>
           </div>
