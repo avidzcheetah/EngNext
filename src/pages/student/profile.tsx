@@ -402,7 +402,7 @@ const StudentProfile: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     <div className={`w-3 h-3 rounded-full ${profileData.availability ? 'bg-green-500' : 'bg-gray-400'}`}></div>
                     <span className="text-sm text-gray-600">
-                      {profileData.availability ? 'Available for jobs' : 'Not available'}
+                      {profileData.availability ? 'Available for oppotunities' : 'Not available'}
                     </span>
                   </div>
                 </div>

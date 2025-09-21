@@ -39,13 +39,13 @@ function App() {
               <Route path="/register/admin" element={<RegisterAdminPage />} />
               <Route path="/student/dashboard" element={<StudentDashboard />} />
               <Route path="/student/profile" element={<StudentProfile />} />
+              <Route path="/student/public-profile/:id" element={<PublicStudentProfile />} /> {/* ✅ lowercase, param support */}
               <Route path="/company/dashboard" element={<CompanyDashboard />} />
-              <Route path="/company/profile" element={<CompanyProfile  />} />
-              <Route path="/company/application" element={<ApplicationsPage/>} />
-              <Route path="/student/PublicProfile" element={<PublicStudentProfile />} />
-              <Route path="/comapny/PublicProfile/:id" element={<PublicCompanyProfile />} />
+              <Route path="/company/profile" element={<CompanyProfile />} />
+              <Route path="/company/application" element={<ApplicationsPage />} />
+              <Route path="/company/public-profile/:id" element={<PublicCompanyProfile />} /> {/* ✅ fixed typo 'comapny' */}
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/adminlogin" element={<AdminLogin/>} />
+              <Route path="/admin/login" element={<AdminLogin />} /> {/* ✅ cleaner URL */}
             </Routes>
           </main>
           <Footer />

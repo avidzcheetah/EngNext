@@ -221,7 +221,7 @@ const HomePage: React.FC = () => {
                 size="lg"
                 className="border-white text-white hover:bg-white hover:text-black"
               >
-                Admin Login
+                Login as an Admin
               </Button>
             </Link>
           </div>
