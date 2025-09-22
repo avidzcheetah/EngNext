@@ -209,85 +209,85 @@ const AdminDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         {/* Welcome Section */}
         <div className="mb-8 text-center md:text-left">
-          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-purple-600 via-blue-600 to-purple-800 bg-clip-text text-transparent mb-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-purple-600 via-blue-600 to-purple-800 bg-clip-text text-transparent mb-2 break-words">
             Welcome Admin, {user?.firstName}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm sm:text-base">
             Manage companies, job positions, and student applications for the{" "}
             <span className="font-semibold">{deptName}</span> department.
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="p-6 text-center hover:shadow-lg transition-all bg-white rounded-xl">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <Building2 className="w-6 h-6 text-blue-600" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-8">
+          <Card className="p-4 sm:p-6 text-center hover:shadow-lg transition-all bg-white rounded-xl">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2 sm:mb-3">
+              <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">
+            <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">
               {isLoading ? (
-                <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin mx-auto" />
               ) : (
                 companyProfiles.length
               )}
             </h3>
-            <p className="text-gray-600 text-sm">Total Companies</p>
+            <p className="text-gray-600 text-xs sm:text-sm">Total Companies</p>
           </Card>
 
-          <Card className="p-6 text-center hover:shadow-lg transition-all bg-white rounded-xl">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <Briefcase className="w-6 h-6 text-purple-600" />
+          <Card className="p-4 sm:p-6 text-center hover:shadow-lg transition-all bg-white rounded-xl">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-2 sm:mb-3">
+              <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">
+            <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">
               {maximumApplications}
             </h3>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-xs sm:text-sm">
               Applicable positions per Student
             </p>
           </Card>
 
-          <Card className="p-6 text-center hover:shadow-lg transition-all bg-white rounded-xl">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <Users className="w-6 h-6 text-green-600" />
+          <Card className="p-4 sm:p-6 text-center hover:shadow-lg transition-all bg-white rounded-xl">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2 sm:mb-3">
+              <Users className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">
+            <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">
               {isLoadingApplications ? (
-                <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin mx-auto" />
               ) : (
                 applications.length
               )}
             </h3>
-            <p className="text-gray-600 text-sm">Total Applications</p>
+            <p className="text-gray-600 text-xs sm:text-sm">Total Applications</p>
           </Card>
 
-          <Card className="p-6 text-center hover:shadow-lg transition-all bg-white rounded-xl">
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <PlusCircle className="w-6 h-6 text-orange-600" />
+          <Card className="p-4 sm:p-6 text-center hover:shadow-lg transition-all bg-white rounded-xl">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-2 sm:mb-3">
+              <PlusCircle className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">
+            <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">
               {isLoadingApplications ? (
-                <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin mx-auto" />
               ) : (
                 applications.filter((app) => app.status === "pending").length
               )}
             </h3>
-            <p className="text-gray-600 text-sm">Pending Reviews</p>
+            <p className="text-gray-600 text-xs sm:text-sm">Pending Reviews</p>
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Companies Section */}
-            <Card className="p-6 shadow-sm hover:shadow-md transition bg-white">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+            <Card className="p-4 sm:p-6 shadow-sm hover:shadow-md transition bg-white">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2 text-base sm:text-lg">
                   <Building2 className="w-5 h-5 text-blue-600" /> Companies (
                   {companyProfiles.length})
                 </h3>
                 <Button
                   onClick={() => navigate("/register/company")}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white w-full sm:w-auto"
                 >
                   <PlusCircle className="w-4 h-4 mr-2" /> Add Company
                 </Button>
@@ -306,24 +306,24 @@ const AdminDashboard: React.FC = () => {
                       company.industry || ""
                     );
                     return (
-                      <Card key={company.id} className="p-4">
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center space-x-3">
+                      <Card key={company.id} className="p-3 sm:p-4">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                          <div className="flex items-center space-x-3 min-w-0 flex-1">
                             {company.logoUrl && (
                               <img
                                 src={company.logoUrl}
                                 alt={company.companyName || "Company Logo"}
-                                className="w-10 h-10 rounded-full object-cover"
+                                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
                               />
                             )}
-                            <div>
-                              <h4 className="font-bold text-gray-900">
+                            <div className="min-w-0 flex-1">
+                              <h4 className="font-bold text-gray-900 text-sm sm:text-base truncate">
                                 {company.companyName ?? "Unnamed Company"}
                               </h4>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-xs sm:text-sm text-gray-600 truncate">
                                 {company.email}
                               </p>
-                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                              <span className="inline-block text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full mt-1">
                                 {company.industry || "Technology"}
                               </span>
                             </div>
@@ -332,7 +332,7 @@ const AdminDashboard: React.FC = () => {
                                 app.companyId === company.id &&
                                 app.status === "pending"
                             ).length > 0 && (
-                              <span className="bg-green-500 text-white text-xs font-bold rounded-full px-3 py-2">
+                              <span className="bg-green-500 text-white text-xs font-bold rounded-full px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0">
                                 {
                                   applications.filter(
                                     (app) =>
@@ -340,11 +340,12 @@ const AdminDashboard: React.FC = () => {
                                       app.status === "pending"
                                   ).length
                                 }{" "}
-                                New Applications
+                                <span className="hidden sm:inline">New Applications</span>
+                                <span className="sm:hidden">New</span>
                               </span>
                             )}
                           </div>
-                          <div className="flex space-x-2">
+                          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
                             <Button
                               variant={canManage ? "outline" : "outline"}
                               size="sm"
@@ -359,20 +360,25 @@ const AdminDashboard: React.FC = () => {
                                   ? "View and Manage Company"
                                   : "Access Restricted"
                               }
-                              className={
+                              className={`w-full sm:w-auto ${
                                 !canManage
                                   ? "opacity-50 cursor-not-allowed"
                                   : ""
-                              }
+                              }`}
                               disabled={!canManage}
                             >
                               <Eye className="w-4 h-4 mr-1" />
-                              {canManage ? "View & Manage" : "Restricted"}
+                              <span className="sm:hidden">
+                                {canManage ? "Manage" : "Restricted"}
+                              </span>
+                              <span className="hidden sm:inline">
+                                {canManage ? "View & Manage" : "Restricted"}
+                              </span>
                             </Button>
                             {!canManage && (
-                              <div className="flex items-center text-xs text-amber-600">
-                                <AlertCircle className="w-4 h-4 mr-1" />
-                                <span>
+                              <div className="flex items-center justify-center text-xs text-amber-600 w-full sm:w-auto">
+                                <AlertCircle className="w-4 h-4 mr-1 flex-shrink-0" />
+                                <span className="truncate">
                                   Need{" "}
                                   {(company.industry || "")
                                     .toLowerCase()
@@ -389,8 +395,10 @@ const AdminDashboard: React.FC = () => {
                                 size="sm"
                                 onClick={() => handleDeleteCompany(company.id!)}
                                 title="Delete Company"
+                                className="w-full sm:w-auto"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-4 h-4 sm:mr-0 mr-1" />
+                                <span className="sm:hidden">Delete</span>
                               </Button>
                             )}
                           </div>
@@ -400,7 +408,7 @@ const AdminDashboard: React.FC = () => {
                   })
                 )}
                 {!isLoading && companyProfiles.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-gray-500 text-sm">
                     No companies added yet. Click "Add Company" to get started.
                   </div>
                 )}
@@ -408,9 +416,9 @@ const AdminDashboard: React.FC = () => {
             </Card>
 
             {/* Recent Applications Section */}
-            <Card className="p-6 shadow-sm hover:shadow-md transition bg-white">
+            <Card className="p-4 sm:p-6 shadow-sm hover:shadow-md transition bg-white">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2 text-base sm:text-lg">
                   <Users className="w-5 h-5 text-green-600" /> Recent
                   Applications
                 </h3>
@@ -430,12 +438,12 @@ const AdminDashboard: React.FC = () => {
                   })
                   .slice(0, 20)
                   .map((app) => (
-                    <Card key={app._id} className="p-4">
+                    <Card key={app._id} className="p-3 sm:p-4">
                       <div>
-                        <h4 className="font-bold text-gray-900">
+                        <h4 className="font-bold text-gray-900 text-sm sm:text-base truncate">
                           {app.studentName ?? "Unknown Student"}
                         </h4>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-xs sm:text-sm text-gray-600 break-words">
                           applied to{" "}
                           <span className="font-semibold">
                             {app.companyName}{" "}
@@ -443,26 +451,30 @@ const AdminDashboard: React.FC = () => {
                           for{" "}
                           <span className="italic">{app.internshipTitle}</span>
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {new Date(app.createdAt).toLocaleDateString()} •
-                          Status:{" "}
-                          <span
-                            className={`font-medium ${
-                              app.status === "pending"
-                                ? "text-yellow-600"
-                                : app.status === "accepted"
-                                ? "text-green-600"
-                                : "text-red-600"
-                            }`}
-                          >
-                            {app.status}
-                          </span>
-                        </p>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-1 gap-1">
+                          <p className="text-xs text-gray-500">
+                            {new Date(app.createdAt).toLocaleDateString()}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Status:{" "}
+                            <span
+                              className={`font-medium ${
+                                app.status === "pending"
+                                  ? "text-yellow-600"
+                                  : app.status === "accepted"
+                                  ? "text-green-600"
+                                  : "text-red-600"
+                              }`}
+                            >
+                              {app.status}
+                            </span>
+                          </p>
+                        </div>
                       </div>
                     </Card>
                   ))}
                 {applications.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-gray-500 text-sm">
                     No applications submitted yet.
                   </div>
                 )}
@@ -472,12 +484,12 @@ const AdminDashboard: React.FC = () => {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            <Card className="p-6 text-center shadow-sm hover:shadow-md transition bg-white">
-              <h3 className="font-bold text-gray-900">
+            <Card className="p-4 sm:p-6 text-center shadow-sm hover:shadow-md transition bg-white">
+              <h3 className="font-bold text-gray-900 text-base sm:text-lg">
                 {user?.firstName} {user?.lastName}
               </h3>
               <p className="text-sm text-gray-600">{user?.department} Admin</p>
-              <p className="text-sm text-gray-600 mt-2">
+              <p className="text-xs sm:text-sm text-gray-600 mt-2">
                 You are logged in using a {deptName} Admin account. You have access
                 to add, remove, or manage companies and jobs related to the{" "}
                 {deptName} Department.
@@ -485,13 +497,14 @@ const AdminDashboard: React.FC = () => {
             </Card>
 
             {/* Quick Actions */}
-            <Card className="p-6 bg-white">
-              <h3 className="font-bold text-gray-900 mb-4">Quick Actions</h3>
+            <Card className="p-4 sm:p-6 bg-white">
+              <h3 className="font-bold text-gray-900 mb-4 text-base sm:text-lg">Quick Actions</h3>
               <div className="space-y-3">
                 <Button
                   fullWidth
                   variant="outline"
                   onClick={() => navigate("/register/company")}
+                  className="text-sm"
                 >
                   <PlusCircle className="w-4 h-4 mr-2" />
                   Add New Company
@@ -500,6 +513,7 @@ const AdminDashboard: React.FC = () => {
                   fullWidth
                   variant="outline"
                   onClick={() => navigate("/register/admin")}
+                  className="text-sm"
                 >
                   <Briefcase className="w-4 h-4 mr-2" />
                   Create New Admin
@@ -508,9 +522,11 @@ const AdminDashboard: React.FC = () => {
                   fullWidth
                   variant="outline"
                   onClick={handleForm}
+                  className="text-sm"
                 >
                   <Users className="w-4 h-4 mr-2" />
-                  Restrict applications per student
+                  <span className="hidden sm:inline">Restrict applications per student</span>
+                  <span className="sm:hidden">Restrict Applications</span>
                 </Button>
               </div>
 
@@ -531,13 +547,13 @@ const AdminDashboard: React.FC = () => {
                     onChange={(e) =>
                       setMaximumApplications(Number(e.target.value))
                     }
-                    className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-500"
+                    className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-500 text-sm"
                     placeholder="Enter maximum number"
                   />
                   <Button
                     type="submit"
                     fullWidth
-                    className="bg-blue-600 text-white"
+                    className="bg-blue-600 text-white text-sm"
                     onClick={HandleSave}
                   >
                     Save
@@ -545,7 +561,7 @@ const AdminDashboard: React.FC = () => {
                   <Button
                     type="button"
                     fullWidth
-                    className="bg-gray-600 text-white"
+                    className="bg-gray-600 text-white text-sm"
                     onClick={() => setshowForm(false)}
                   >
                     Cancel
