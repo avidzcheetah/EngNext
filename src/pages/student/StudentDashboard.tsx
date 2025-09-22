@@ -40,6 +40,7 @@ const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
 
   const [uploadedCV, setUploadedCV] = useState<File | null>(null);
+  const [useProfileCV, setUseProfileCV] = useState(true);
   const [coverLetter, setCoverLetter] = useState('');
   const [interestLevel, setInterestLevel] = useState(60);
   const [maximumApplications, setMaximumApplications] = useState<number>(0);
@@ -59,11 +60,11 @@ const StudentDashboard: React.FC = () => {
     coverLetter: string;
     interestLevel: number;
     companyName: string;
+    usedCustomCV?: boolean;
   }
 
   const [applications, setApplications] = useState<Application[]>([]);
-  const { user, isAuthenticated, logout } = useAuth();
-  console.log(user);
+  const { user, isAuthenticated } = useAuth();
   const id = user?.id;
 
   const handleCVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,6 +160,7 @@ const StudentDashboard: React.FC = () => {
   const fetchProfile = async () => {
     setProfileLoading(true);
     try {
+      if (!id) throw new Error('User ID is missing');
       const response = await fetch(`${baseUrl}/api/studentRoutes/getStudentById/${id}`, {
         method: 'GET',
         headers: {
@@ -182,6 +184,7 @@ const StudentDashboard: React.FC = () => {
 
   const fetchProfilePicture = async () => {
     try {
+      if (!id) throw new Error('User ID is missing');
       const response = await fetch(
         `${baseUrl}/api/studentRoutes/getProfilePicture/${id}`
       );
@@ -229,6 +232,7 @@ const StudentDashboard: React.FC = () => {
   const fetchCV = async () => {
     setCvLoading(true);
     try {
+      if (!id) throw new Error('User ID is missing');
       const response = await fetch(
         `${baseUrl}/api/studentRoutes/getCV/${id}`,
         {
@@ -252,13 +256,22 @@ const StudentDashboard: React.FC = () => {
   };
 
   const handleSubmitApplication = async () => {
+    if (!isAuthenticated || !id) {
+      alert("Please log in to apply for this position.");
+      navigate('/login');
+      return;
+    }
     if (Number(profileData.ApplicationsSent) >= maximumApplications) {
       alert("You have reached the maximum number of job applications allowed.");
       return;
     }
+    if (!useProfileCV && !uploadedCV) {
+      alert("Please upload a new CV for this position.");
+      return;
+    }
     setIsSubmitting(true);
     try {
-      const newApplication = {
+      const newApplication: Application = {
         studentId: id,
         companyId: fData?.find((item) => item._id === selectedInternship)?.companyId || "",
         studentName: `${profileData.firstName} ${profileData.lastName}`,
@@ -272,13 +285,25 @@ const StudentDashboard: React.FC = () => {
         coverLetter: coverLetter,
         interestLevel: interestLevel,
         companyName: fData?.find((item) => item._id === selectedInternship)?.companyName || "",
+        usedCustomCV: !useProfileCV,
       };
 
-      const res = await fetch(`${baseUrl}/api/applicationRoutes/createApplication`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newApplication),
-      });
+      let res;
+      if (uploadedCV) {
+        const formData = new FormData();
+        formData.append('applicationData', JSON.stringify(newApplication));
+        formData.append('cvFile', uploadedCV);
+        res = await fetch(`${baseUrl}/api/applicationRoutes/createApplication`, {
+          method: "POST",
+          body: formData,
+        });
+      } else {
+        res = await fetch(`${baseUrl}/api/applicationRoutes/createApplication`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newApplication),
+        });
+      }
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
@@ -315,6 +340,7 @@ const StudentDashboard: React.FC = () => {
       setUploadedCV(null);
       setCoverLetter('');
       setInterestLevel(60);
+      setUseProfileCV(true);
     } catch (error) {
       console.error(error);
       setError(error instanceof Error ? error.message : "Something went wrong");
@@ -339,6 +365,11 @@ const StudentDashboard: React.FC = () => {
   });
 
   const handleApply = (internshipId: string) => {
+    if (!isAuthenticated || !id) {
+      alert("Please log in to apply for this position.");
+      navigate('/login');
+      return;
+    }
     if (Number(profileData.ApplicationsSent) >= maximumApplications) {
       alert("You have reached the maximum number of job applications allowed.");
       return;
@@ -346,6 +377,9 @@ const StudentDashboard: React.FC = () => {
     setSelectedInternship(internshipId);
     setShowApplicationModal(true);
     setInterestLevel(60);
+    setCoverLetter('');
+    setUploadedCV(null);
+    setUseProfileCV(!!cvPreview);
   };
 
   // Determine if warning messages should be displayed
@@ -673,14 +707,20 @@ const StudentDashboard: React.FC = () => {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
                 <p className="text-gray-600">Loading profile details...</p>
               </div>
-            ) : (!profileData.skills.length || !cvPreview) ? (
+            ) : (!profileData.skills.length || !profileData.firstName || !profileData.lastName || !profileData.email) ? (
               <div className="text-center py-6">
                 <div className="mb-4">
                   <FileText className="w-16 h-16 text-gray-400 mx-auto mb-3" />
                   <h4 className="text-lg font-medium text-gray-900 mb-2">Complete Your Profile First</h4>
                   <p className="text-gray-600 mb-4">
-                    Please make sure your profile is complete with your CV and skills before applying.
-                    Companies will review your profile details during the application process.
+                    Please ensure your profile includes:
+                    <ul className="list-disc list-inside text-left mt-2">
+                      {!profileData.firstName && <li>First Name</li>}
+                      {!profileData.lastName && <li>Last Name</li>}
+                      {!profileData.email && <li>Email</li>}
+                      {!profileData.skills.length && <li>At least one skill</li>}
+                    </ul>
+                    These details are required for companies to review your application.
                   </p>
                 </div>
                 <Button
@@ -714,13 +754,61 @@ const StudentDashboard: React.FC = () => {
                       </div>
                     </div>
                     <div>
-                      <p className="text-gray-600">CV Status</p>
-                      <p className="text-green-600 font-medium flex items-center">
-                        <FileText className="w-4 h-4 mr-1" />
-                        Uploaded
-                      </p>
+                      <p className="text-gray-600">CV</p>
+                      {useProfileCV ? (
+                        <p className="text-green-600 font-medium flex items-center">
+                          <FileText className="w-4 h-4 mr-1" />
+                          Using Profile CV
+                        </p>
+                      ) : uploadedCV ? (
+                        <p className="text-green-600 font-medium flex items-center">
+                          <FileText className="w-4 h-4 mr-1" />
+                          New CV: {uploadedCV.name}
+                        </p>
+                      ) : (
+                        <p className="text-red-600 font-medium">Please upload new CV</p>
+                      )}
                     </div>
                   </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-3">CV Selection</h4>
+                  {cvPreview ? (
+                    <div className="space-y-2">
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          checked={useProfileCV}
+                          onChange={() => setUseProfileCV(true)}
+                          className="mr-2"
+                        />
+                        Use my profile CV
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          checked={!useProfileCV}
+                          onChange={() => setUseProfileCV(false)}
+                          className="mr-2"
+                        />
+                        Upload a new CV for this position
+                      </label>
+                    </div>
+                  ) : (
+                    <p className="text-gray-600 mb-2">No CV in profile. Please upload a new one for this position.</p>
+                  )}
+                  {!useProfileCV && (
+                    <div className="mt-2">
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={handleCVUpload}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500 transition-all"
+                      />
+                      {uploadedCV && <p className="text-sm text-gray-600 mt-1">Selected: {uploadedCV.name}</p>}
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -809,7 +897,7 @@ const StudentDashboard: React.FC = () => {
                     fullWidth 
                     className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-[1.02] transition rounded-lg flex items-center justify-center"
                     onClick={handleSubmitApplication}
-                    disabled={isSubmitting || isAtLimit}
+                    disabled={isSubmitting || isAtLimit || (!useProfileCV && !uploadedCV)}
                   >
                     {isSubmitting ? (
                       <>
