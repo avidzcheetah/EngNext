@@ -62,10 +62,10 @@ const Contact: React.FC = () => {
       icon: MapPin,
       title: "Address",
       details: [
-        "Faculty of Engineering,",
-        "University of Jaffna,",
-        "Ariviyal Nagar, Kilinochchi 44000",
-        "Sri Lanka.",
+        {
+          main: "Faculty of Engineering, University of Jaffna, Ariviyal Nagar, Kilinochchi 44000, Sri Lanka.",
+          sub: "Faculty address",
+        },
       ],
       color: "text-blue-600",
       bgColor: "bg-blue-100",
@@ -74,9 +74,9 @@ const Contact: React.FC = () => {
       icon: Phone,
       title: "Phone",
       details: [
-        "+94 21 222 8000 (Main)",
-        "+94 21 222 8001 (EEE Dept)",
-        "+94 21 228 2211 (Com Dept)",
+        { main: "+94 77 050 2392", sub: "Ms. Jalini (Lecturer)" },
+        { main: "+94 76 014 4977", sub: "Prabath (Coordinator)" },
+        { main: "+94 71 017 1111", sub: "Avidu (Web Developer)" },
       ],
       color: "text-green-600",
       bgColor: "bg-green-100",
@@ -85,9 +85,8 @@ const Contact: React.FC = () => {
       icon: Mail,
       title: "Email",
       details: [
-        "info@eng.jfn.ac.lk",
-        "eee@eng.jfn.ac.lk",
-        "intriux@gmail.com",
+        { main: "eee@eng.jfn.ac.lk", sub: "Official Faculty Email" },
+        { main: "intriux@gmail.com", sub: "General Inquiries" },
       ],
       color: "text-purple-600",
       bgColor: "bg-purple-100",
@@ -96,10 +95,9 @@ const Contact: React.FC = () => {
       icon: Clock,
       title: "Office Hours",
       details: [
-        "Monday - Friday: 8:00 AM - 4:30 PM",
-        "Saturday: 8:00 AM - 12:00 PM",
-        "Sunday: Closed",
-        "Public Holidays: Closed",
+        { main: "Monday - Friday", sub: "8:00 AM - 4:30 PM" },
+        { main: "Weekends", sub: "Closed" },
+        { main: "Public Holidays", sub: "Closed" },
       ],
       color: "text-orange-600",
       bgColor: "bg-orange-100",
@@ -147,25 +145,31 @@ const Contact: React.FC = () => {
       {/* Contact Info Cards */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {contactInfo.map((info, index) => (
               <div
                 key={index}
-                className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-gray-100"
+                className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-gray-100 flex flex-col"
               >
                 <div
-                  className={`w-12 h-12 ${info.bgColor} rounded-xl flex items-center justify-center mb-4`}
+                  className={`w-14 h-14 ${info.bgColor} rounded-xl flex items-center justify-center mb-4`}
                 >
-                  <info.icon className={`w-6 h-6 ${info.color}`} />
+                  <info.icon className={`w-7 h-7 ${info.color}`} />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-3">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   {info.title}
                 </h3>
-                <div className="space-y-1">
-                  {info.details.map((detail, idx) => (
-                    <p key={idx} className="text-gray-600 text-sm">
-                      {detail}
-                    </p>
+                <div className="flex flex-col gap-3">
+                  {info.details.map((detail: any, idx: number) => (
+                    <div
+                      key={idx}
+                      className="bg-gray-50 hover:bg-gray-100 transition rounded-lg p-3"
+                    >
+                      <p className="text-gray-800 font-medium text-sm">
+                        {detail.main}
+                      </p>
+                      <p className="text-gray-600 text-xs">{detail.sub}</p>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -353,7 +357,9 @@ const Contact: React.FC = () => {
                         Avidu Witharana
                       </h4>
                       <p className="text-sm text-gray-600">
-                        Undergrad with a passion for Cybersecurity and Software Engineering. Currently contributing to various organizations and companies.
+                        Undergrad with a passion for Cybersecurity and Software
+                        Engineering. Currently contributing to various
+                        organizations and companies.
                       </p>
                       <div className="flex space-x-3 mt-2">
                         <a
@@ -370,7 +376,7 @@ const Contact: React.FC = () => {
                           rel="noopener noreferrer"
                           className="text-purple-600 hover:text-purple-800 text-sm font-medium"
                         >
-                          Portfolio
+                          Portfolioionali
                         </a>
                       </div>
                     </div>
@@ -388,7 +394,9 @@ const Contact: React.FC = () => {
                         Aakil Ahamed
                       </h4>
                       <p className="text-sm text-gray-600">
-                        A passionate Software Engineer with a strong interest in Cloud Computing, AI, ML, Deep Learning, and Embedded Systems.
+                        A passionate Software Engineer with a strong interest in
+                        Cloud Computing, AI, ML, Deep Learning, and Embedded
+                        Systems.
                       </p>
                       <div className="flex space-x-3 mt-2">
                         <a
@@ -498,60 +506,12 @@ const Contact: React.FC = () => {
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            Frequently Asked Questions
-          </h2>
-
-          <div className="space-y-6">
-            {[
-              {
-                question: "How do I register as a student on EngNext?",
-                answer:
-                  "Students can register using their university email address (@eng.jfn.ac.lk). After registration, you'll need to verify your email before accessing the platform.",
-              },
-              {
-                question:
-                  "Can companies from outside Sri Lanka post jobs?",
-                answer:
-                  "Yes, international companies are welcome to post job opportunities. However, all postings need to be approved by our administrators before going live.",
-              },
-              {
-                question: "What documents do I need to apply for jobs?",
-                answer:
-                  "Students need to upload their CV (PDF format, max 3MB) and complete their profile information. Some companies may request additional documents during the application process.",
-              },
-              {
-                question: "How are students and companies verified?",
-                answer:
-                  "Students are verified through their institutional email addresses. Companies go through a manual approval process by our administrators to ensure legitimacy.",
-              },
-              {
-                question: "Is there any cost to use EngNext?",
-                answer:
-                  "No, EngNext is completely free for both students and companies. It's a service provided by the University of Jaffna to support student career development.",
-              },
-            ].map((faq, index) => (
-              <div key={index} className="bg-gray-50 rounded-xl p-6">
-                <h3 className="font-semibold text-gray-900 mb-3">
-                  {faq.question}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Call to Action */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-4">Still Have Questions?</h2>
+          <h2 className="text-3xl font-bold mb-4">Need support?</h2>
           <p className="text-blue-100 mb-8 text-lg">
-            Our team is always ready to help you succeed in your job
-            journey
+            Our dev team is always ready to help you succeed in your job journey
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -562,7 +522,7 @@ const Contact: React.FC = () => {
               <span>Email Support</span>
             </a>
             <a
-              href="tel:+94771234567"
+              href="tel:+94710171111"
               className="px-8 py-3 bg-white/10 border border-white text-white font-semibold rounded-lg hover:bg-white/20 transition-all duration-200 flex items-center justify-center space-x-2"
             >
               <Phone className="w-5 h-5" />

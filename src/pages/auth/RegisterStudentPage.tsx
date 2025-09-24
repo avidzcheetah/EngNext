@@ -21,6 +21,7 @@ const RegisterStudentPage: React.FC = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    department: "", // Added department field
   });
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -45,7 +46,7 @@ const RegisterStudentPage: React.FC = () => {
     );
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
@@ -86,6 +87,7 @@ const RegisterStudentPage: React.FC = () => {
     if (!formData.firstName.trim())
       newErrors.firstName = "First name is required";
     if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!formData.department) newErrors.department = "Department is required";
 
     if (!validateEmail(formData.email)) {
       newErrors.email = "Please use your institutional email (@eng.jfn.ac.lk)";
@@ -119,6 +121,7 @@ const RegisterStudentPage: React.FC = () => {
             lastName: formData.lastName,
             email: formData.email,
             password: formData.password,
+            department: formData.department, // Include department in API payload
           }),
         }
       );
@@ -267,6 +270,9 @@ const RegisterStudentPage: React.FC = () => {
             </h2>
             <p className="text-gray-600 mb-4">
               Your account has been created successfully.
+            </p>
+            <p className="text-gray-600 mb-6">
+              Please complete your details in the profile section after logging in to become eligible for job applications.
             </p>
             <p className="text-yellow-600 bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm mb-6">
               Note: Accounts with invalid emails will be automatically removed. Please ensure your email is in the format <strong>regno@eng.jfn.ac.lk</strong>.
@@ -458,6 +464,30 @@ const RegisterStudentPage: React.FC = () => {
               fullWidth
               required
             />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Department *</label>
+              <select
+                name="department"
+                value={formData.department}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 border ${
+                  errors.department ? 'border-red-300' : 'border-gray-200'
+                } rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ${
+                  !formData.department ? 'text-gray-400' : 'text-gray-900'
+                }`}
+                required
+              >
+                <option value="" disabled>Select your department</option>
+                <option value="Electrical & Electronic Engineering">Electrical & Electronic Engineering</option>
+                <option value="Computer Engineering">Computer Engineering</option>
+                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                <option value="Civil Engineering">Civil Engineering</option>
+              </select>
+              {errors.department && (
+                <p className="mt-1 text-sm text-red-600">{errors.department}</p>
+              )}
+            </div>
 
             <div className="relative">
               <Input

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, Mail, Lock, Eye, EyeOff, User, GraduationCap, CheckCircle } from 'lucide-react';
+import { Shield, Mail, Lock, Eye, EyeOff, User, GraduationCap, CheckCircle, Key } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 
-type AdminDepartment = 'EEE' | 'Com';
+type AdminDepartment = 'EEE' | 'Com' | 'Mech' | 'Civil';
 
 const RegisterAdminPage: React.FC = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -16,9 +16,11 @@ const RegisterAdminPage: React.FC = () => {
     department: '' as AdminDepartment | '',
     password: '',
     confirmPassword: '',
+    secretKey: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showSecretKey, setShowSecretKey] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -26,8 +28,10 @@ const RegisterAdminPage: React.FC = () => {
   const navigate = useNavigate();
 
   const departments = [
-    { value: 'EEE', label: 'Department of Electrical and Electronic Engineering', color: 'bg-blue-100 text-blue-800' },
-    { value: 'Com', label: 'Department of Computer Engineering', color: 'bg-green-100 text-green-800' }
+    { value: 'EEE', label: 'Electrical and Electronic Engineering', color: 'bg-blue-100 text-blue-800' },
+    { value: 'Com', label: 'Computer Engineering', color: 'bg-green-100 text-green-800' },
+    { value: 'Mech', label: 'Mechanical Engineering', color: 'bg-red-100 text-red-800' },
+    { value: 'Civil', label: 'Civil Engineering', color: 'bg-gray-100 text-gray-800' }
   ];
 
   const validatePassword = (password: string) => {
@@ -64,6 +68,7 @@ const RegisterAdminPage: React.FC = () => {
     if (!formData.username.trim()) newErrors.username = 'Username is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     if (!formData.department) newErrors.department = 'Department selection is required';
+    if (formData.secretKey !== 'makemeanadmin') newErrors.secretKey = 'Invalid secret key';
     
     if (formData.email && !validateEmail(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
@@ -260,11 +265,31 @@ const RegisterAdminPage: React.FC = () => {
               </button>
             </div>
 
+            <div className="relative">
+              <Input
+                name="secretKey"
+                type={showSecretKey ? 'text' : 'password'}
+                label="Secret Key"
+                value={formData.secretKey}
+                onChange={handleInputChange}
+                error={errors.secretKey}
+                fullWidth
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowSecretKey(!showSecretKey)}
+                className="absolute right-3 top-8 text-gray-400 hover:text-gray-600"
+              >
+                {showSecretKey ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+
             {/* Display selected department badge */}
             {formData.department && (
               <div className="flex items-center justify-center">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  formData.department === 'EEE' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                  departments.find(dept => dept.value === formData.department)?.color
                 }`}>
                   <GraduationCap className="w-4 h-4 inline mr-1" />
                   {formData.department} Department Admin

@@ -23,11 +23,12 @@ const Footer: React.FC = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-blue-400" />
-                <p className="text-sm">+94 21 2282209</p>
+                <p className="text-sm">+94 76 0144977</p>
+                <p className="text-sm">+94 71 0171111</p>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-blue-400" />
-                <p className="text-sm">eee@eng.jfn.ac.lk</p>
+                <p className="text-sm">intriux@gmail.com</p>
               </div>
             </div>
           </div>
@@ -42,11 +43,8 @@ const Footer: React.FC = () => {
               <a href="https://www.jfn.ac.lk/" className="block text-sm hover:text-blue-400 transition-colors duration-200">
                 University of Jaffna
               </a>
-              <a href="#" className="block text-sm hover:text-blue-400 transition-colors duration-200">
-                Academic Programs
-              </a>
-              <a href="https://www.eng.jfn.ac.lk/research/" className="block text-sm hover:text-blue-400 transition-colors duration-200">
-                Research & Publications
+              <a href="https://www.eng.jfn.ac.lk/core-structure-of-the-degree-program-3/" className="block text-sm hover:text-blue-400 transition-colors duration-200">
+                Academic Curriculum
               </a>
             </div>
           </div>

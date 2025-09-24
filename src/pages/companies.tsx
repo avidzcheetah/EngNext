@@ -128,43 +128,94 @@ const Companies: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-12 sm:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4">
-            Partner Companies
-          </h1>
-          <p className="max-w-2xl mx-auto text-base sm:text-lg md:text-xl text-blue-100 mb-6 sm:mb-8 px-4">
-            Discover leading companies offering exciting job
-            opportunities for Engineering students
-          </p>
+  {/* Inline CSS for Animations - REMOVE LATER */}
+  <style>
+    {`
+      @keyframes notice {
+        0% {
+          opacity: 0;
+          transform: translateY(10px) scale(0.95);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    `}
+  </style>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-6 max-w-4xl mx-auto px-4">
+  {/* Header Section - KEEP */}
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+    <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4">
+      Partner Companies
+    </h1>
+    <p className="max-w-2xl mx-auto text-base sm:text-lg md:text-xl text-blue-100 mb-4 sm:mb-6 px-4">
+      Discover leading companies offering exciting job opportunities for Engineering students
+    </p>
 
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 sm:p-4 text-center">
-              <div className="text-xl sm:text-2xl md:text-3xl font-bold">
-                {companyProfiles.length}
-              </div>
-              <div className="text-blue-100 text-xs sm:text-sm">Companies</div>
-            </div>
+    {/* Notice with Inline CSS Animation and Rotating Spinner - REMOVE LATER */}
+    <div className="max-w-3xl mx-auto mb-6 sm:mb-8">
+      <div
+        style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(8px)',
+          borderRadius: '0.5rem',
+          padding: '0.5rem 1.5rem',
+          fontSize: '1rem',
+          color: '#DBEAFE',
+          animation: 'notice 0.8s ease-out forwards',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+        }}
+      >
+        <span
+          style={{
+            display: 'inline-block',
+            width: '1rem',
+            height: '1rem',
+            border: '2px solid #DBEAFE',
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+          }}
+        ></span>
+        <span style={{ fontWeight: '500' }}>Notice:</span> Companies are currently being added. All companies will be available soon!
+      </div>
+    </div>
 
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 sm:p-4 text-center">
-              <div className="text-xl sm:text-2xl md:text-3xl font-bold">
-                {industries.length}
-              </div>
-              <div className="text-blue-100 text-xs sm:text-sm">Industries</div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 sm:p-4 text-center">
-              <div className="text-xl sm:text-2xl md:text-3xl font-bold">
-                {locations.length}
-              </div>
-              <div className="text-blue-100 text-xs sm:text-sm">Locations</div>
-            </div>
-          </div>
+    {/* Stats - KEEP */}
+    <div className="grid grid-cols-3 gap-2 sm:gap-6 max-w-4xl mx-auto px-4">
+      <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 sm:p-4 text-center">
+        <div className="text-xl sm:text-2xl md:text-3xl font-bold">
+          {companyProfiles.length}
         </div>
-      </section>
+        <div className="text-blue-100 text-xs sm:text-sm">Companies</div>
+      </div>
+      <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 sm:p-4 text-center">
+        <div className="text-xl sm:text-2xl md:text-3xl font-bold">
+          {industries.length}
+        </div>
+        <div className="text-blue-100 text-xs sm:text-sm">Industries</div>
+      </div>
+      <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 sm:p-4 text-center">
+        <div className="text-xl sm:text-2xl md:text-3xl font-bold">
+          {locations.length}
+        </div>
+        <div className="text-blue-100 text-xs sm:text-sm">Locations</div>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* Search and Filters Section */}
       <section className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200">
