@@ -28,7 +28,7 @@ const Footer: React.FC = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-blue-400" />
-                <p className="text-sm">intriux@gmail.com</p>
+                <p className="text-sm">engnextuoj@gmail.com</p>
               </div>
             </div>
           </div>
