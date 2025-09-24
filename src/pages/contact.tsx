@@ -75,7 +75,7 @@ const Contact: React.FC = () => {
       title: "Phone",
       details: [
         { main: "+94 77 050 2392", sub: "Ms. Jalini (Lecturer)" },
-        { main: "+94 76 014 4977", sub: "Prabath (Coordinator)" },
+        { main: "+94 76 014 4977", sub: "Prabath" },
         { main: "+94 71 017 1111", sub: "Avidu (Web Developer)" },
       ],
       color: "text-green-600",
@@ -85,8 +85,8 @@ const Contact: React.FC = () => {
       icon: Mail,
       title: "Email",
       details: [
-        { main: "eee@eng.jfn.ac.lk", sub: "Official Faculty Email" },
-        { main: "intriux@gmail.com", sub: "General Inquiries" },
+        { main: "eees@eng.jfn.ac.lk", sub: "Official Faculty Email" },
+        { main: "engnextuoj@gmail.com", sub: "General Inquiries" },
       ],
       color: "text-purple-600",
       bgColor: "bg-purple-100",
@@ -515,7 +515,7 @@ const Contact: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="mailto:intriux@gmail.com"
+              href="mailto:engnextuoj@gmail.com"
               className="px-8 py-3 bg-white text-blue-700 font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2"
             >
               <Mail className="w-5 h-5" />
