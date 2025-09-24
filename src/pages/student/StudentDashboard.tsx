@@ -383,6 +383,55 @@ const StudentDashboard: React.FC = () => {
           <p className="text-gray-600 animate-fade-in delay-100">
             Discover your next job opportunity and take your career forward.
           </p>
+          {/* Inline CSS for Animation - REMOVE LATER */}
+          <style>
+            {`
+              @keyframes notice {
+                0% {
+                  opacity: 0;
+                  transform: translateY(10px) scale(0.95);
+                }
+                100% {
+                  opacity: 1;
+                  transform: translateY(0) scale(1);
+                }
+              }
+              @keyframes spin {
+                0% {
+                  transform: rotate(0deg);
+                }
+                100% {
+                  transform: rotate(360deg);
+                }
+              }
+            `}
+          </style>
+          {/* Notice with Inline CSS Animation - REMOVE LATER */}
+          <Card className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm">
+            <div
+              style={{
+                fontSize: '1rem',
+                color: '#7F1D1D',
+                animation: 'notice 0.8s ease-out forwards',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: '1rem',
+                  height: '1rem',
+                  border: '2px solid #7F1D1D',
+                  borderTopColor: 'transparent',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                }}
+              ></span>
+              <span style={{ fontWeight: '500' }}>Notice:</span> Your next chapter in the Engineering life is about to begin. Applications for new roles will open soon!
+            </div>
+          </Card>
         </div>
 
         {/* Warning Messages */}
@@ -406,7 +455,7 @@ const StudentDashboard: React.FC = () => {
               <AlertTriangle className="w-6 h-6 text-yellow-600 mr-3" />
               <div>
                 <h3 className="text-lg font-semibold text-yellow-800">Approaching Application Limit</h3>
-                <p className="text-sm text-yellow-700">
+                <p className="text-sm text-red-700">
                   You have {maximumApplications - applicationsSent} application(s) remaining out of {maximumApplications}.
                   Choose your remaining applications carefully!
                 </p>
