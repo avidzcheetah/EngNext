@@ -147,7 +147,7 @@ const AdminDashboard: React.FC = () => {
   const handleDeleteCompany = async (companyId: string) => {
     if (
       !confirm(
-        "Are you sure you want to delete this company? This will also delete all associated job positions."
+        "Are you sure you want to delete this company? This will NOT delete associated job positions. Please delete job positions before deleting the company."
       )
     ) {
       return;

@@ -376,7 +376,7 @@ const Contact: React.FC = () => {
                           rel="noopener noreferrer"
                           className="text-purple-600 hover:text-purple-800 text-sm font-medium"
                         >
-                          Portfolioionali
+                          Portfolio
                         </a>
                       </div>
                     </div>

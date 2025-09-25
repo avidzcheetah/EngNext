@@ -105,6 +105,7 @@ const StudentDashboard: React.FC = () => {
     ApplicationsSent: '',
     RecentNotifications: [],
     ProfileViews: '',
+    department: '',
   });
 
   type Internships = {
@@ -143,19 +144,21 @@ const StudentDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      await Promise.all([
-        fetchProfile(),
-        fetchCV(),
-        fetchProfilePicture(),
-        fetchAllJobs(),
-        fetchTotalNumberOfApplicableInternshipsperStudent()
-      ]);
-      setIsLoading(false);
-    };
-    loadData();
-  }, []);
+    if (user?.id) {
+      const loadData = async () => {
+        setIsLoading(true);
+        await Promise.all([
+          fetchProfile(),
+          fetchCV(),
+          fetchProfilePicture(),
+          fetchAllJobs(),
+          fetchTotalNumberOfApplicableInternshipsperStudent()
+        ]);
+        setIsLoading(false);
+      };
+      loadData();
+    }
+  }, [user]);
 
   const fetchProfile = async () => {
     setProfileLoading(true);
@@ -349,6 +352,30 @@ const StudentDashboard: React.FC = () => {
     }
   };
 
+  const mapDepartmentToCode = (dept: string) => {
+    const lower = dept.toLowerCase();
+    if (lower.includes('computer')) return 'com';
+    if (lower.includes('electrical') || lower.includes('electronic')) return 'eee';
+    if (lower.includes('mechanical')) return 'mech';
+    if (lower.includes('civil')) return 'civil';
+    return '';
+  };
+
+  const mapCodeToDepartmentName = (code: string) => {
+    switch (code?.toLowerCase()) {
+      case 'com':
+        return 'Computer Engineering';
+      case 'eee':
+        return 'Electrical & Electronic Engineering';
+      case 'mech':
+        return 'Mechanical Engineering';
+      case 'civil':
+        return 'Civil Engineering';
+      default:
+        return code;
+    }
+  };
+
   const filteredInternships = fData?.filter((internship) => {
     const title = internship.title ?? "";
     const company = internship.companyName ?? "";
@@ -362,6 +389,15 @@ const StudentDashboard: React.FC = () => {
       selectedFilter === "all" || industry.toLowerCase() === selectedFilter.toLowerCase();
 
     return matchesSearch && matchesFilter && internship.isActive;
+  });
+
+  const studentDeptCode = mapDepartmentToCode(profileData.department);
+
+  const sortedInternships = filteredInternships?.sort((a, b) => {
+    const aPriority = a.industry?.toLowerCase() === studentDeptCode ? 0 : 1;
+    const bPriority = b.industry?.toLowerCase() === studentDeptCode ? 0 : 1;
+    if (aPriority !== bPriority) return aPriority - bPriority;
+    return new Date(b.createdAt ?? '0').getTime() - new Date(a.createdAt ?? '0').getTime();
   });
 
   const handleApply = (internshipId: string) => {
@@ -513,8 +549,10 @@ const StudentDashboard: React.FC = () => {
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500 transition-all"
                   >
                     <option value="all">All Fields</option>
-                    <option value="EEE">Electronic and Electrical</option>
-                    <option value="com">Computer Engineering</option>
+                    <option value="com">Com</option>
+                    <option value="eee">EEE</option>
+                    <option value="mech">Mech</option>
+                    <option value="civil">Civil</option>
                   </select>
                   <Button variant="outline" className="hover:shadow-md transition-all rounded-lg">
                     <Filter className="w-4 h-4 mr-2" />
@@ -548,86 +586,91 @@ const StudentDashboard: React.FC = () => {
                     </Card>
                   ))}
                 </div>
-              ) : filteredInternships?.length === 0 ? (
+              ) : sortedInternships?.length === 0 ? (
                 <Card className="p-6 text-center border border-gray-100 shadow-sm bg-white rounded-xl">
                   <p className="text-gray-600">No jobs found matching your criteria.</p>
                 </Card>
               ) : (
-                filteredInternships
-                  ?.sort(
-                    (a, b) =>
-                      new Date(b.createdAt ?? '').getTime() - new Date(a.createdAt ?? '').getTime()
-                  )
-                  .map((internship) => {
-                    const company = mockCompanies.find((c) => c.id === internship.companyId);
-                    return (
-                      <Card
-                        key={internship._id}
-                        className="p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px] bg-white rounded-xl"
-                      >
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center space-x-4">
-                            <div>
-                              <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                                {internship.title}
-                              </h3>
-                              <p className="text-blue-600 font-medium">{internship?.companyName}</p>
-                            </div>
-                          </div>
-                          <span className="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-                            Active
-                          </span>
-                        </div>
-
-                        <p className="text-gray-600 mb-4">{internship.description}</p>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                          <div className="flex items-center space-x-2">
-                            <MapPin className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm text-gray-600">{internship.location}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Clock className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm text-gray-600">{internship.duration}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Building2 className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm text-gray-600">Full-time</span>
+                sortedInternships?.map((internship) => {
+                  const company = mockCompanies.find((c) => c.id === internship.companyId);
+                  const isRelevant = internship.industry?.toLowerCase() === studentDeptCode;
+                  return (
+                    <Card
+                      key={internship._id}
+                      className="p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px] bg-white rounded-xl"
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center space-x-4">
+                          <div>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                              {internship.title}
+                            </h3>
+                            <p className="text-blue-600 font-medium">{internship?.companyName}</p>
                           </div>
                         </div>
+                        <span className={`inline-block ${isRelevant ? 'bg-green-100' : 'bg-red-100'} text-gray-800 px-3 py-1 rounded-full text-sm`}>
+                          {mapCodeToDepartmentName(internship.industry || "")}
+                        </span>
+                      </div>
 
-                        <div className="mb-4">
-                          <h4 className="text-sm font-medium text-gray-900 mb-2">Requirements:</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {internship.requirements && internship.requirements.map((req, index) => (
-                              <span
-                                key={index}
-                                className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm hover:bg-blue-100 transition"
-                              >
-                                {req}
-                              </span>
-                            ))}
-                          </div>
+                      <p className="text-gray-600 mb-4">{internship.description}</p>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div className="flex items-center space-x-2">
+                          <MapPin className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">{internship.location}</span>
                         </div>
+                        <div className="flex items-center space-x-2">
+                          <Clock className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">{internship.duration}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Building2 className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">Full-time</span>
+                        </div>
+                      </div>
 
-                        <div className="flex justify-end space-x-3">
-                          <Link to={`/company/PublicProfile/${internship.companyId}`}>
-                            <Button variant="outline" className="hover:bg-gray-80 rounded-lg transition-all">
-                              View Company
-                            </Button>
-                          </Link>
-                          <Button
-                            onClick={() => handleApply(internship._id || "")}
-                            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02] transition rounded-lg"
-                            disabled={isAtLimit}
-                          >
-                            <Send className="w-4 h-4 mr-2" />
-                            Apply Now
+                      <div className="mb-4">
+                        <h4 className="text-sm font-medium text-gray-900 mb-2">Requirements:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {internship.requirements && internship.requirements.map((req, index) => (
+                            <span
+                              key={index}
+                              className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm hover:bg-blue-100 transition"
+                            >
+                              {req}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {!isRelevant && (
+                        <div className="mb-4 flex items-center p-3 bg-red-50 rounded-lg">
+                          <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
+                          <p className="text-sm text-red-700">
+                            This job is not in your department. You cannot apply for this position.
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="flex justify-end space-x-3">
+                        <Link to={`/company/PublicProfile/${internship.companyId}`}>
+                          <Button variant="outline" className="hover:bg-gray-80 rounded-lg transition-all">
+                            View Company
                           </Button>
-                        </div>
-                      </Card>
-                    );
-                  })
+                        </Link>
+                        <Button
+                          onClick={() => handleApply(internship._id || "")}
+                          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02] transition rounded-lg"
+                          disabled={isAtLimit || !isRelevant}
+                        >
+                          <Send className="w-4 h-4 mr-2" />
+                          Apply Now
+                        </Button>
+                      </div>
+                    </Card>
+                  );
+                })
               )}
             </div>
           </div>
@@ -647,9 +690,9 @@ const StudentDashboard: React.FC = () => {
             ) : (
               <Card className="p-6 text-center shadow-sm hover:shadow-md transition rounded-xl">
                 <div className="">
-                  {profileData.profilePicture ? (
+                  {profilepreview ? (
                     <img
-                      src={user?.profilePicture}
+                      src={profilepreview}
                       alt="Profile"
                       className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 ring-2 ring-blue-200 object-cover"
                     />
@@ -660,7 +703,7 @@ const StudentDashboard: React.FC = () => {
                   )}
                 </div>
                 <h3 className="font-bold text-gray-900">{profileData.firstName} {profileData.lastName}</h3>
-                <p className="text-sm text-gray-600">Engineering Undergraduate</p>
+                <p className="text-sm text-gray-600">{profileData.department} Student</p>
 
                 <Button fullWidth className="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg transition-all hover:scale-[1.02]" onClick={handleUpdateprofile}>
                   <User className="w-4 h-4 mr-2" />
@@ -762,13 +805,7 @@ const StudentDashboard: React.FC = () => {
                   <FileText className="w-16 h-16 text-gray-400 mx-auto mb-3" />
                   <h4 className="text-lg font-medium text-gray-900 mb-2">Complete Your Profile First</h4>
                   <p className="text-gray-600 mb-4">
-                    Please ensure your profile includes:
-                    <ul className="list-disc list-inside text-left mt-2">
-                      {!profileData.firstName && <li>First Name</li>}
-                      {!profileData.lastName && <li>Last Name</li>}
-                      {!profileData.email && <li>Email</li>}
-                      {!profileData.skills.length && <li>At least one skill</li>}
-                    </ul>
+                    Please ensure your profile includes all necessary details.
                     These details are required for companies to review your application.
                   </p>
                 </div>

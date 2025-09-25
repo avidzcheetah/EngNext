@@ -202,7 +202,7 @@ const HomePage: React.FC = () => {
             Ready to Start Your Journey?
           </h2>
           <p className="text-xl mb-8">
-            Join hundreds of Engineering students who have found their perfect
+            Join the community to find the perfect
             job match through EngNext.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
