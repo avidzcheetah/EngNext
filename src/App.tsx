@@ -20,6 +20,7 @@ import PublicStudentProfile from './pages/student/PublicProfile';
 import PublicCompanyProfile from './pages/company/PublicProfile';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminLogin from './pages/auth/AdminLogin';
+import AllStudents from './pages/admin/allStudents';
 
 function App() {
   return (
@@ -42,10 +43,11 @@ function App() {
               <Route path="/company/dashboard" element={<CompanyDashboard />} />
               <Route path="/company/profile" element={<CompanyProfile  />} />
               <Route path="/company/application" element={<ApplicationsPage/>} />
-              <Route path="/student/publicprofile" element={<PublicStudentProfile />} />
+              <Route path="/student/publicprofile/:id" element={<PublicStudentProfile />} />
               <Route path="/comapny/publicprofile/:id" element={<PublicCompanyProfile />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/adminlogin" element={<AdminLogin/>} />
+              <Route path="/allStudents" element={<AllStudents />} />
             </Routes>
           </main>
           <Footer />
