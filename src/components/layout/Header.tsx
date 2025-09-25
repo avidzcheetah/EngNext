@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, User, LogOut, Settings } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, User, LogOut, Settings } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Header: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -11,20 +11,20 @@ const Header: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   const getDashboardLink = () => {
-    if (!user) return '/';
+    if (!user) return "/";
     switch (user.role) {
-      case 'student':
-        return '/student/dashboard';
-      case 'company':
-        return '/company/dashboard';
-      case 'admin':
-        return '/admin/dashboard';
+      case "student":
+        return "/student/dashboard";
+      case "company":
+        return "/company/dashboard";
+      case "admin":
+        return "/admin/dashboard";
       default:
-        return '/';
+        return "/";
     }
   };
 
@@ -37,16 +37,18 @@ const Header: React.FC = () => {
             <Link to="/" className="flex items-center space-x-3 group">
               <div className="flex items-center space-x-2">
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <img
-                  src= "https://i.postimg.cc/sMHMSGWy/engnextlogo.png"
-                  alt= "EngNext logo"
-                />
+                  <img
+                    src="https://i.postimg.cc/sMHMSGWy/engnextlogo.png"
+                    alt="EngNext logo"
+                  />
                 </div>
                 <div className="hidden md:block">
                   <h1 className="text-xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
                     EngNext
                   </h1>
-                  <p className="text-xs text-gray-500">Engineering Your Next Step.</p>
+                  <p className="text-xs text-gray-500">
+                    Engineering Your Next Step.
+                  </p>
                 </div>
               </div>
             </Link>
@@ -54,10 +56,10 @@ const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {['Home', 'About', 'Companies', 'Contact'].map((item) => (
+            {["Home", "About", "Companies", "Students", "Contact"].map((item) => (
               <Link
                 key={item}
-                to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
                 className="relative text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium after:content-[''] after:absolute after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-blue-600 after:to-purple-600 after:left-0 after:-bottom-1 hover:after:w-full after:transition-all after:duration-300"
               >
                 {item}
@@ -67,19 +69,21 @@ const Header: React.FC = () => {
             {isAuthenticated ? (
               <div className="relative">
                 <button
-            onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-           className="flex items-center bg-blue-50 rounded-full p-1 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 border border-transparent hover:border-blue-200 transition-all duration-300 shadow-sm"
->
-  {user?.profilePicture ? (
-    <img
-      src={user.profilePicture}
-      alt="Profile"
-      className="w-8 h-8 rounded-full object-cover ring-2 ring-white"
-    />
-  ) : (
-    <User className="w-8 h-8 text-blue-600" />
-  )}
-</button>
+                  onClick={() =>
+                    setIsProfileDropdownOpen(!isProfileDropdownOpen)
+                  }
+                  className="flex items-center bg-blue-50 rounded-full p-1 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 border border-transparent hover:border-blue-200 transition-all duration-300 shadow-sm"
+                >
+                  {user?.profilePicture ? (
+                    <img
+                      src={user.profilePicture}
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full object-cover ring-2 ring-white"
+                    />
+                  ) : (
+                    <User className="w-8 h-8 text-blue-600" />
+                  )}
+                </button>
 
                 {isProfileDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 py-1 animate-fadeIn">
@@ -125,7 +129,11 @@ const Header: React.FC = () => {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-700 hover:text-blue-600 transition-colors duration-200"
             >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
@@ -134,10 +142,10 @@ const Header: React.FC = () => {
         {isMenuOpen && (
           <div className="md:hidden pb-4 animate-slideDown">
             <div className="flex flex-col space-y-2">
-              {['Home', 'About', 'Companies', 'Contact'].map((item) => (
+              {["Home", "About", "Companies", "Students", "Contact"].map((item) => (
                 <Link
                   key={item}
-                  to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                  to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
                   className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition-all duration-200"
                   onClick={() => setIsMenuOpen(false)}
                 >

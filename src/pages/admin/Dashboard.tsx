@@ -596,7 +596,7 @@ const AdminDashboard: React.FC = () => {
                 <Button
                   fullWidth
                   variant="outline"
-                  onClick={() => navigate("/allStudents")}
+                  onClick={() => navigate("/students")}
                   className="text-sm"
                 >
                   <Users className="w-4 h-4 mr-2" />
