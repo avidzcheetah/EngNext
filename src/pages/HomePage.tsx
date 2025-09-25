@@ -148,28 +148,26 @@ const HomePage: React.FC = () => {
                       className="flex-none"
                       style={{ width: '240px' }}
                     >
-                      <Card className="p-6 text-center h-32 flex flex-col justify-center items-center bg-white hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-200 rounded-xl">
-                        <div className="flex flex-col items-center justify-center h-full">
-                          <img
-                            src={profile.logoUrl}
-                            alt={profile.companyName}
-                            className="h-12 w-auto max-w-full object-contain mb-3"
-                            style={{ maxHeight: '48px' }}
-                          />
-                          <h3 className="text-sm font-semibold text-gray-800 leading-tight">
-                            <span
-                              style={{
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                lineHeight: '1.3'
+                      <Card className="p-3 text-center h-32 flex flex-col justify-center items-center bg-white hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-200 rounded-xl">
+                        <div className="flex flex-col items-center justify-center h-full w-full">
+                          <div className="flex items-center justify-center" style={{ height: '85%', width: '100%' }}>
+                            <img
+                              src={profile.logoUrl}
+                              alt={profile.companyName}
+                              className="object-contain"
+                              style={{ 
+                                maxHeight: '100%', 
+                                maxWidth: '100%',
+                                height: 'auto',
+                                width: 'auto'
                               }}
-                            >
+                            />
+                          </div>
+                          <div style={{ height: '15%' }} className="flex items-center justify-center w-full">
+                            <h3 className="text-xs font-medium text-gray-500 leading-none truncate w-full text-center">
                               {profile.companyName}
-                            </span>
-                          </h3>
+                            </h3>
+                          </div>
                         </div>
                       </Card>
                     </div>
