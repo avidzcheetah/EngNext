@@ -48,11 +48,12 @@ export const getCV = async (req, res) => {
   try {
     const { id } = req.params; // Application ID
     const application = await Application.findById(id);
-
+    console.log(id);
     if (!application || !application.cv || !application.cv.data) {
+      
       return res.status(404).json({ message: "CV not found" });
     }
-
+    
     res.set("Content-Type", application.cv.contentType);
     res.set("Content-Disposition", `inline; filename="${application.cv.filename}"`);
     res.send(application.cv.data);

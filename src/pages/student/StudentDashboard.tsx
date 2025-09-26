@@ -46,27 +46,30 @@ const StudentDashboard: React.FC = () => {
   const [maximumApplications, setMaximumApplications] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  interface Application {
-    studentId: string;
-    companyId: string;
-    studentName: string;
-    email: string;
-    internshipTitle: string;
-    appliedDate: string;
-    status: string;
-    skills: string[];
-    gpa: number;
-    internshipId: string;
-    coverLetter: string;
-    interestLevel: number;
-    companyName: string;
-    usedCustomCV?: boolean;
-  }
+interface Application {
+  studentId: string;
+  companyId: string;
+  studentName: string;
+  email: string;
+  internshipTitle: string;
+  appliedDate: string;
+  status: string;
+  skills: string[];
+  gpa: number;
+  internshipId: string;
+  coverLetter: string;
+  interestLevel: number;
+  companyName: string;
+  useProfileCV:boolean
+}
+
 
   const [applications, setApplications] = useState<Application[]>([]);
   const { user, isAuthenticated } = useAuth();
   const id = user?.id;
-
+ const handleNavigateClick=(id:string)=>{
+    navigate(`/company/PublicProfile/${id}`);
+ }
   const handleCVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -182,6 +185,10 @@ const StudentDashboard: React.FC = () => {
     }
   };
 
+
+
+  
+
   const fetchProfilePicture = async () => {
     try {
       if (!id) throw new Error('User ID is missing');
@@ -256,98 +263,112 @@ const StudentDashboard: React.FC = () => {
   };
 
   const handleSubmitApplication = async () => {
-    if (!isAuthenticated || !id) {
-      alert("Please log in to apply for this position.");
-      navigate('/login');
-      return;
-    }
-    if (Number(profileData.ApplicationsSent) >= maximumApplications) {
-      alert("You have reached the maximum number of job applications allowed.");
-      return;
-    }
-    if (!useProfileCV && !uploadedCV) {
-      alert("Please upload a new CV for this position.");
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      const newApplication: Application = {
-        studentId: id,
-        companyId: fData?.find((item) => item._id === selectedInternship)?.companyId || "",
-        studentName: `${profileData.firstName} ${profileData.lastName}`,
-        email: profileData.email,
-        internshipTitle: fData?.find((item) => item._id === selectedInternship)?.title || "",
-        appliedDate: new Date().toISOString(),
-        status: "pending",
-        skills: profileData.skills,
-        gpa: profileData.gpa,
-        internshipId: selectedInternship || "",
-        coverLetter: coverLetter,
-        interestLevel: interestLevel,
-        companyName: fData?.find((item) => item._id === selectedInternship)?.companyName || "",
-        usedCustomCV: !useProfileCV,
-      };
+  if (!isAuthenticated || !id) {
+    alert("Please log in to apply for this position.");
+    navigate('/login');
+    return;
+  }
 
-      let res;
-      if (uploadedCV) {
-        const formData = new FormData();
-        formData.append('applicationData', JSON.stringify(newApplication));
-        formData.append('cvFile', uploadedCV);
-        res = await fetch(`${baseUrl}/api/applicationRoutes/createApplication`, {
-          method: "POST",
-          body: formData,
-        });
-      } else {
-        res = await fetch(`${baseUrl}/api/applicationRoutes/createApplication`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newApplication),
-        });
-      }
+  if (Number(profileData.ApplicationsSent) >= maximumApplications) {
+    alert("You have reached the maximum number of job applications allowed.");
+    return;
+  }
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        alert("You have already applied for this");
-        return;
-      }
+  if (!useProfileCV && !uploadedCV) {
+    alert("Please upload a new CV for this position.");
+    return;
+  }
 
-      const data = await res.json();
-      console.log("Application submitted to backend:", data);
+  setIsSubmitting(true);
 
-      const res2 = await fetch(`${baseUrl}/api/studentRoutes/incrementApplicationsSent/${id}`, {
-        method: "PUT",
+  try {
+    const newApplication: Application = {
+      studentId: id,
+      companyId: fData?.find((item) => item._id === selectedInternship)?.companyId || "",
+      studentName: `${profileData.firstName} ${profileData.lastName}`,
+      email: profileData.email,
+      internshipTitle: fData?.find((item) => item._id === selectedInternship)?.title || "",
+      appliedDate: new Date().toISOString(),
+      status: "pending",
+      skills: profileData.skills,
+      gpa: profileData.gpa,
+      internshipId: selectedInternship || "",
+      coverLetter: coverLetter,
+      interestLevel: interestLevel,
+      companyName: fData?.find((item) => item._id === selectedInternship)?.companyName || "",
+      useProfileCV:useProfileCV
+    };
+
+    let res;
+
+    if (uploadedCV) {
+      // Send as FormData
+      const formData = new FormData();
+      Object.entries(newApplication).forEach(([key, value]) => {
+        formData.append(key, value !== undefined && value !== null ? value.toString() : "");
+      });
+      formData.append('cv', uploadedCV);
+
+      res = await fetch(`${baseUrl}/api/applicationRoutes/createApplication`, {
+        method: "POST",
+        body: formData,
+      });
+    } else {
+      // Send as JSON
+      res = await fetch(`${baseUrl}/api/applicationRoutes/createApplication`, {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newApplication),
       });
-
-      if (res2.ok) {
-        const data2 = await res2.json();
-        console.log("Application sent incremented", data2);
-        setApplicationsInfo(data2);
-        setProfileData((prev) => ({
-          ...prev,
-          ApplicationsSent: data2.ApplicationsSent || prev.ApplicationsSent,
-        }));
-        fetchTotalNumberOfApplicableInternshipsperStudent();
-      } else {
-        console.warn("Incrementing application sent failed");
-      }
-
-      setApplications((prev) => [...prev, data]);
-      alert("Applied successfully");
-      setShowApplicationModal(false);
-
-      setUploadedCV(null);
-      setCoverLetter('');
-      setInterestLevel(60);
-      setUseProfileCV(true);
-    } catch (error) {
-      console.error(error);
-      setError(error instanceof Error ? error.message : "Something went wrong");
-    } finally {
-      setIsSubmitting(false);
     }
-  };
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      alert("You have already applied for this");
+      return;
+    }
+
+    const data = await res.json();
+    console.log("Application submitted to backend:", data);
+
+    // Increment ApplicationsSent
+    const res2 = await fetch(`${baseUrl}/api/studentRoutes/incrementApplicationsSent/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newApplication),
+    });
+
+    if (res2.ok) {
+      const data2 = await res2.json();
+      console.log("Application sent incremented", data2);
+      setApplicationsInfo(data2);
+      setProfileData((prev) => ({
+        ...prev,
+        ApplicationsSent: data2.ApplicationsSent || prev.ApplicationsSent,
+      }));
+      fetchTotalNumberOfApplicableInternshipsperStudent();
+    } else {
+      console.warn("Incrementing application sent failed");
+    }
+
+    setApplications((prev) => [...prev, data]);
+    alert("Applied successfully");
+    setShowApplicationModal(false);
+
+    // Reset form
+    setUploadedCV(null);
+    setCoverLetter('');
+    setInterestLevel(60);
+    setUseProfileCV(true);
+
+  } catch (error) {
+    console.error(error);
+    setError(error instanceof Error ? error.message : "Something went wrong");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+;
 
   const filteredInternships = fData?.filter((internship) => {
     const title = internship.title ?? "";
@@ -611,12 +632,14 @@ const StudentDashboard: React.FC = () => {
                         </div>
 
                         <div className="flex justify-end space-x-3">
-                          <Link to={`/company/PublicProfile/${internship.companyId}`}>
-                            <Button variant="outline" className="hover:bg-gray-80 rounded-lg transition-all">
-                              View Company
-                            </Button>
-                          </Link>
-                          <Button
+                          
+<Link 
+  to={`/comapny/PublicProfile/${internship.companyId}`} 
+  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 hover:text-gray-100 transition-colors"
+>
+  View Company
+</Link>
+               <Button
                             onClick={() => handleApply(internship._id || "")}
                             className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02] transition rounded-lg"
                             disabled={isAtLimit}

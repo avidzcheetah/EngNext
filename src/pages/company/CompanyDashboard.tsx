@@ -232,6 +232,8 @@ interface Application {
   coverLetter: string;
   interestLevel?: number;
   __v: number;
+  useProfileCV?: boolean;
+  
 }
 
   const [applications, setApplications] = useState<Application[]>([]);
@@ -385,6 +387,43 @@ interface Application {
     subfield: "",
     phoneNo: "",
   });
+  
+
+ 
+  const downloadCV = async (id: string) => {
+  try {
+
+    const res = await fetch(`${baseUrl}/api/applicationRoutes/getCV/${id}`);
+
+    if (!res.ok) {
+      alert("CV not found or failed to download");
+      return;
+    }
+
+    const blob = await res.blob(); // convert response to Blob
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+
+    // Try to get filename from response headers
+    const disposition = res.headers.get("Content-Disposition");
+    let filename = "cv.pdf";
+    if (disposition && disposition.includes("filename=")) {
+      filename = disposition.split("filename=")[1].replace(/"/g, "");
+    }
+
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url); // clean up
+  } catch (error) {
+    console.error("Error downloading CV:", error);
+    alert("Error downloading CV");
+  }
+};
+
 
   useEffect(() => {
     if (companyProfile) {
@@ -624,6 +663,16 @@ interface Application {
     }
   };
 
+ const DOWNLOADCV =async(Fid1:string,Sid2:string,value:boolean)=>{
+    if(!value){
+    downloadCV(Fid1);
+    }else{
+      handleDownloadCV(Sid2);
+    }
+  }
+
+
+
   const handleReject = async (ID: string) => {
     setIsUpdatingApplication(true);
     try {
@@ -662,7 +711,7 @@ interface Application {
   const handleDownloadCV = async (id: string) => {
     try {
       const response = await fetch(
-        `${baseUrl}/api/studentRoutes/getCV/${id}`
+        `${baseUrl}/api/StudentRoutes/getCV/${id}`
       );
 
       if (!response.ok) {
@@ -928,7 +977,7 @@ interface Application {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDownloadCV(forms.studentId)}
+                      onClick={() => DOWNLOADCV(forms._id, forms.studentId, forms.useProfileCV ?? true)}
                     >
                       <Download className="w-4 h-4 mr-1" /> Download CV
                     </Button>

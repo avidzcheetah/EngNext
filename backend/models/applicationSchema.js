@@ -67,6 +67,9 @@ const applicationSchema = new mongoose.Schema(
     filename: String,
     uploadDate: { type: Date, default: Date.now }
   },
+  useProfileCV:{
+    type:Boolean
+  }
 
   },
   { timestamps: true } // adds createdAt & updatedAt

@@ -22,9 +22,11 @@ interface Application {
   gpa: number;
   createdAt: string;
   updatedAt: string;
-  __v: number;
-  coverLetter:string;
+  coverLetter: string;
   interestLevel?: number;
+  __v: number;
+  useProfileCV?: boolean;
+  
 }
 
 interface CompanyProfile {
@@ -76,6 +78,82 @@ const ApplicationsPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+   const downloadCV = async (id: string) => {
+  try {
+
+    const res = await fetch(`${baseUrl}/api/applicationRoutes/getCV/${id}`);
+
+    if (!res.ok) {
+      alert("CV not found or failed to download");
+      return;
+    }
+
+    const blob = await res.blob(); // convert response to Blob
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+
+    // Try to get filename from response headers
+    const disposition = res.headers.get("Content-Disposition");
+    let filename = "cv.pdf";
+    if (disposition && disposition.includes("filename=")) {
+      filename = disposition.split("filename=")[1].replace(/"/g, "");
+    }
+
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url); // clean up
+  } catch (error) {
+    console.error("Error downloading CV:", error);
+    alert("Error downloading CV");
+  }
+};
+
+ const DOWNLOADCV =async(Fid1:string,Sid2:string,value:boolean)=>{
+    if(!value){
+    downloadCV(Fid1);
+    }else{
+      handleDownloadCV(Sid2);
+    }
+  }
+
+   const handleDownloadCV = async (id: string) => {
+    try {
+      const response = await fetch(
+        `${baseUrl}/api/StudentRoutes/getCV/${id}`
+      );
+
+      if (!response.ok) {
+        throw new Error("CV download failed");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+
+      const disposition = response.headers.get("Content-Disposition");
+      let filename = "CV.pdf";
+      if (disposition && disposition.includes("filename=")) {
+        filename = disposition.split("filename=")[1].replace(/"/g, "");
+      }
+      a.download = filename;
+
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : String(error));
+    }
+  };
+
 
   useEffect(() => {
     fetchApplications();
@@ -197,42 +275,7 @@ const ApplicationsPage: React.FC = () => {
     navigate("/student/PublicProfile", { state: { id: studentId } });
   };
 
-  const handleDownloadCV = async (id: string) => {
-    try {
-      setCvLoadingId(id); // NEW start loading
-
-      const response = await fetch(
-        `${baseUrl}/api/studentRoutes/getCV/${id}`
-      );
-
-      if (!response.ok) {
-        throw new Error("CV download failed");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-
-      const disposition = response.headers.get("Content-Disposition");
-      let filename = "CV.pdf";
-      if (disposition && disposition.includes("filename=")) {
-        filename = disposition.split("filename=")[1].replace(/"/g, "");
-      }
-      a.download = filename;
-
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-
-    } catch (error) {
-      console.error(error);
-      alert(error instanceof Error ? error.message : String(error));
-    } finally {
-      setCvLoadingId(null); // NEW stop loading
-    }
-  };
+  
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -325,7 +368,7 @@ const ApplicationsPage: React.FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleDownloadCV(app.studentId)}
+                    onClick={() => DOWNLOADCV(app._id, app.studentId, app.useProfileCV ?? true)}
                     disabled={cvLoadingId === app.studentId} // NEW
                   >
                     {cvLoadingId === app.studentId ? (
