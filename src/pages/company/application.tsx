@@ -272,7 +272,7 @@ const ApplicationsPage: React.FC = () => {
 
   const handleViewProfile = (studentId: string) => {
     incrementProfileView(studentId);
-    navigate("/student/PublicProfile", { state: { id: studentId } });
+    navigate("/student/PublicProfile/:id", { state: { id: studentId } });
   };
 
   
