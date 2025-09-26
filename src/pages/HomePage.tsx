@@ -111,35 +111,6 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Distinguished Departments</h2>
-            <p className="text-xl text-gray-600">
-              Learn from industry experts and renowned academics in Electrical and Electronic Engineering and Computer Engineering.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {lecturers.map((lecturer) => (
-              <Card key={lecturer.id} className="p-6 text-center">
-                <img
-                  src={lecturer.photo}
-                  alt={lecturer.name}
-                  className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
-                />
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">{lecturer.name}</h3>
-                <p className="text-blue-600 font-medium text-sm mb-2">{lecturer.title}</p>
-                <p className="text-gray-600 text-sm">{lecturer.specialization}</p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      */}
-
       {/* Partner Companies Section */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -161,27 +132,68 @@ const HomePage: React.FC = () => {
             <p className="text-center text-red-500">{error}</p>
           ) : (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                {companyProfiles?.slice(0, 4).map((profile) => (
-                  <Card key={profile.id} className="p-6 text-center">
-                    <img
-                      src={profile.logoUrl}
-                      alt={profile.companyName}
-                      className="h-16 w-auto mx-auto mb-4 object-contain"
-                    />
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {profile.companyName}
-                    </h3>
-                  </Card>
-                ))}
+              <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-gray-50 to-white p-6 shadow-sm">
+                <div
+                  className="flex gap-6"
+                  style={{
+                    animation: 'slide-left 25s linear infinite',
+                    width: 'fit-content'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.animationPlayState = 'paused'}
+                  onMouseLeave={(e) => e.currentTarget.style.animationPlayState = 'running'}
+                >
+                  {[...companyProfiles, ...companyProfiles].map((profile, index) => (
+                    <div
+                      key={`${profile.id}-${index}`}
+                      className="flex-none"
+                      style={{ width: '240px' }}
+                    >
+                      <Card className="p-3 text-center h-32 flex flex-col justify-center items-center bg-white hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-200 rounded-xl">
+                        <div className="flex flex-col items-center justify-center h-full w-full">
+                          <div className="flex items-center justify-center" style={{ height: '85%', width: '100%' }}>
+                            <img
+                              src={profile.logoUrl}
+                              alt={profile.companyName}
+                              className="object-contain"
+                              style={{ 
+                                maxHeight: '100%', 
+                                maxWidth: '100%',
+                                height: 'auto',
+                                width: 'auto'
+                              }}
+                            />
+                          </div>
+                          <div style={{ height: '15%' }} className="flex items-center justify-center w-full">
+                            <h3 className="text-xs font-medium text-gray-500 leading-none truncate w-full text-center">
+                              {profile.companyName}
+                            </h3>
+                          </div>
+                        </div>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
               </div>
+              
+              <style>
+                {`
+                  @keyframes slide-left {
+                    0% {
+                      transform: translateX(0);
+                    }
+                    100% {
+                      transform: translateX(-50%);
+                    }
+                  }
+                `}
+              </style>
 
               <div className="text-center mt-12">
                 <Button
                   size="lg"
                   onClick={handleNavigate}
                   disabled={loading || companyProfiles.length === 0}
-                  className={`${
+                  className={`bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 transition-all duration-300 ${
                     loading || companyProfiles.length === 0
                       ? "opacity-50 cursor-not-allowed"
                       : ""
@@ -202,7 +214,7 @@ const HomePage: React.FC = () => {
             Ready to Start Your Journey?
           </h2>
           <p className="text-xl mb-8">
-            Join hundreds of Engineering students who have found their perfect
+            Join the community to find the perfect
             job match through EngNext.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
