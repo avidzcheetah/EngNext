@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation} from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import emailjs from "emailjs-com";
-
-import {
-  Eye,
-  Download,
-} from "lucide-react";
+import { Eye, Download, Phone, Loader2 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 
@@ -15,6 +11,7 @@ interface Application {
   companyId: string;
   studentName: string;
   email: string;
+  phone?: string;
   internshipTitle: string;
   appliedDate: string;
   status: string;
@@ -26,7 +23,6 @@ interface Application {
   interestLevel?: number;
   __v: number;
   useProfileCV?: boolean;
-  
 }
 
 interface CompanyProfile {
@@ -41,36 +37,72 @@ const ApplicationsPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [applications, setApplications] = useState<Application[]>([]);
-  const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(
+    null
+  );
+  const [jobTitle, setJobTitle] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [coverletter,setCoverletter]=useState(false);
-  const [coverletterstudentID,setcoverletterstudentId]=useState("");
-  const [coverletterID,setcoverletterID]=useState("");
-
-  const [cvLoadingId, setCvLoadingId] = useState<string | null>(null); // NEW
-
-  const handleViewCoverletter=(id :string,id2:string)=>{
-    setCoverletter(true);
-    setcoverletterstudentId(id);
-    setcoverletterID(id2);
-  }
-
-  const handleCancelCoverLetter =()=>{
-    setCoverletter(false);
-    setcoverletterstudentId("");
-  }
+  const [coverletter, setCoverletter] = useState(false);
+  const [coverletterstudentID, setCoverletterstudentId] = useState("");
+  const [coverletterID, setCoverletterID] = useState("");
+  const [downloadingCV, setDownloadingCV] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   const fetchApplications = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const res = await fetch(`${baseUrl}/api/applicationRoutes/fetchByInternshipId/${internshipId}`);
+      // Fetch applications
+      const res = await fetch(
+        `${baseUrl}/api/applicationRoutes/fetchByInternshipId/${internshipId}`
+      );
       if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
+      const applicationData = await res.json();
 
-      const data = await res.json();
-      setApplications(data);
+      // Fetch phone numbers and company details
+      const applicationsWithPhone = await Promise.all(
+        applicationData.map(async (app: Application) => {
+          try {
+            const studentRes = await fetch(
+              `${baseUrl}/api/studentRoutes/getStudentById/${app.studentId}`
+            );
+            if (!studentRes.ok)
+              throw new Error(
+                `Error fetching student data: ${studentRes.status}`
+              );
+            const studentData = await studentRes.json();
+            return { ...app, phone: studentData.phone || "" };
+          } catch (err) {
+            console.error(
+              `Error fetching phone for student ${app.studentId}:`,
+              err
+            );
+            return { ...app, phone: "" };
+          }
+        })
+      );
+
+      setApplications(applicationsWithPhone);
+
+      // Fetch job title
+      const jobRes = await fetch(
+        `${baseUrl}/api/InternshipRoutes/getInternshipById/${internshipId}`
+      );
+      if (!jobRes.ok) throw new Error(`Error fetching job: ${jobRes.status}`);
+      const jobData = await jobRes.json();
+      setJobTitle(jobData.title || "");
+
+      // Fetch company profile
+      const companyRes = await fetch(
+        `${baseUrl}/api/companyRoutes/getById/${applicationData[0]?.companyId}`
+      );
+      if (!companyRes.ok)
+        throw new Error(`Error fetching company: ${companyRes.status}`);
+      const companyData = await companyRes.json();
+      setCompanyProfile(companyData.company);
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Something went wrong");
@@ -79,88 +111,78 @@ const ApplicationsPage: React.FC = () => {
     }
   };
 
-   const downloadCV = async (id: string) => {
-  try {
-
-    const res = await fetch(`${baseUrl}/api/applicationRoutes/getCV/${id}`);
-
-    if (!res.ok) {
-      alert("CV not found or failed to download");
-      return;
-    }
-
-    const blob = await res.blob(); // convert response to Blob
-    const url = window.URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-
-    // Try to get filename from response headers
-    const disposition = res.headers.get("Content-Disposition");
-    let filename = "cv.pdf";
-    if (disposition && disposition.includes("filename=")) {
-      filename = disposition.split("filename=")[1].replace(/"/g, "");
-    }
-
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url); // clean up
-  } catch (error) {
-    console.error("Error downloading CV:", error);
-    alert("Error downloading CV");
-  }
-};
-
- const DOWNLOADCV =async(Fid1:string,Sid2:string,value:boolean)=>{
-    if(!value){
-    downloadCV(Fid1);
-    }else{
-      handleDownloadCV(Sid2);
-    }
-  }
-
-   const handleDownloadCV = async (id: string) => {
+  const downloadCV = async (id: string) => {
+    setDownloadingCV((prev) => ({ ...prev, [id]: true }));
     try {
-      const response = await fetch(
-        `${baseUrl}/api/StudentRoutes/getCV/${id}`
-      );
+      const res = await fetch(`${baseUrl}/api/applicationRoutes/getCV/${id}`);
+      if (!res.ok) {
+        throw new Error("CV not found or failed to download");
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      const disposition = res.headers.get("Content-Disposition");
+      let filename = "cv.pdf";
+      if (disposition && disposition.includes("filename=")) {
+        filename = disposition.split("filename=")[1].replace(/"/g, "");
+      }
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading CV:", error);
+      setError("Error downloading CV");
+    } finally {
+      setDownloadingCV((prev) => ({ ...prev, [id]: false }));
+    }
+  };
 
+  const handleDownloadCV = async (id: string) => {
+    setDownloadingCV((prev) => ({ ...prev, [id]: true }));
+    try {
+      const response = await fetch(`${baseUrl}/api/studentRoutes/getCV/${id}`);
       if (!response.ok) {
         throw new Error("CV download failed");
       }
-
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-
       const disposition = response.headers.get("Content-Disposition");
       let filename = "CV.pdf";
       if (disposition && disposition.includes("filename=")) {
         filename = disposition.split("filename=")[1].replace(/"/g, "");
       }
       a.download = filename;
-
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-
     } catch (error) {
-      console.error(error);
-      alert(error instanceof Error ? error.message : String(error));
+      console.error("Error downloading CV:", error);
+      setError("Error downloading CV");
+    } finally {
+      setDownloadingCV((prev) => ({ ...prev, [id]: false }));
     }
   };
 
+  const DOWNLOADCV = async (Fid1: string, Sid2: string, value: boolean) => {
+    if (!value) {
+      await downloadCV(Fid1);
+    } else {
+      await handleDownloadCV(Sid2);
+    }
+  };
 
   useEffect(() => {
     fetchApplications();
   }, [internshipId]);
 
   const sendEmail = (studentId: string, templateId: string) => {
-    const app = applications.find(app => app._id === studentId);
+    const app = applications.find((app) => app._id === studentId);
     if (!app) return;
 
     emailjs
@@ -179,23 +201,26 @@ const ApplicationsPage: React.FC = () => {
         "xoBLJNkyjseJaPApW"
       )
       .then(
-        result => {
+        (result) => {
           console.log("✅ Email sent:", result.text);
-          alert("Email sent successfully!");
+          setError("");
         },
-        error => {
+        (error) => {
           console.error("❌ Email failed:", error.text);
-          alert("Failed to send email.");
+          setError("Failed to send email.");
         }
       );
   };
 
   const handleAccept = async (ID: string) => {
     try {
-      const res = await fetch(`${baseUrl}/api/applicationRoutes/acceptApplication/${ID}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-      });
+      const res = await fetch(
+        `${baseUrl}/api/applicationRoutes/acceptApplication/${ID}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
@@ -205,19 +230,25 @@ const ApplicationsPage: React.FC = () => {
       await res.json();
       fetchApplications();
       sendEmail(ID, "template_mogx38j");
-      sendMessageToStudent(ID, `${companyProfile?.companyName} has accepted your application`);
+      sendMessageToStudent(
+        ID,
+        `${companyProfile?.companyName} has accepted your application`
+      );
     } catch (error) {
       console.error(error);
-      alert(error instanceof Error ? error.message : "Something went wrong");
+      setError(error instanceof Error ? error.message : "Something went wrong");
     }
   };
 
   const handleReject = async (ID: string) => {
     try {
-      const res = await fetch(`${baseUrl}/api/applicationRoutes/rejectApplication/${ID}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-      });
+      const res = await fetch(
+        `${baseUrl}/api/applicationRoutes/rejectApplication/${ID}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
@@ -227,20 +258,23 @@ const ApplicationsPage: React.FC = () => {
       await res.json();
       fetchApplications();
       sendEmail(ID, "template_06tm1fa");
-      sendMessageToStudent(ID, `${companyProfile?.companyName} has rejected your application`);
+      sendMessageToStudent(
+        ID,
+        `${companyProfile?.companyName} has rejected your application`
+      );
     } catch (error) {
       console.error(error);
-      alert(error instanceof Error ? error.message : "Something went wrong");
+      setError(error instanceof Error ? error.message : "Something went wrong");
     }
   };
 
   const sendMessageToStudent = async (ID: string, message: string) => {
-    const studentID = applications.find(app => app._id === ID)?.studentId;
+    const studentID = applications.find((app) => app._id === ID)?.studentId;
     if (!studentID) return;
 
     try {
       const res = await fetch(
-        `${baseUrl}/studentRoutes/addRecentNotification/${studentID}`,
+        `${baseUrl}/api/studentRoutes/addRecentNotification/${studentID}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -255,15 +289,16 @@ const ApplicationsPage: React.FC = () => {
   };
 
   const incrementProfileView = async (ID: string) => {
-    const studentID = applications.find(app => app._id === ID)?.studentId;
+    const studentID = applications.find((app) => app._id === ID)?.studentId;
     if (!studentID) return;
 
     try {
       const res = await fetch(
-       `${baseUrl}/studentRoutes/incrementProfileView/${studentID}`,
+        `${baseUrl}/api/studentRoutes/incrementProfileView/${studentID}`,
         { method: "PUT", headers: { "Content-Type": "application/json" } }
       );
-      if (!res.ok) throw new Error(`Error incrementing profile view: ${res.status}`);
+      if (!res.ok)
+        throw new Error(`Error incrementing profile view: ${res.status}`);
       console.log("Profile view incremented successfully");
     } catch (error) {
       console.error(error);
@@ -272,10 +307,20 @@ const ApplicationsPage: React.FC = () => {
 
   const handleViewProfile = (studentId: string) => {
     incrementProfileView(studentId);
-    navigate("/student/PublicProfile/:id", { state: { id: studentId } });
+    navigate(`/student/PublicProfile/${studentId}`);
   };
 
-  
+  const handleViewCoverletter = (id: string, id2: string) => {
+    setCoverletter(true);
+    setCoverletterstudentId(id);
+    setCoverletterID(id2);
+  };
+
+  const handleCancelCoverLetter = () => {
+    setCoverletter(false);
+    setCoverletterstudentId("");
+    setCoverletterID("");
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -290,37 +335,79 @@ const ApplicationsPage: React.FC = () => {
     }
   };
 
-  if (loading) return <p>Loading applications...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
-
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Applications</h1>
+      <h1 className="text-2xl font-bold mb-6">
+        {loading ? (
+          <span className="flex items-center gap-2">
+            <Loader2 className="w-6 h-6 animate-spin" />
+            Loading Applications...
+          </span>
+        ) : (
+          `Applications - ${jobTitle} - ${
+            companyProfile?.companyName || "Company"
+          }`
+        )}
+      </h1>
 
-      {applications.length === 0 ? (
-        <p>No applications found.</p>
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center space-x-2">
+          <span className="text-red-800">{error}</span>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mr-2" />
+          <span className="text-gray-600">Loading applications...</span>
+        </div>
+      ) : applications.length === 0 ? (
+        <Card className="p-6 text-center border border-gray-100 shadow-sm bg-white rounded-xl">
+          <p className="text-gray-600">No applications found.</p>
+        </Card>
       ) : (
         <div className="space-y-6">
           {applications
-            .sort((a, b) => a.status.localeCompare(b.status))
-            .map(app => (
-              <Card key={app._id} className="p-6 hover:shadow-lg transition rounded-xl bg-white">
+            .sort(
+              (a, b) =>
+                new Date(b.appliedDate).getTime() -
+                new Date(a.appliedDate).getTime()
+            )
+            .map((app) => (
+              <Card
+                key={app._id}
+                className="p-6 hover:shadow-lg transition rounded-xl bg-white"
+              >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center text-blue-700 font-semibold">
                       {app.studentName
                         .split(" ")
-                        .map(n => n[0])
+                        .map((n) => n[0])
                         .join("")}
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{app.studentName}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {app.studentName}
+                      </h3>
                       <p className="text-gray-600">{app.email}</p>
-                      <p className="text-sm text-blue-600">{app.internshipTitle}</p>
+                      {app.phone && (
+                        <p className="text-gray-600">
+                          <Phone className="w-4 h-4 inline mr-1" />
+                          {app.phone}
+                        </p>
+                      )}
+                      <p className="text-sm text-blue-600">
+                        {app.internshipTitle}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className={`px-3 py-1 rounded-full text-sm ${getStatusBadge(app.status)}`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm ${getStatusBadge(
+                        app.status
+                      )}`}
+                    >
                       {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                     </span>
                     <p className="text-xs text-gray-500 mt-1">
@@ -338,7 +425,9 @@ const ApplicationsPage: React.FC = () => {
 
                 <div className="grid md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Skills:</h4>
+                    <h4 className="text-sm font-medium text-gray-900 mb-2">
+                      Skills:
+                    </h4>
                     <div className="flex flex-wrap gap-2">
                       {app.skills.map((skill, idx) => (
                         <span
@@ -351,8 +440,12 @@ const ApplicationsPage: React.FC = () => {
                     </div>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Intrest Level:</h4>
-                    <p className="text-lg font-semibold text-green-600">{app.interestLevel}%</p>
+                    <h4 className="text-sm font-medium text-gray-900 mb-2">
+                      Interest Level:
+                    </h4>
+                    <p className="text-lg font-semibold text-green-600">
+                      {app.interestLevel}%
+                    </p>
                   </div>
                 </div>
 
@@ -368,12 +461,19 @@ const ApplicationsPage: React.FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => DOWNLOADCV(app._id, app.studentId, app.useProfileCV ?? true)}
-                    disabled={cvLoadingId === app.studentId} // NEW
+                    className="hover:scale-105 transition"
+                    onClick={() =>
+                      DOWNLOADCV(
+                        app._id,
+                        app.studentId,
+                        app.useProfileCV ?? true
+                      )
+                    }
+                    disabled={downloadingCV[app._id]}
                   >
-                    {cvLoadingId === app.studentId ? (
+                    {downloadingCV[app._id] ? (
                       <>
-                        <span className="animate-spin w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full mr-2"></span>
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
                         Downloading...
                       </>
                     ) : (
@@ -385,11 +485,13 @@ const ApplicationsPage: React.FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleViewCoverletter(app.studentId,app._id)}
+                    className="hover:scale-105 transition"
+                    onClick={() =>
+                      handleViewCoverletter(app.studentId, app._id)
+                    }
                   >
-                    <Download className="w-4 h-4 mr-1" /> View Cover Letter
+                    <Eye className="w-4 h-4 mr-1" /> View Cover Letter
                   </Button>
-
                   <Button
                     size="sm"
                     className="bg-green-600 hover:bg-green-700 text-white"
@@ -397,7 +499,11 @@ const ApplicationsPage: React.FC = () => {
                   >
                     Accept
                   </Button>
-                  <Button variant="danger" size="sm" onClick={() => handleReject(app._id)}>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => handleReject(app._id)}
+                  >
                     Reject
                   </Button>
                 </div>
@@ -405,23 +511,20 @@ const ApplicationsPage: React.FC = () => {
             ))}
         </div>
       )}
-      
+
       {coverletter && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
             <h3 className="text-xl font-bold mb-6">Cover Letter</h3>
             <div className="space-y-4">
               <p className="text-gray-700 leading-relaxed">
-                {
-                  applications.find(
-                    (app) =>
-                      String(app.studentId) === String(coverletterstudentID) &&
-                      String(app._id) === String(coverletterID)
-                  )?.coverLetter || "No cover letter submitted"
-                }
+                {applications.find(
+                  (app) =>
+                    String(app.studentId) === String(coverletterstudentID) &&
+                    String(app._id) === String(coverletterID)
+                )?.coverLetter || "No cover letter submitted"}
               </p>
             </div>
-
             <div className="flex justify-end mt-6">
               <Button variant="outline" onClick={handleCancelCoverLetter}>
                 Close
