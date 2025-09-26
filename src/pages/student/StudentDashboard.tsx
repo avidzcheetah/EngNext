@@ -675,7 +675,7 @@ interface Application {
                       )}
 
                       <div className="flex justify-end space-x-3">
-                        <Link to={`/company/PublicProfile/${internship.companyId}`}>
+                        <Link to={`/comapny/PublicProfile/${internship.companyId}`}>
                           <Button variant="outline" className="hover:bg-gray-80 rounded-lg transition-all">
                             View Company
                           </Button>
