@@ -664,13 +664,33 @@ interface Application {
                           ))}
                         </div>
                       </div>
-
-                      {!isRelevant && (
-                        <div className="mb-4 flex items-center p-3 bg-red-50 rounded-lg">
-                          <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
-                          <p className="text-sm text-red-700">
-                            This job is not in your department. You cannot apply for this position.
-                          </p>
+{
+  !isRelevant ? (
+    <div className="mb-4 flex items-center p-3 bg-red-50 rounded-lg">
+      <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
+      <p className="text-sm text-red-700">
+        This job is not in your department. You cannot apply for this position.
+      </p>
+    </div>
+  ) : (
+    <div className="flex justify-end space-x-3">
+      <Link
+        to={`/comapny/PublicProfile/${internship.companyId}`}
+        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 hover:text-gray-100 transition-colors"
+      >
+        View Company
+      </Link>
+      <Button
+        onClick={() => handleApply(internship._id || "")}
+        className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02] transition rounded-lg"
+        disabled={isAtLimit}
+      >
+        <Send className="w-4 h-4 mr-2" />
+        Apply Now
+      </Button>
+    </div>
+  )
+}
                         </div>
                       )}
 
