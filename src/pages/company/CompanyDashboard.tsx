@@ -13,6 +13,7 @@ import {
   Loader2,
   CheckCircle,
   X,
+  AlertTriangle,
 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
@@ -32,6 +33,8 @@ const CompanyDashboard: React.FC = () => {
   const [coverletter, setCoverletter] = useState(false);
   const [coverletterstudentID, setcoverletterstudentId] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [deleteJobId, setDeleteJobId] = useState("");
   const [isLoadingApplications, setIsLoadingApplications] = useState(false);
   const [isLoadingJobs, setIsLoadingJobs] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
@@ -513,11 +516,16 @@ interface Application {
     setShowJobModal(true);
   };
 
-  const handleDelete = async (ID: string) => {
+  const handleConfirmDelete = (ID: string) => {
+    setDeleteJobId(ID);
+    setShowDeleteConfirmModal(true);
+  };
+
+  const handleDelete = async () => {
     setIsDeletingJob(true);
     try {
       const res = await fetch(
-        `${baseUrl}/api/InternshipRoutes/deleteInternshipById/${ID}`,
+        `${baseUrl}/api/InternshipRoutes/deleteInternshipById/${deleteJobId}`,
         {
           method: "DELETE",
         }
@@ -532,6 +540,7 @@ interface Application {
 
       alert("Job deleted successfully!");
       fetchJobs();
+      setShowDeleteConfirmModal(false);
     } catch (error) {
       console.error("Delete error:", error);
       alert("Something went wrong while deleting.");
@@ -540,13 +549,17 @@ interface Application {
     }
   };
 
+  const handleCancelDelete = () => {
+    setShowDeleteConfirmModal(false);
+    setDeleteJobId("");
+  };
+
   const handleJobPosition = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsCreatingJob(true);
 
     try {
       const response = await fetch(`${baseUrl}/api/InternshipRoutes/createInternship`, {
-
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -617,7 +630,6 @@ interface Application {
         requirements: [],
         duration: "",
         location: "",
-      
       });
 
     } catch (error) {
@@ -768,6 +780,45 @@ interface Application {
         >
           Continue
         </Button>
+      </Card>
+    </div>
+  );
+
+  // Delete Confirmation Modal Component
+  const DeleteConfirmModal = () => (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <Card className="max-w-md w-full p-8 rounded-xl shadow-2xl bg-white text-center">
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <AlertTriangle className="w-8 h-8 text-red-600" />
+        </div>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">Confirm Deletion</h3>
+        <p className="text-gray-600 mb-6">
+          Are you sure you want to delete this job position? This action cannot be undone.
+        </p>
+        <div className="flex gap-3 justify-center">
+          <Button
+            variant="outline"
+            onClick={handleCancelDelete}
+            className="hover:scale-105 transition"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            onClick={handleDelete}
+            disabled={isDeletingJob}
+            className="hover:scale-105 transition"
+          >
+            {isDeletingJob ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                Deleting...
+              </>
+            ) : (
+              "Delete"
+            )}
+          </Button>
+        </div>
       </Card>
     </div>
   );
@@ -1090,7 +1141,7 @@ interface Application {
                       <Button
                         variant="danger"
                         size="sm"
-                        onClick={() => handleDelete(internship._id || "")}
+                        onClick={() => handleConfirmDelete(internship._id || "")}
                         disabled={isDeletingJob}
                       >
                         {isDeletingJob ? (
@@ -1554,6 +1605,9 @@ interface Application {
 
         {/* Success Modal */}
         {showSuccessModal && <SuccessModal />}
+        
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirmModal && <DeleteConfirmModal />}
       </div>
     </div>
   );

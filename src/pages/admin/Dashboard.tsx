@@ -9,6 +9,9 @@ import {
   Trash2,
   AlertCircle,
   Loader2,
+  Maximize,
+  Search,
+  X,
 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
@@ -28,6 +31,9 @@ const AdminDashboard: React.FC = () => {
   const [restrictionNumber, setRestrictionNumber] = useState(0);
   const [isLoadingInternships, setIsLoadingInternships] = useState(false);
   const [isLoadingApplications, setIsLoadingApplications] = useState(false);
+  const [showCompaniesModal, setShowCompaniesModal] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   interface Application {
     _id: string;
@@ -141,7 +147,7 @@ const AdminDashboard: React.FC = () => {
   const handleDeleteCompany = async (companyId: string) => {
     if (
       !confirm(
-        "Are you sure you want to delete this company? This will also delete all associated job positions."
+        "Are you sure you want to delete this company? This will NOT delete associated job positions. Please delete job positions before deleting the company."
       )
     ) {
       return;
@@ -172,14 +178,22 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleViewCompany = (companyId: string, companyIndustry: string) => {
+  const getRequiredDept = (companyIndustry: string) => {
     const industryLower = companyIndustry?.toLowerCase() || "";
-    const requiredDeptLower = industryLower.includes("com") ? "com" : "eee";
+    if (industryLower.includes("com")) return "com";
+    if (industryLower.includes("elect") || industryLower.includes("eee")) return "eee";
+    if (industryLower.includes("mech")) return "mech";
+    if (industryLower.includes("civil")) return "civil";
+    return "";
+  };
+
+  const handleViewCompany = (companyId: string, companyIndustry: string) => {
+    const requiredDeptLower = getRequiredDept(companyIndustry);
     const deptLower = user?.department?.toLowerCase() || "";
     const canManage = deptLower === requiredDeptLower;
 
     if (!canManage) {
-      const requiredDepartment = industryLower.includes("com") ? "COM" : "EEE";
+      const requiredDepartment = requiredDeptLower.toUpperCase();
       alert(
         `You need a ${requiredDepartment} admin account to manage this company.`
       );
@@ -194,15 +208,42 @@ const AdminDashboard: React.FC = () => {
   const isCompanyManageable = (companyIndustry: string) => {
     if (!user?.department) return false;
     const industryLower = companyIndustry?.toLowerCase() || "";
-    const requiredDeptLower = industryLower.includes("com") ? "com" : "eee";
     const deptLower = user.department.toLowerCase();
-    return deptLower === requiredDeptLower;
+    if (deptLower === "com" && industryLower.includes("com")) return true;
+    if (deptLower === "eee" && (industryLower.includes("elect") || industryLower.includes("eee"))) return true;
+    if (deptLower === "mech" && industryLower.includes("mech")) return true;
+    if (deptLower === "civil" && industryLower.includes("civil")) return true;
+    return false;
   };
 
   // Department name formatting
-  const deptName = user?.department?.toLowerCase() === "com"
-    ? "Computer Engineering"
-    : "Electrical and Electronic Engineering";
+  let deptName = "";
+  switch (user?.department?.toLowerCase()) {
+    case "com":
+      deptName = "Computer Engineering";
+      break;
+    case "eee":
+      deptName = "Electrical and Electronic Engineering";
+      break;
+    case "mech":
+      deptName = "Mechanical Engineering";
+      break;
+    case "civil":
+      deptName = "Civil Engineering";
+      break;
+    default:
+      deptName = "";
+  }
+
+  const sortedCompanies = [...companyProfiles].sort((a, b) => {
+    const aManage = isCompanyManageable(a.industry || "") ? 1 : 0;
+    const bManage = isCompanyManageable(b.industry || "") ? 1 : 0;
+    return bManage - aManage;
+  });
+
+  const filteredCompanies = sortedCompanies.filter((company) =>
+    company.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 relative">
@@ -283,15 +324,42 @@ const AdminDashboard: React.FC = () => {
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2 text-base sm:text-lg">
                   <Building2 className="w-5 h-5 text-blue-600" /> Companies (
-                  {companyProfiles.length})
+                  {filteredCompanies.length})
                 </h3>
-                <Button
-                  onClick={() => navigate("/register/company")}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white w-full sm:w-auto"
-                >
-                  <PlusCircle className="w-4 h-4 mr-2" /> Add Company
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => navigate("/register/company")}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white w-full sm:w-auto"
+                  >
+                    <PlusCircle className="w-4 h-4 mr-2" /> Add Company
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowCompaniesModal(true)}
+                  >
+                    <Maximize className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowSearch(!showSearch)}
+                  >
+                    <Search className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
+              {showSearch && (
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    placeholder="Search companies by name"
+                    className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-500 text-sm"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              )}
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-8">
@@ -301,10 +369,11 @@ const AdminDashboard: React.FC = () => {
                     </span>
                   </div>
                 ) : (
-                  companyProfiles.map((company) => {
+                  filteredCompanies.map((company) => {
                     const canManage = isCompanyManageable(
                       company.industry || ""
                     );
+                    const requiredDeptLower = getRequiredDept(company.industry || "");
                     return (
                       <Card key={company.id} className="p-3 sm:p-4">
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
@@ -380,11 +449,7 @@ const AdminDashboard: React.FC = () => {
                                 <AlertCircle className="w-4 h-4 mr-1 flex-shrink-0" />
                                 <span className="truncate">
                                   Need{" "}
-                                  {(company.industry || "")
-                                    .toLowerCase()
-                                    .includes("com")
-                                    ? "COM"
-                                    : "EEE"}{" "}
+                                  {requiredDeptLower.toUpperCase()}{" "}
                                   admin
                                 </span>
                               </div>
@@ -407,9 +472,9 @@ const AdminDashboard: React.FC = () => {
                     );
                   })
                 )}
-                {!isLoading && companyProfiles.length === 0 && (
+                {!isLoading && filteredCompanies.length === 0 && (
                   <div className="text-center py-8 text-gray-500 text-sm">
-                    No companies added yet. Click "Add Company" to get started.
+                    No companies found.
                   </div>
                 )}
               </div>
@@ -528,6 +593,15 @@ const AdminDashboard: React.FC = () => {
                   <span className="hidden sm:inline">Restrict applications per student</span>
                   <span className="sm:hidden">Restrict Applications</span>
                 </Button>
+                <Button
+                  fullWidth
+                  variant="outline"
+                  onClick={() => navigate("/students")}
+                  className="text-sm"
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  View All Students
+                </Button>
               </div>
 
               {showform && (
@@ -572,6 +646,138 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {showCompaniesModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-4xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-semibold text-gray-900 text-lg">
+                Companies ({filteredCompanies.length})
+              </h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowCompaniesModal(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="space-y-3">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                  <span className="ml-2 text-gray-600">
+                    Loading companies...
+                  </span>
+                </div>
+              ) : (
+                filteredCompanies.map((company) => {
+                  const canManage = isCompanyManageable(
+                    company.industry || ""
+                  );
+                  const requiredDeptLower = getRequiredDept(company.industry || "");
+                  return (
+                    <Card key={company.id} className="p-4">
+                      <div className="flex flex-row justify-between items-center gap-3">
+                        <div className="flex items-center space-x-3 min-w-0 flex-1">
+                          {company.logoUrl && (
+                            <img
+                              src={company.logoUrl}
+                              alt={company.companyName || "Company Logo"}
+                              className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                            />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <h4 className="font-bold text-gray-900 text-base truncate">
+                              {company.companyName ?? "Unnamed Company"}
+                            </h4>
+                            <p className="text-sm text-gray-600 truncate">
+                              {company.email}
+                            </p>
+                            <span className="inline-block text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full mt-1">
+                              {company.industry || "Technology"}
+                            </span>
+                          </div>
+                          {applications.filter(
+                            (app) =>
+                              app.companyId === company.id &&
+                              app.status === "pending"
+                          ).length > 0 && (
+                            <span className="bg-green-500 text-white text-xs font-bold rounded-full px-3 py-2 flex-shrink-0">
+                              {
+                                applications.filter(
+                                  (app) =>
+                                    app.companyId === company.id &&
+                                    app.status === "pending"
+                                ).length
+                              }{" "}
+                              New Applications
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-row space-x-2 w-auto">
+                          <Button
+                            variant={canManage ? "outline" : "outline"}
+                            size="sm"
+                            onClick={() =>
+                              handleViewCompany(
+                                company.id!,
+                                company.industry || ""
+                              )
+                            }
+                            title={
+                              canManage
+                                ? "View and Manage Company"
+                                : "Access Restricted"
+                            }
+                            className={`w-auto ${
+                              !canManage
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}
+                            disabled={!canManage}
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            <span className="hidden sm:inline">
+                              {canManage ? "View & Manage" : "Restricted"}
+                            </span>
+                          </Button>
+                          {!canManage && (
+                            <div className="flex items-center justify-center text-xs text-amber-600 w-auto">
+                              <AlertCircle className="w-4 h-4 mr-1 flex-shrink-0" />
+                              <span className="truncate">
+                                Need{" "}
+                                {requiredDeptLower.toUpperCase()}{" "}
+                                admin
+                              </span>
+                            </div>
+                          )}
+                          {canManage && (
+                            <Button
+                              variant="danger"
+                              size="sm"
+                              onClick={() => handleDeleteCompany(company.id!)}
+                              title="Delete Company"
+                              className="w-auto"
+                            >
+                              <Trash2 className="w-4 h-4 mr-1" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })
+              )}
+              {!isLoading && filteredCompanies.length === 0 && (
+                <div className="text-center py-8 text-gray-500 text-sm">
+                  No companies found.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
