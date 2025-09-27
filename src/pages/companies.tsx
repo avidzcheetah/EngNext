@@ -356,7 +356,7 @@ const Companies: React.FC = () => {
                   <div className="px-4 sm:px-6 pb-4 sm:pb-6">
                     <div className="flex space-x-2">
                       <Link
-                        to={`/comapny/PublicProfile/${company.id}`}
+                        to={`/company/PublicProfile/${company.id}`}
                         className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-2 sm:py-2 px-3 sm:px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 text-xs sm:text-sm font-medium"
                       >
                         View Details

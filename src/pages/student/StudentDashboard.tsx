@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Search,
@@ -12,6 +12,9 @@ import {
   User,
   Heart,
   AlertTriangle,
+  Check,
+  AlertCircle,
+  Loader2,
 } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -24,7 +27,6 @@ import { useAuth } from '../../contexts/AuthContext';
 interface Company {
   id: string;
   name: string;
-  // Add other relevant fields
 }
 
 interface Internship {
@@ -84,6 +86,47 @@ interface ProfileData {
   department: string;
 }
 
+// Add error handling function
+interface ErrorResponse {
+  includes: (text: string) => boolean;
+}
+
+interface ApiErrorHandler {
+  (error: string | ErrorResponse): string;
+}
+
+const handleApiError: ApiErrorHandler = (error) => {
+  const errorText = typeof error === 'string' ? error : '';
+  
+  // Handle duplicate application error
+  if (errorText.includes('E11000') && errorText.includes('studentId_1_internshipId_1')) {
+    return 'You have already applied for this position.';
+  }
+  
+  // Handle other duplicate errors
+  if (errorText.includes('E11000') && errorText.includes('duplicate key')) {
+    return 'This action has already been completed.';
+  }
+  
+  // Handle validation errors
+  if (errorText.includes('ValidationError')) {
+    return 'Please check your application details and try again.';
+  }
+  
+  // Handle authentication errors
+  if (errorText.includes('Unauthorized') || errorText.includes('401')) {
+    return 'Please log in again to continue.';
+  }
+  
+  // Handle file upload errors
+  if (errorText.includes('MulterError') || errorText.includes('file')) {
+    return 'There was an issue with your file upload. Please try again.';
+  }
+  
+  // Default fallback for other errors
+  return errorText || 'Something went wrong. Please try again.';
+};
+
 const StudentDashboard: React.FC = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const [searchTerm, setSearchTerm] = useState('');
@@ -101,6 +144,9 @@ const StudentDashboard: React.FC = () => {
   const [jobsLoading, setJobsLoading] = useState(true);
   const [cvLoading, setCvLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState<string | null>(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [progress, setProgress] = useState(100);
   const navigate = useNavigate();
 
   const [uploadedCV, setUploadedCV] = useState<File | null>(null);
@@ -111,8 +157,28 @@ const StudentDashboard: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [applications, setApplications] = useState<Application[]>([]);
+  const [userApplications, setUserApplications] = useState<Application[]>([]);
   const { user, isAuthenticated } = useAuth();
   const id = user?.id;
+
+  // Progress bar animation for success popup
+  useEffect(() => {
+    if (showSuccessPopup) {
+      setProgress(100);
+      const interval = setInterval(() => {
+        setProgress(prev => Math.max(prev - (100 / 50), 0)); // 5 seconds = 50 * 100ms
+      }, 100);
+      const timeout = setTimeout(() => {
+        setShowSuccessPopup(false);
+        setSuccess(null);
+        setError("");
+      }, 5000);
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+      };
+    }
+  }, [showSuccessPopup]);
 
   const handleNavigateClick = (id: string) => {
     navigate(`/company/PublicProfile/${id}`);
@@ -122,11 +188,13 @@ const StudentDashboard: React.FC = () => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.type !== 'application/pdf') {
-        alert('Please upload a PDF file');
+        setError('Please upload a PDF file');
+        setShowSuccessPopup(true);
         return;
       }
       if (file.size > 4 * 1024 * 1024) {
-        alert('File size should be less than 4MB');
+        setError('File size should be less than 4MB');
+        setShowSuccessPopup(true);
         return;
       }
       setUploadedCV(file);
@@ -191,9 +259,11 @@ const StudentDashboard: React.FC = () => {
             fetchProfilePicture(),
             fetchAllJobs(),
             fetchTotalNumberOfApplicableInternshipsperStudent(),
+            fetchUserApplications(),
           ]);
         } catch (err) {
           setError('Failed to load dashboard data');
+          setShowSuccessPopup(true);
         } finally {
           setIsLoading(false);
         }
@@ -222,6 +292,7 @@ const StudentDashboard: React.FC = () => {
     } catch (err) {
       console.error('Error fetching profile:', err);
       setError('Failed to fetch profile');
+      setShowSuccessPopup(true);
     } finally {
       setProfileLoading(false);
     }
@@ -254,6 +325,7 @@ const StudentDashboard: React.FC = () => {
     } catch (err) {
       console.error('Error fetching jobs:', err);
       setError('Failed to fetch jobs');
+      setShowSuccessPopup(true);
     } finally {
       setJobsLoading(false);
     }
@@ -268,6 +340,27 @@ const StudentDashboard: React.FC = () => {
     } catch (err) {
       console.error('Failed to fetch maximum applications:', err);
       setError('Failed to fetch maximum applications');
+      setShowSuccessPopup(true);
+    }
+  };
+
+  const fetchUserApplications = async () => {
+    try {
+      if (!id) throw new Error('User ID is missing');
+      const response = await fetch(`${baseUrl}/api/applicationRoutes/getApplicationsByStudentId/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch user applications');
+
+      const data = await response.json();
+      setUserApplications(data);
+    } catch (err) {
+      console.error('Error fetching user applications:', err);
+      // Don't show error popup for this as it's not critical
     }
   };
 
@@ -289,25 +382,32 @@ const StudentDashboard: React.FC = () => {
     } catch (err) {
       console.error('Error fetching CV:', err);
       setError('Failed to fetch CV');
+      setShowSuccessPopup(true);
     } finally {
       setCvLoading(false);
     }
   };
 
-  const handleSubmitApplication = async () => {
+  const handleSubmitApplication = useCallback(async () => {
     if (!isAuthenticated || !id) {
-      alert('Please log in to apply for this position.');
+      setError('Please log in to apply for this position.');
+      setShowSuccessPopup(true);
+      setShowApplicationModal(false); // Close modal when showing error
       navigate('/login');
       return;
     }
 
     if (Number(profileData.ApplicationsSent) >= maximumApplications) {
-      alert('You have reached the maximum number of job applications allowed.');
+      setError('You have reached the maximum number of job applications allowed.');
+      setShowSuccessPopup(true);
+      setShowApplicationModal(false); // Close modal when showing error
       return;
     }
 
     if (!useProfileCV && !uploadedCV) {
-      alert('Please upload a new CV for this position.');
+      setError('Please upload a new CV for this position.');
+      setShowSuccessPopup(true);
+      // Don't close modal for this error - user needs to fix it
       return;
     }
 
@@ -355,7 +455,10 @@ const StudentDashboard: React.FC = () => {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        alert(errorData.message || 'You have already applied for this');
+        const userFriendlyError = handleApiError(errorData.message || '');
+        setError(userFriendlyError);
+        setShowSuccessPopup(true);
+        setShowApplicationModal(false); // Close modal when showing error
         return;
       }
 
@@ -382,20 +485,38 @@ const StudentDashboard: React.FC = () => {
       }
 
       setApplications((prev) => [...prev, data]);
-      alert('Applied successfully');
-      setShowApplicationModal(false);
+      setSuccess('Application submitted successfully!');
+      setShowSuccessPopup(true);
+      setShowApplicationModal(false); // Close modal on success
 
+      // Reset form
       setUploadedCV(null);
       setCoverLetter('');
       setInterestLevel(60);
       setUseProfileCV(true);
     } catch (error) {
       console.error('Error submitting application:', error);
-      setError(error instanceof Error ? error.message : 'Something went wrong');
+      const userFriendlyError = handleApiError(error instanceof Error ? error.message : '');
+      setError(userFriendlyError);
+      setShowSuccessPopup(true);
+      setShowApplicationModal(false); // Close modal when showing error
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [
+    isAuthenticated,
+    id,
+    profileData,
+    maximumApplications,
+    useProfileCV,
+    uploadedCV,
+    coverLetter,
+    interestLevel,
+    selectedInternship,
+    fData,
+    baseUrl,
+    navigate
+  ]);
 
   const mapDepartmentToCode = (dept: string) => {
     const lower = dept.toLowerCase();
@@ -419,6 +540,11 @@ const StudentDashboard: React.FC = () => {
       default:
         return code;
     }
+  };
+
+  // Helper function to check if user has already applied to this internship
+  const hasUserApplied = (internshipId: string) => {
+    return userApplications.some(app => app.internshipId === internshipId);
   };
 
   const filteredInternships = fData
@@ -449,12 +575,14 @@ const StudentDashboard: React.FC = () => {
 
   const handleApply = (internshipId: string) => {
     if (!isAuthenticated || !id) {
-      alert('Please log in to apply for this position.');
+      setError('Please log in to apply for this position.');
+      setShowSuccessPopup(true);
       navigate('/login');
       return;
     }
     if (Number(profileData.ApplicationsSent) >= maximumApplications) {
-      alert('You have reached the maximum number of job applications allowed.');
+      setError('You have reached the maximum number of job applications allowed.');
+      setShowSuccessPopup(true);
       return;
     }
     setSelectedInternship(internshipId);
@@ -499,6 +627,57 @@ const StudentDashboard: React.FC = () => {
             </div>
           </Card>
         </div>
+
+        {/* Success/Error Popup with higher z-index */}
+        {showSuccessPopup && (success || error) && (
+          <div className="fixed inset-0 flex items-center justify-center z-[9999] bg-black bg-opacity-60 transition-opacity duration-300">
+            <div className="bg-white rounded-xl p-8 max-w-md w-full mx-4 shadow-2xl border border-gray-100 transform transition-all duration-300 scale-100 animate-fade-in">
+              <div className="flex items-center space-x-3 mb-6">
+                {success ? (
+                  <div className="bg-green-100 p-2 rounded-full">
+                    <Check className="w-8 h-8 text-green-500" />
+                  </div>
+                ) : (
+                  <div className="bg-red-100 p-2 rounded-full">
+                    <AlertCircle className="w-8 h-8 text-red-500" />
+                  </div>
+                )}
+                <h3 className="text-xl font-semibold text-gray-900 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  {success ? 'Success' : 'Error'}
+                </h3>
+              </div>
+              <p className="text-gray-600 mb-6 text-center">{success || error}</p>
+              <div className="relative w-full h-1 bg-gray-200 rounded-full mb-6">
+                <div
+                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-full transition-all duration-100"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <div className="flex justify-between gap-4">
+                <button
+                  onClick={() => {
+                    setShowSuccessPopup(false);
+                    setSuccess(null);
+                    setError('');
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    setShowSuccessPopup(false);
+                    setSuccess(null);
+                    setError('');
+                  }}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-200"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {isAtLimit && (
           <Card className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm">
@@ -597,11 +776,22 @@ const StudentDashboard: React.FC = () => {
               ) : (
                 sortedInternships.map((internship) => {
                   const isRelevant = internship.industry?.toLowerCase() === studentDeptCode;
+                  const alreadyApplied = hasUserApplied(internship._id || '');
                   return (
                     <Card
                       key={internship._id}
                       className="p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px] bg-white rounded-xl"
                     >
+                      {/* Already Applied Warning */}
+                      {alreadyApplied && (
+                        <div className="mb-4 flex items-center p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                          <AlertCircle className="w-5 h-5 text-orange-600 mr-2" />
+                          <p className="text-sm text-orange-800 font-medium">
+                            ✓ Already Applied - You have already submitted an application for this position
+                          </p>
+                        </div>
+                      )}
+
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center space-x-4">
                           <div>
@@ -666,11 +856,15 @@ const StudentDashboard: React.FC = () => {
                         </Link>
                         <Button
                           onClick={() => handleApply(internship._id || '')}
-                          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02] transition rounded-lg"
-                          disabled={isAtLimit || !isRelevant}
+                          className={`${
+                            alreadyApplied 
+                              ? 'bg-gray-400 cursor-not-allowed' 
+                              : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg hover:scale-[1.02]'
+                          } text-white transition rounded-lg`}
+                          disabled={isAtLimit || !isRelevant || alreadyApplied}
                         >
                           <Send className="w-4 h-4 mr-2" />
-                          Apply Now
+                          {alreadyApplied ? 'Already Applied' : 'Apply Now'}
                         </Button>
                       </div>
                     </Card>
@@ -799,6 +993,7 @@ const StudentDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Application Modal */}
       {showApplicationModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <Card className="max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl">
@@ -1018,7 +1213,7 @@ const StudentDashboard: React.FC = () => {
                   >
                     {isSubmitting ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
                         Submitting...
                       </>
                     ) : (

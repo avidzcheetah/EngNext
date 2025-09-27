@@ -44,7 +44,7 @@ function App() {
               <Route path="/company/profile" element={<CompanyProfile  />} />
               <Route path="/company/application" element={<ApplicationsPage/>} />
               <Route path="/student/publicprofile/:id" element={<PublicStudentProfile />} />
-              <Route path="/comapny/publicprofile/:id" element={<PublicCompanyProfile />} />
+              <Route path="/company/publicprofile/:id" element={<PublicCompanyProfile />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/adminlogin" element={<AdminLogin/>} />
               <Route path="/students" element={<AllStudents />} />
