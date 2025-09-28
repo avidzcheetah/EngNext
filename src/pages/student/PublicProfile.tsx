@@ -30,6 +30,7 @@ interface StudentProfile {
   profilePicture?: string | null;
   bio?: string;
   skills: string[];
+  subfields: string[]; // Added subfields
   gpa?: number;
   year?: string;
   department?: string;
@@ -61,6 +62,7 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
     lastName: "",
     email: "",
     skills: [],
+    subfields: [], // Initialize subfields
   });
 
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
@@ -92,7 +94,7 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
       );
       if (!res.ok) throw new Error("Failed to fetch profile");
       const data = await res.json();
-      setProfileData(data);
+      setProfileData({ ...data, subfields: data.subfields || [] });
     } catch (err) {
       console.error(err);
       setError("Failed to fetch profile");
@@ -430,6 +432,25 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
                   className="bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium border border-blue-100 hover:shadow-sm transition-all"
                 >
                   {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Interested Subfields */}
+        {profileData.subfields.length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mt-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              Interested Subfields
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {profileData.subfields.map((subfield, index) => (
+                <span
+                  key={index}
+                  className="bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium border border-blue-100 hover:shadow-sm transition-all"
+                >
+                  {subfield}
                 </span>
               ))}
             </div>
