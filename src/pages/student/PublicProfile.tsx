@@ -13,6 +13,8 @@ import {
   Linkedin,
   Github,
   Globe,
+  FileText,
+  Download,
 } from "lucide-react";
 
 // -------------------------
@@ -30,12 +32,18 @@ interface StudentProfile {
   skills: string[];
   gpa?: number;
   year?: string;
+  department?: string;
   registrationNumber?: string;
   portfolio?: string;
   linkedin?: string;
   github?: string;
   availability?: boolean;
   ApplicationsSent?: number;
+  cv?: {
+    filename: string;
+    uploadDate: string;
+    size: string;
+  };
 }
 
 interface PublicStudentProfileProps {
@@ -56,6 +64,7 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
   });
 
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [cvPreview, setCvPreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -106,10 +115,35 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
     }
   };
 
+  const fetchCV = async () => {
+    if (!studentId) return;
+    try {
+      const res = await fetch(
+        `${baseUrl}/api/studentRoutes/getCV/${studentId}`
+      );
+      if (!res.ok) return;
+      const blob = await res.blob();
+      setCvPreview(URL.createObjectURL(blob));
+    } catch (err) {
+      console.error("Failed to fetch CV", err);
+    }
+  };
+
   useEffect(() => {
-    fetchProfile();
-    fetchProfilePicture();
+    Promise.all([fetchProfile(), fetchProfilePicture(), fetchCV()]);
   }, [studentId]);
+
+  // Function to handle CV download
+  const handleDownloadCV = () => {
+    if (cvPreview && profileData.cv) {
+      const link = document.createElement('a');
+      link.href = cvPreview;
+      link.download = profileData.cv.filename || 'cv.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   // -------------------------
   // Render Loading / Error
@@ -197,7 +231,7 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
               >
                 <span>
                   {profileData.availability
-                    ? "Available for oppotunities"
+                    ? "Available for opportunities"
                     : "Not Available"}
                 </span>
               </div>
@@ -212,7 +246,7 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
                 </h2>
                 <div className="flex items-center space-x-2 text-gray-600 mb-1">
                   <GraduationCap className="w-5 h-5 text-gray-400" />
-                  <span>Engineering Undergraduate • {profileData.year}</span>
+                  <span>{profileData.department || "Engineering"} Student • {profileData.year}</span>
                 </div>
                 <p className="text-sm text-gray-500 mb-4">
                   Registration: {profileData.registrationNumber}
@@ -283,6 +317,46 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
             </div>
           </div>
         </div>
+
+        {/* CV Section */}
+        {profileData.cv && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mt-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">CV/Resume</h3>
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <FileText className="w-8 h-8 text-red-600" />
+                <div>
+                  <p className="font-medium text-gray-900">{profileData.cv.filename}</p>
+                  <p className="text-sm text-gray-500">
+                    Uploaded on {new Date(profileData.cv.uploadDate).toLocaleDateString()} • {profileData.cv.size}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                {cvPreview && (
+                  <>
+                    <a
+                      href={cvPreview}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1 text-sm text-blue-600 hover:text-blue-700 flex items-center space-x-1 transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      <span>View</span>
+                    </a>
+                    <button
+                      onClick={handleDownloadCV}
+                      className="px-3 py-1 text-sm text-blue-600 hover:text-blue-700 flex items-center space-x-1 transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Download</span>
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Social Links */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mt-6">
