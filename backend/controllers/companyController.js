@@ -5,7 +5,7 @@ class CompanyController {
   static async createCompany(req, res) {
     try {
       const companyData = req.body;
-
+     console.log("Received company data 1:");
       // Required fields validation
       const { email, companyName } = companyData;
      /* if (!email || !companyName) {
@@ -13,21 +13,22 @@ class CompanyController {
       }*/
 
       // Check if email already exists
-      if(email){
+     /* if(email){
       const existingCompany = await companySchema.findOne({ email });
       if (existingCompany) {
         return res.status(400).json({ message: "Company with this email already exists" });
       }
-    }
-
+    }*/
+console.log("Received company data 2:");
       // If a logo file is uploaded
       if (req.file) {
-        companyData.logo = {
+          companyData.logo = {
           data: req.file.buffer,
           contentType: req.file.mimetype,
           filename: req.file.originalname
         };
       }
+
        // Parse array fields if they are JSON strings
     if (companyData.OurValues && typeof companyData.OurValues === "string") {
       companyData.OurValues = JSON.parse(companyData.OurValues);
