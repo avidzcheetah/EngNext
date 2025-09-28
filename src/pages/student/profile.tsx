@@ -27,6 +27,7 @@ interface StudentProfile {
   profilePicture?: File | null;
   bio?: string;
   skills: string[];
+  subfields: string[]; // New field for interested subfields
   gpa?: number;
   year: string;
   department: string;
@@ -59,6 +60,7 @@ const StudentProfile: React.FC = () => {
   // Form states
   const [isEditing, setIsEditing] = useState(false);
   const [newSkill, setNewSkill] = useState('');
+  const [newSubfield, setNewSubfield] = useState(''); // New state for subfield input
 
   const [profileData, setProfileData] = useState<StudentProfile>({
     id: '',
@@ -69,6 +71,7 @@ const StudentProfile: React.FC = () => {
     profilePicture: null,
     bio: '',
     skills: [],
+    subfields: [], // Initialize subfields
     gpa: 0,
     year: '1st Year',
     department: '',
@@ -100,7 +103,7 @@ const StudentProfile: React.FC = () => {
       if (!response.ok) throw new Error('Failed to fetch profile');
 
       const data = await response.json();
-      setProfileData({ ...data, department: data.department });
+      setProfileData({ ...data, department: data.department, subfields: data.subfields || [] });
     } catch (err) {
       console.log("Error fetching data");
       setError("Failed to fetch profile");
@@ -219,6 +222,25 @@ const StudentProfile: React.FC = () => {
     }));
   }, []);
 
+  const addSubfield = useCallback(() => {
+    if (newSubfield.trim() && !profileData.subfields.includes(newSubfield.trim()) && profileData.subfields.length < 3) {
+      setProfileData(prev => ({
+        ...prev,
+        subfields: [...prev.subfields, newSubfield.trim()]
+      }));
+      setNewSubfield('');
+    } else if (profileData.subfields.length >= 3) {
+      setError('You can only add up to 3 subfields');
+    }
+  }, [newSubfield, profileData.subfields]);
+
+  const removeSubfield = useCallback((subfieldToRemove: string) => {
+    setProfileData(prev => ({
+      ...prev,
+      subfields: prev.subfields.filter(subfield => subfield !== subfieldToRemove)
+    }));
+  }, []);
+
   const handleSave = useCallback(async () => {
     setIsSaving(true);
     setError(null);
@@ -227,7 +249,7 @@ const StudentProfile: React.FC = () => {
     try {
       const formData = new FormData();
       (Object.keys(profileData) as (keyof StudentProfile)[]).forEach(key => {
-        if (key !== "cv" && key !== "profilePicture" && key !== "skills") {
+        if (key !== "cv" && key !== "profilePicture" && key !== "skills" && key !== "subfields") {
           const value = profileData[key];
           if (Array.isArray(value)) {
             formData.append(key, JSON.stringify(value));
@@ -239,6 +261,7 @@ const StudentProfile: React.FC = () => {
         }
       });
       if (profileData.skills) formData.append("skills", JSON.stringify(profileData.skills));
+      if (profileData.subfields) formData.append("subfields", JSON.stringify(profileData.subfields));
       if (cv) formData.append("cv", cv);
       if (profileData.profilePicture) formData.append("profilePicture", profileData.profilePicture);
 
@@ -582,6 +605,59 @@ const StudentProfile: React.FC = () => {
                   <span>Add</span>
                 </button>
               </div>
+            )}
+          </div>
+
+          {/* Interested Subfields */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Interested Subfields</h3>
+            
+            <div className="mb-4 text-blue-700">
+              {profileData.subfields.length > 0 ? (
+                profileData.subfields.map((subfield, index) => (
+                  <span key={index} className="inline-flex items-center">
+                    <span>{subfield}</span>
+                    {isEditing && (
+                      <button
+                        onClick={() => removeSubfield(subfield)}
+                        className="ml-1 text-blue-500 hover:text-red-500 transition-colors duration-200"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                    {index < profileData.subfields.length - 1 && <span>,&nbsp;</span>}
+                  </span>
+                ))
+              ) : (
+                <span className="text-gray-500">No subfields added</span>
+              )}
+            </div>
+
+            {isEditing && (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newSubfield}
+                  onChange={(e) => setNewSubfield(e.target.value)}
+                  placeholder="Add a subfield (max 3)..."
+                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  onKeyPress={(e) => e.key === 'Enter' && addSubfield()}
+                  disabled={profileData.subfields.length >= 3}
+                />
+                <button
+                  onClick={addSubfield}
+                  disabled={profileData.subfields.length >= 3}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add</span>
+                </button>
+              </div>
+            )}
+            {isEditing && (
+              <p className="text-sm text-gray-500 mt-2">
+                {3 - profileData.subfields.length} subfield(s) remaining
+              </p>
             )}
           </div>
 
