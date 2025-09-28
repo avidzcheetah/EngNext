@@ -656,7 +656,7 @@ const StudentProfile: React.FC = () => {
             )}
             {isEditing && (
               <p className="text-sm text-gray-500 mt-2">
-                {3 - profileData.subfields.length} subfield(s) remaining
+                Add most interested field first and others according to the interest level. {3 - profileData.subfields.length} subfield(s) remaining
               </p>
             )}
           </div>
