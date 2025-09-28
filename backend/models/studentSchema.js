@@ -52,6 +52,11 @@ const studentSchema = new Schema({
   },
   skills: {
     type: [String], // array of skills
+    
+  },
+
+  subfields: {
+    type: [String], // array of subfields
     default: [],
   },
   gpa: {

@@ -37,7 +37,7 @@ static async updateStudent(req, res) {
 
     // Update text fields, but skip 'profilePicture' and 'cv'
     Object.keys(req.body).forEach(key => {
-      if (key !== "profilePicture" && key !== "cv" && key!=="skills" && key!=="RecentNotifications") {
+      if (key !== "profilePicture" && key !== "cv" && key!=="skills" && key!=="RecentNotifications"  && key !=="subfields") {
         student[key] = req.body[key];
       }
     });
@@ -47,6 +47,14 @@ static async updateStudent(req, res) {
     student.skills = JSON.parse(req.body.skills); // convert string → array
   } catch (e) {
     student.skills = []; // fallback if parse fails
+  }
+}
+
+if (req.body.subfields) {
+  try {
+    student.subfields = JSON.parse(req.body.subfields); // convert string → array
+  } catch (e) {
+    student.subfields = []; // fallback if parse fails
   }
 }
 
