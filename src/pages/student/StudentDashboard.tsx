@@ -917,7 +917,7 @@ const StudentDashboard: React.FC = () => {
 
                 <div className="mt-4 space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Internships Applied:</span>
+                    <span className="text-gray-600">Jobs Applied:</span>
                     <span className="text-green-600 font-medium">
                       {profileData.ApplicationsSent}/{maximumApplications}
                     </span>
