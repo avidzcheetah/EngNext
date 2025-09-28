@@ -56,7 +56,7 @@ const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {["Home", "About", "Companies", "Students", "Contact"].map((item) => (
+            {["Home", "About", "Companies", "Contact"].map((item) => (
               <Link
                 key={item}
                 to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
@@ -142,7 +142,7 @@ const Header: React.FC = () => {
         {isMenuOpen && (
           <div className="md:hidden pb-4 animate-slideDown">
             <div className="flex flex-col space-y-2">
-              {["Home", "About", "Companies", "Students", "Contact"].map((item) => (
+              {["Home", "About", "Companies", "Contact"].map((item) => (
                 <Link
                   key={item}
                   to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
