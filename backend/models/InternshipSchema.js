@@ -16,23 +16,18 @@ const InternshipSchema = new Schema({
   },
   description: {
     type: String,
-    required: true,
   },
   requirements: {
     type: [String], // Array of strings
-    required: true,
   },
   duration: {
     type: String,
-    required: true,
   },
   location: {
     type: String,
-    required: true,
   },
   isActive: {
     type: Boolean,
-    default: true,
   },
   createdAt: {
     type: Date,

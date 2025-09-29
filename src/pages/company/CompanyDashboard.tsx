@@ -300,6 +300,7 @@ const CompanyDashboard: React.FC = () => {
       const data = await res.json();
       console.log("Updated company:", data);
       setCompanyProfile(data.company);
+      setSuccessMessage("Profile updated successfully!");
       setShowSuccessModal(true);
 
       setTimeout(() => {
@@ -307,22 +308,31 @@ const CompanyDashboard: React.FC = () => {
       }, 3000);
     } catch (err: any) {
       console.error(err);
-      alert("Failed to save changes. Please try again.");
+      setError("Failed to save changes. Please try again.");
     } finally {
       setIsSavingProfile(false);
     }
   };
 
   const handleAddPosition = () => {
+    setEdit(false);
+    setEditId("");
+    setFdata({
+      title: "",
+      description: "",
+      requirements: [],
+      duration: "",
+      location: "",
+    });
     setShowJobModal(true);
   };
 
   const handleEdit = (internshipId: string) => {
-    const foundJob = Job.find((j) => j._id === internshipId) || null;
-    setEditJob(foundJob);
-    setEdit(true);
-    setEditId(internshipId);
+    const foundJob = Job.find((j) => j._id === internshipId);
     if (foundJob) {
+      setEdit(true);
+      setEditId(internshipId);
+      setEditJob(foundJob);
       setFdata({
         title: foundJob.title || "",
         description: foundJob.description || "",
@@ -330,11 +340,15 @@ const CompanyDashboard: React.FC = () => {
         duration: foundJob.duration || "",
         location: foundJob.location || "",
       });
+      setShowJobModal(true);
+    } else {
+      setError("Job not found");
     }
   };
 
   const handleCancel = () => {
     setEdit(false);
+    setEditId("");
     setShowJobModal(false);
     setFdata({
       title: "",
@@ -347,6 +361,10 @@ const CompanyDashboard: React.FC = () => {
 
   const handleJobPosition = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (!(fData.title || '').trim()) {
+      setError("Position Title is required");
+      return;
+    }
     setIsCreatingJob(true);
     try {
       const response = await fetch(`${baseUrl}/api/InternshipRoutes/createInternship`, {
@@ -354,13 +372,13 @@ const CompanyDashboard: React.FC = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           companyId: id,
-          companyName: companyProfile?.companyName,
-          duration: fData?.duration,
-          requirements: fData?.requirements,
-          description: fData?.description,
-          title: fData?.title,
-          location: fData?.location,
-          industry: companyProfile?.industry,
+          companyName: companyProfile?.companyName || "",
+          duration: fData.duration || "",
+          requirements: fData.requirements || [],
+          description: fData.description || "",
+          title: fData.title,
+          location: fData.location || "",
+          industry: companyProfile?.industry || "",
         }),
       });
 
@@ -385,6 +403,10 @@ const CompanyDashboard: React.FC = () => {
 
   const handleEditPosition = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (!(fData.title || '').trim()) {
+      setError("Position Title is required");
+      return;
+    }
     setIsUpdatingJob(true);
     try {
       const response = await fetch(`${baseUrl}/api/InternshipRoutes/editInternshipById/${editId}`, {
@@ -392,13 +414,13 @@ const CompanyDashboard: React.FC = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           companyId: id,
-          companyName: companyProfile?.companyName,
-          duration: fData?.duration,
-          requirements: fData?.requirements,
-          description: fData?.description,
-          title: fData?.title,
-          location: fData?.location,
-          industry: companyProfile?.industry,
+          companyName: companyProfile?.companyName || "",
+          duration: fData.duration || "",
+          requirements: fData.requirements || [],
+          description: fData.description || "",
+          title: fData.title,
+          location: fData.location || "",
+          industry: companyProfile?.industry || "",
         }),
       });
 
@@ -406,6 +428,8 @@ const CompanyDashboard: React.FC = () => {
       setSuccessMessage("Job updated successfully!");
       setShowSuccessModal(true);
       setEdit(false);
+      setEditId("");
+      setShowJobModal(false);
       fetchJobs();
       setFdata({
         title: "",
@@ -1031,15 +1055,15 @@ const CompanyDashboard: React.FC = () => {
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <h3 className="text-lg font-semibold mb-1">{internship.title}</h3>
-                        <p className="text-gray-600 mb-3">{internship.description}</p>
+                        <p className="text-gray-600 mb-3">{internship.description || "No description provided"}</p>
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
                           <span className="flex items-center">
                             <MapPin className="w-4 h-4 mr-1" />
-                            {internship.location}
+                            {internship.location || "Not specified"}
                           </span>
                           <span className="flex items-center">
                             <Clock className="w-4 h-4 mr-1" />
-                            {internship.duration}
+                            {internship.duration || "Not specified"}
                           </span>
                         </div>
                       </div>
@@ -1089,7 +1113,7 @@ const CompanyDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Company Profile Tab (Kept from Version 1) */}
+        {/* Company Profile Tab */}
         {activeTab === "company" && (
           <Card className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition">
             <h2 className="text-xl font-semibold mb-6">Company Profile</h2>
@@ -1275,20 +1299,21 @@ const CompanyDashboard: React.FC = () => {
               <div className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Position Title</label>
+                    <label className="block text-sm font-medium mb-1">Position Title <span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       placeholder="e.g., Software Engineering Intern"
-                      value={fData?.title || ""}
+                      value={fData.title}
                       onChange={(e) => setFdata((prev) => ({ ...prev, title: e.target.value }))}
                       className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Duration</label>
                     <select
                       className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-                      value={fData?.duration || ""}
+                      value={fData.duration}
                       onChange={(e) => setFdata((prev) => ({ ...prev, duration: e.target.value }))}
                     >
                       <option value="">Select duration</option>
@@ -1301,7 +1326,7 @@ const CompanyDashboard: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium mb-1">Location</label>
                   <input
-                    value={fData?.location || ""}
+                    value={fData.location}
                     type="text"
                     placeholder="e.g., Colombo, Remote, Hybrid"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
@@ -1311,7 +1336,7 @@ const CompanyDashboard: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium mb-1">Description</label>
                   <textarea
-                    value={fData?.description || ""}
+                    value={fData.description}
                     rows={4}
                     placeholder="Describe the job role..."
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
@@ -1321,7 +1346,7 @@ const CompanyDashboard: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium mb-1">Requirements</label>
                   <input
-                    value={fData?.requirements?.join(", ") || ""}
+                    value={fData.requirements?.join(", ") || ""}
                     type="text"
                     placeholder="e.g., JavaScript, React, Node.js"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
@@ -1338,11 +1363,10 @@ const CompanyDashboard: React.FC = () => {
                   <p className="text-xs text-gray-500 mt-1">Enter multiple requirements separated by commas</p>
                 </div>
                 <div className="flex gap-3">
-                  <Button variant="outline" fullWidth onClick={handleCancel} disabled={isCreatingJob || isUpdatingJob}>
+                  <Button variant="outline" onClick={handleCancel} disabled={isCreatingJob || isUpdatingJob}>
                     Cancel
                   </Button>
                   <Button
-                    fullWidth
                     className="bg-gradient-to-r from-blue-600 to-purple-600 text-white"
                     onClick={edit ? handleEditPosition : handleJobPosition}
                     disabled={isCreatingJob || isUpdatingJob}

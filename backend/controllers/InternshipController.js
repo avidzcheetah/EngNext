@@ -3,15 +3,31 @@ import InternshipSchema from "../models/InternshipSchema.js";
 // ✅ Create new internship
 export const createInternship = async (req, res) => {
   try {
-    
-    const internship = new InternshipSchema(req.body);
-  
+    const { companyId, title, companyName, description, requirements, duration, location, industry } = req.body;
+
+    // Basic validation to ensure required fields are present
+    if (!companyId || !title) {
+      return res.status(400).json({ message: "companyId and title are required" });
+    }
+
+    const internship = new InternshipSchema({
+      companyId,
+      title,
+      companyName: companyName || "",
+      description: description || "",
+      requirements: requirements || [],
+      duration: duration || "",
+      location: location || "",
+      industry: industry || "",
+      isActive: true, // Default to true for new internships
+    });
+
     const savedInternship = await internship.save();
-      console.log("done")
+    console.log("Internship created successfully:", savedInternship);
     res.status(201).json(savedInternship);
   } catch (error) {
-    res.status(400).json({ message: error.message });
-    console.log("Not done")
+    console.error("Error creating internship:", error);
+    res.status(400).json({ message: error.message || "Failed to create internship" });
   }
 };
 
@@ -21,7 +37,8 @@ export const getAllInternships = async (req, res) => {
     const internships = await InternshipSchema.find();
     res.status(200).json(internships);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error fetching all internships:", error);
+    res.status(500).json({ message: error.message || "Failed to fetch internships" });
   }
 };
 
@@ -29,17 +46,24 @@ export const getAllInternships = async (req, res) => {
 export const getInternshipsByCompanyId = async (req, res) => {
   try {
     const { companyId } = req.params;
+    if (!companyId) {
+      return res.status(400).json({ message: "companyId is required" });
+    }
     const internships = await InternshipSchema.find({ companyId });
     res.status(200).json(internships);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error fetching internships by companyId:", error);
+    res.status(500).json({ message: error.message || "Failed to fetch internships" });
   }
 };
 
-// Controller: delete internship by ID
+// ✅ Delete internship by ID
 export const deleteInternshipById = async (req, res) => {
   try {
-    const { id } = req.params; // get the internship id from URL
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: "Internship ID is required" });
+    }
 
     const deleted = await InternshipSchema.findByIdAndDelete(id);
 
@@ -47,17 +71,22 @@ export const deleteInternshipById = async (req, res) => {
       return res.status(404).json({ message: "Internship not found" });
     }
 
+    console.log("Internship deleted successfully:", id);
     res.status(200).json({ message: "Internship deleted successfully", deleted });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error deleting internship:", error);
+    res.status(500).json({ message: error.message || "Failed to delete internship" });
   }
 };
-
 
 // ✅ Get internship by ID
 export const getInternshipById = async (req, res) => {
   try {
     const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: "Internship ID is required" });
+    }
+
     const internship = await InternshipSchema.findById(id);
 
     if (!internship) {
@@ -66,30 +95,51 @@ export const getInternshipById = async (req, res) => {
 
     res.status(200).json(internship);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error fetching internship by ID:", error);
+    res.status(500).json({ message: error.message || "Failed to fetch internship" });
   }
 };
 
-// Controller: Edit internship by ID
+// ✅ Edit internship by ID
 export const editInternshipById = async (req, res) => {
   try {
-    const {editId}  = req.params; // ID of the internship to edit
-    const updateData = req.body; // Fields to update
-    console.log(editId)
-    // Find the internship and update it
+    const { id } = req.params; // Changed from editId to id for consistency
+    const { companyId, title, companyName, description, requirements, duration, location, industry } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ message: "Internship ID is required" });
+    }
+    if (!title) {
+      return res.status(400).json({ message: "Title is required" });
+    }
+
+    const updateData = {
+      companyId,
+      title,
+      companyName: companyName || "",
+      description: description || "",
+      requirements: requirements || [],
+      duration: duration || "",
+      location: location || "",
+      industry: industry || "",
+    };
+
+    console.log("Updating internship with data:", updateData);
+
     const updatedInternship = await InternshipSchema.findByIdAndUpdate(
-      editId,
+      id,
       updateData,
-      { new: true, runValidators: true } // return updated document
+      { new: true, runValidators: true } // Return updated document
     );
 
     if (!updatedInternship) {
       return res.status(404).json({ message: "Internship not found" });
     }
 
+    console.log("Internship updated successfully:", updatedInternship);
     res.status(200).json(updatedInternship);
   } catch (error) {
     console.error("Error updating internship:", error);
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ message: error.message || "Failed to update internship" });
   }
 };
