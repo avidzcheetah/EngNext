@@ -63,7 +63,7 @@ const CompanyDashboard: React.FC = () => {
     companyName?: string;
     location?: string;
     industry?: string;
-    subfield?: string;
+    subfield?: string[];
     phoneNo?: string;
   }
 
@@ -232,7 +232,7 @@ const CompanyDashboard: React.FC = () => {
     logoFile: null as File | null,
     location: "",
     industry: "",
-    subfield: "",
+    subfield: [] as string[],
     phoneNo: "",
   });
 
@@ -247,7 +247,7 @@ const CompanyDashboard: React.FC = () => {
         logoFile: prev.logoFile || null,
         location: companyProfile.location || "",
         industry: companyProfile.industry || "",
-        subfield: companyProfile.subfield || "",
+        subfield: Array.isArray(companyProfile.subfield) ? [...new Set(companyProfile.subfield)] : [],
         phoneNo: companyProfile.phoneNo || "",
       }));
     }
@@ -275,6 +275,30 @@ const CompanyDashboard: React.FC = () => {
     }
   };
 
+  const handleSubfieldChange = (subfield: string) => {
+    try {
+      setFormData((prev) => {
+        const currentSubfields = Array.isArray(prev.subfield) ? [...new Set(prev.subfield)] : [];
+        console.log("Current subfields before update:", currentSubfields, "Clicked subfield:", subfield);
+
+        if (currentSubfields.includes(subfield)) {
+          const updatedSubfields = currentSubfields.filter((item) => item !== subfield);
+          console.log("Updated subfields (removed):", updatedSubfields);
+          return { ...prev, subfield: updatedSubfields };
+        } else if (currentSubfields.length < 3) {
+          const updatedSubfields = [...new Set([...currentSubfields, subfield])];
+          console.log("Updated subfields (added):", updatedSubfields);
+          return { ...prev, subfield: updatedSubfields };
+        }
+        console.log("No update (limit reached or no change):", currentSubfields);
+        return prev;
+      });
+    } catch (err) {
+      console.error("Error in handleSubfieldChange:", err);
+      setError("Failed to update subfields. Please try again.");
+    }
+  };
+
   const handleSaveChanges = async () => {
     setIsSavingProfile(true);
     try {
@@ -285,7 +309,7 @@ const CompanyDashboard: React.FC = () => {
       formToSend.append("description", formData.description);
       formToSend.append("location", formData.location);
       formToSend.append("industry", formData.industry);
-      formToSend.append("subfield", formData.subfield);
+      formToSend.append("subfield", JSON.stringify(formData.subfield));
       formToSend.append("phoneNo", formData.phoneNo);
 
       if (formData.logoFile) formToSend.append("logo", formData.logoFile);
@@ -783,6 +807,17 @@ const CompanyDashboard: React.FC = () => {
     </div>
   );
 
+  const industryOptions = [
+    { value: "EEE", label: "Electrical and Electronic Engineering" },
+    { value: "Com", label: "Computer Engineering" },
+    { value: "Mech", label: "Mechanical Engineering" },
+    { value: "Civil", label: "Civil Engineering" },
+  ];
+
+  const availableSubfieldOptions = industryOptions.filter(
+    (option) => option.value !== formData.industry
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -803,7 +838,7 @@ const CompanyDashboard: React.FC = () => {
                 Loading Dashboard...
               </span>
             ) : (
-              `Company Dashboard - ${formData.companyName}`
+              `Company Dashboard - ${formData.companyName || "Unnamed Company"}`
             )}
           </h1>
           <p className="text-gray-600">Manage your job programs and candidates</p>
@@ -1198,27 +1233,50 @@ const CompanyDashboard: React.FC = () => {
                     <select
                       name="industry"
                       value={formData.industry}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, industry: e.target.value }))}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, industry: e.target.value, subfield: [] }))}
                       className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
                     >
                       <option value="">Select Industry</option>
-                      <option value="EEE">Electrical and Electronic Engineering</option>
-                      <option value="Com">Computer Engineering</option>
+                      {industryOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Subfield
+                      Subfield (Select up to 3)
                     </label>
-                    <input
-                      type="text"
-                      name="subfield"
-                      value={formData.subfield || ""}
-                      onChange={handleChange}
-                      placeholder="e.g., Power Systems, Web Development, AI/ML"
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-                    />
+                    {availableSubfieldOptions.length > 0 ? (
+                      <div className="space-y-2">
+                        {availableSubfieldOptions.map((option) => (
+                          <label
+                            key={option.value}
+                            className="flex items-center space-x-2 cursor-pointer"
+                          >
+                            <input
+                              type="checkbox"
+                              value={option.value}
+                              checked={(formData.subfield || []).includes(option.value)}
+                              onChange={() => handleSubfieldChange(option.value)}
+                              disabled={
+                                !(formData.subfield || []).includes(option.value) &&
+                                (formData.subfield || []).length >= 3
+                              }
+                              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{option.label}</span>
+                          </label>
+                        ))}
+                        <p className="text-xs text-gray-500 mt-1">
+                          Selected: {(formData.subfield || []).length}/3
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">No subfields available. Select an industry first.</p>
+                    )}
                   </div>
                 </div>
 
