@@ -29,7 +29,7 @@ const companySchema = new Schema({
   foundedYear:{type:String},
   companyType:{type:String},
   address:{type:String},
-  subfield:{type:String},
+  subfield:[String],
   internships: [
     {
       title: { type: String},

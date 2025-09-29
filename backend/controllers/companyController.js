@@ -66,13 +66,15 @@ static async updateCompany(req, res) {
     }
 
     // Update text fields
-    Object.keys(req.body).forEach(key => {
-      if ((key === "OurValues" || key === "internBenifits") && typeof req.body[key] === "string") {
-        company[key] = JSON.parse(req.body[key]); // parse array fields
-      } else {
-        company[key] = req.body[key];
-      }
-    });
+  Object.keys(req.body).forEach(key => {
+  if ((key === "OurValues" || key === "internBenifits" || key === "subfield") 
+      && typeof req.body[key] === "string") {
+    company[key] = JSON.parse(req.body[key]); // parse array fields
+    console.log(`Parsed and updated `);
+  } else {
+    company[key] = req.body[key];
+  }
+});
 
     // Update logo if uploaded
     if (req.file) {

@@ -314,7 +314,7 @@ const CompanyDashboard: React.FC = () => {
 
       if (formData.logoFile) formToSend.append("logo", formData.logoFile);
 
-      const res = await fetch(`${baseUrl}/api/companyRoutes/updateCompany/${companyProfile?.id}`, {
+      const res = await fetch(`${baseUrl}/api/companyRoutes/updateCompany/${id}`, {
         method: "PUT",
         body: formToSend,
       });
