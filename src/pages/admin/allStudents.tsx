@@ -25,6 +25,7 @@ interface StudentProfile {
   phone?: string;
   bio?: string;
   skills: string[];
+  subfields: string[]; // Added subfields
   gpa?: number;
   year: string;
   department: string;
@@ -46,6 +47,7 @@ const AllStudents: React.FC = () => {
   const [editingStudent, setEditingStudent] = useState<StudentProfile | null>(null);
   const [editForm, setEditForm] = useState<StudentProfile>({} as StudentProfile);
   const [newSkill, setNewSkill] = useState("");
+  const [newSubfield, setNewSubfield] = useState(""); // Added for subfield input
   const [success, setSuccess] = useState<string | null>(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [progress, setProgress] = useState(100);
@@ -72,7 +74,7 @@ const AllStudents: React.FC = () => {
 
   useEffect(() => {
     if (editingStudent) {
-      setEditForm(editingStudent);
+      setEditForm({ ...editingStudent, subfields: editingStudent.subfields || [] });
     }
   }, [editingStudent]);
 
@@ -104,7 +106,13 @@ const AllStudents: React.FC = () => {
       });
       if (!res.ok) throw new Error("Failed to fetch students");
       const data = await res.json();
-      setStudents(data.map((s: any) => ({ ...s, id: s._id || s.id })));
+      setStudents(
+        data.map((s: any) => ({
+          ...s,
+          id: s._id || s.id,
+          subfields: s.subfields || [], // Ensure subfields is always an array
+        }))
+      );
     } catch (err) {
       console.error("Failed to fetch students:", err);
       setError("Failed to load students. Please try again.");
@@ -131,7 +139,9 @@ const AllStudents: React.FC = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value, type, checked } = e.target as any;
     setEditForm((prev) => ({
       ...prev,
@@ -156,13 +166,37 @@ const AllStudents: React.FC = () => {
     }));
   };
 
+  const addSubfield = () => {
+    if (
+      newSubfield.trim() &&
+      !editForm.subfields.includes(newSubfield.trim()) &&
+      editForm.subfields.length < 3
+    ) {
+      setEditForm((prev) => ({
+        ...prev,
+        subfields: [...prev.subfields, newSubfield.trim()],
+      }));
+      setNewSubfield("");
+    } else if (editForm.subfields.length >= 3) {
+      setError("You can only add up to 3 subfields");
+      setShowSuccessPopup(true);
+    }
+  };
+
+  const removeSubfield = (subfieldToRemove: string) => {
+    setEditForm((prev) => ({
+      ...prev,
+      subfields: prev.subfields.filter((subfield) => subfield !== subfieldToRemove),
+    }));
+  };
+
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingStudent) return;
     try {
       const formData = new FormData();
       (Object.keys(editForm) as (keyof StudentProfile)[]).forEach((key) => {
-        if (key !== "skills") {
+        if (key !== "skills" && key !== "subfields") {
           const value = editForm[key];
           if (Array.isArray(value)) {
             formData.append(key, JSON.stringify(value));
@@ -174,6 +208,7 @@ const AllStudents: React.FC = () => {
         }
       });
       formData.append("skills", JSON.stringify(editForm.skills || []));
+      formData.append("subfields", JSON.stringify(editForm.subfields || []));
 
       const res = await fetch(`${baseUrl}/api/studentRoutes/updatestudents/${editingStudent.id}`, {
         method: "PUT",
@@ -184,7 +219,13 @@ const AllStudents: React.FC = () => {
         throw new Error(errorData.message || "Failed to update student");
       }
       const updated = await res.json();
-      setStudents(students.map((s) => (s.id === updated.id ? { ...updated, id: updated._id || updated.id } : s)));
+      setStudents(
+        students.map((s) =>
+          s.id === updated.id
+            ? { ...updated, id: updated._id || updated.id, subfields: updated.subfields || [] }
+            : s
+        )
+      );
       setEditingStudent(null);
       setSuccess("Student profile updated successfully!");
       setShowSuccessPopup(true);
@@ -430,6 +471,24 @@ const AllStudents: React.FC = () => {
                             )}
                           </div>
                         </div>
+                        <div>
+                          <span className="text-sm font-medium text-gray-700">
+                            Subfields:
+                          </span>
+                          <div className="text-sm text-blue-800 line-clamp-2">
+                            {(student.subfields || []).length > 0 ? (
+                              student.subfields.join(", ")
+                            ) : (
+                              <span className="text-gray-500">None</span>
+                            )}
+                            {(student.subfields || []).length > 3 && (
+                              <span className="text-xs text-blue-600">
+                                {" "}
+                                +{(student.subfields || []).length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
                       <Button
                         variant="outline"
@@ -617,6 +676,45 @@ const AllStudents: React.FC = () => {
                     <span>Add</span>
                   </Button>
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Interested Subfields</label>
+                <div className="mb-4 text-blue-700">
+                  {editForm.subfields?.map((subfield, index) => (
+                    <span key={index} className="inline-flex items-center">
+                      <span>{subfield}</span>
+                      <button
+                        onClick={() => removeSubfield(subfield)}
+                        className="ml-1 text-blue-500 hover:text-red-500 transition-colors duration-200"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                      {index < (editForm.subfields?.length || 0) - 1 && <span>,&nbsp;</span>}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newSubfield}
+                    onChange={(e) => setNewSubfield(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && addSubfield()}
+                    placeholder="Add a subfield (max 3)..."
+                    disabled={editForm.subfields.length >= 3}
+                    className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
+                  />
+                  <Button
+                    onClick={addSubfield}
+                    disabled={editForm.subfields.length >= 3}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add</span>
+                  </Button>
+                </div>
+                <p className="text-sm text-gray-500 mt-2">
+                  Add most interested field first. {3 - editForm.subfields.length} subfield(s) remaining
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Portfolio Website</label>
