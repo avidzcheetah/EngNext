@@ -269,7 +269,7 @@ const AdminDashboard: React.FC = () => {
               {isLoading ? (
                 <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin mx-auto" />
               ) : (
-                companyProfiles.length
+                28
               )}
             </h3>
             <p className="text-gray-600 text-xs sm:text-sm">Total Companies</p>
