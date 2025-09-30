@@ -834,15 +834,19 @@ const StudentDashboard: React.FC = () => {
           <p className="text-gray-600 animate-fade-in delay-100">
             Discover your next job opportunity and take your career forward.
           </p>
-          {/* <Card className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm">
+          <Card className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm">
             <div className="flex items-center gap-2 animate-notice">
-              <span className="inline-block w-4 h-4 border-2 border-red-800 border-t-transparent rounded-full animate-spin"></span>
-              <span className="font-medium text-red-800">
-                Notice: Your next chapter in the Engineering life is about to
-                begin. Applications for new roles will open soon!
-              </span>
+              <AlertTriangle className="w-6 h-6 text-red-600 mr-3" />
+              <div>
+                <h3 className="text-lg font-semibold text-red-800">
+                  Application Period Ended
+                </h3>
+                <p className="text-sm text-red-700">
+                  The application period for new jobs has closed. You can no longer apply for positions.
+                </p>
+              </div>
             </div>
-          </Card> */}
+          </Card>
         </div>
 
         {/* Success/Error Popup with higher z-index */}
@@ -1074,15 +1078,11 @@ const StudentDashboard: React.FC = () => {
                         </Link>
                         <Button
                           onClick={() => handleApply(internship._id || "")}
-                          className={`${
-                            alreadyApplied || !applicationsLoaded
-                              ? "bg-gray-400 cursor-not-allowed"
-                              : "bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg hover:scale-[1.02]"
-                          } text-white transition rounded-lg`}
-                          disabled={isAtLimit || !isRelevant || alreadyApplied || !applicationsLoaded}
+                          className="bg-gray-400 cursor-not-allowed text-white transition rounded-lg"
+                          disabled={true}
                         >
                           <Send className="w-4 h-4 mr-2" />
-                          {!applicationsLoaded ? "Loading..." : alreadyApplied ? "Already Applied" : "Apply Now"}
+                          Apply Now
                         </Button>
                       </div>
                     </Card>
