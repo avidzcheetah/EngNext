@@ -136,7 +136,7 @@ const HomePage: React.FC = () => {
                 <div
                   className="flex gap-6"
                   style={{
-                    animation: 'slide-left 25s linear infinite',
+                    animation: 'slide-left 60s linear infinite',
                     width: 'fit-content'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.animationPlayState = 'paused'}
