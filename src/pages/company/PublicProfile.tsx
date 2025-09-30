@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { 
   Building2, 
   Globe, 
@@ -147,6 +147,8 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
          setIsLoading(false);
        }
      }
+
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -351,13 +353,12 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
                   </div>
                   
                   <div className="flex space-x-3">
-                    <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                      <Send className="w-4 h-4" />
-                      <span>Apply Now</span>
-                    </button>
-                    <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                      <Eye className="w-4 h-4" />
-                      <span>View Details</span>
+                    <button 
+                      onClick={() => navigate('/student/dashboard')}
+                      className="flex items-center space-x-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>Apply via Dashboard</span>
                     </button>
                   </div>
                 </div>
