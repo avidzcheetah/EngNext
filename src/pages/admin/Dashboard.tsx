@@ -323,8 +323,7 @@ const AdminDashboard: React.FC = () => {
             <Card className="p-4 sm:p-6 shadow-sm hover:shadow-md transition bg-white">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2 text-base sm:text-lg">
-                  <Building2 className="w-5 h-5 text-blue-600" /> Companies (
-                  {filteredCompanies.length})
+                  <Building2 className="w-5 h-5 text-blue-600" /> Companies (28)
                 </h3>
                 <div className="flex gap-2">
                   <Button
