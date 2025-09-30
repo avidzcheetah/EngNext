@@ -174,6 +174,9 @@ const StudentDashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const id = user?.id;
 
+  const [showApplicationsModal, setShowApplicationsModal] = useState(false);
+const [isApplicationsLoading, setIsApplicationsLoading] = useState(false);
+
   // Progress bar animation for success popup
   useEffect(() => {
     if (showSuccessPopup) {
@@ -422,6 +425,36 @@ const StudentDashboard: React.FC = () => {
       // Don't show error popup for this as it's not critical
     }
   };
+
+  const fetchStudentApplications = async () => {
+  setIsApplicationsLoading(true);
+  try {
+    if (!id) throw new Error("User ID is missing");
+    
+    const response = await fetch(
+      `${baseUrl}/api/applicationRoutes/fetchByStudentId/${id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch applications");
+    }
+
+    const data = await response.json();
+    setUserApplications(data);
+  } catch (err) {
+    console.error("Error fetching applications:", err);
+    setError("Failed to fetch your applications");
+    setShowSuccessPopup(true);
+  } finally {
+    setIsApplicationsLoading(false);
+  }
+};
 
   const fetchCV = async () => {
     setCvLoading(true);
@@ -1057,72 +1090,84 @@ const StudentDashboard: React.FC = () => {
 
           <div className="space-y-6">
             {profileLoading ? (
-              <Card className="p-6 text-center shadow-sm hover:shadow-md transition rounded-xl animate-pulse">
-                <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-3"></div>
-                <div className="h-6 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto mb-4"></div>
-                <div className="h-10 bg-gray-200 rounded mb-4"></div>
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded"></div>
-                  <div className="h-2 bg-gray-200 rounded"></div>
-                </div>
-              </Card>
-            ) : (
-              <Card className="p-6 text-center shadow-sm hover:shadow-md transition rounded-xl">
-                <div>
-                  {profilePreview ? (
-                    <img
-                      src={profilePreview}
-                      alt="Profile"
-                      className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 ring-2 ring-blue-200 object-cover"
-                    />
-                  ) : (
-                    <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 ring-2 ring-blue-200">
-                      <User className="w-12 h-12 text-blue-600" />
-                    </div>
-                  )}
-                </div>
-                <h3 className="font-bold text-gray-900">
-                  {profileData.firstName} {profileData.lastName}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {profileData.department} Student
-                </p>
+  <Card className="p-6 text-center shadow-sm hover:shadow-md transition rounded-xl animate-pulse">
+    <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-3"></div>
+    <div className="h-6 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
+    <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto mb-4"></div>
+    <div className="h-10 bg-gray-200 rounded mb-4"></div>
+    <div className="space-y-2">
+      <div className="h-4 bg-gray-200 rounded"></div>
+      <div className="h-2 bg-gray-200 rounded"></div>
+    </div>
+  </Card>
+) : (
+  <Card className="p-6 text-center shadow-sm hover:shadow-md transition rounded-xl">
+    <div>
+      {profilePreview ? (
+        <img
+          src={profilePreview}
+          alt="Profile"
+          className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 ring-2 ring-blue-200 object-cover"
+        />
+      ) : (
+        <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 ring-2 ring-blue-200">
+          <User className="w-12 h-12 text-blue-600" />
+        </div>
+      )}
+    </div>
+    <h3 className="font-bold text-gray-900">
+      {profileData.firstName} {profileData.lastName}
+    </h3>
+    <p className="text-sm text-gray-600">
+      {profileData.department} Student
+    </p>
 
-                <Button
-                  fullWidth
-                  className="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg transition-all hover:scale-[1.02]"
-                  onClick={handleUpdateProfile}
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  Update Profile
-                </Button>
+    <Button
+      fullWidth
+      className="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg transition-all hover:scale-[1.02]"
+      onClick={handleUpdateProfile}
+    >
+      <User className="w-4 h-4 mr-2" />
+      Update Profile
+    </Button>
 
-                <div className="mt-4 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Jobs Applied:</span>
-                    <span className="text-green-600 font-medium">
-                      {profileData.ApplicationsSent}/{maximumApplications}
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                    <div
-                      className="bg-green-500 h-2 rounded-full transition-all duration-500"
-                      style={{
-                        width: `${
-                          Number(profileData.ApplicationsSent) &&
-                          maximumApplications
-                            ? (Number(profileData.ApplicationsSent) /
-                                maximumApplications) *
-                              100
-                            : 0
-                        }%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              </Card>
-            )}
+    <Button
+      fullWidth
+      className="mt-2 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg transition-all hover:scale-[1.02]"
+      onClick={() => {
+        setShowApplicationsModal(true);
+        fetchStudentApplications();
+      }}
+    >
+      <FileText className="w-4 h-4 mr-2" />
+      View Applications
+    </Button>
+
+    <div className="mt-4 space-y-2 text-sm">
+      <div className="flex justify-between">
+        <span className="text-gray-600">Jobs Applied:</span>
+        <span className="text-green-600 font-medium">
+          {profileData.ApplicationsSent}/{maximumApplications}
+        </span>
+      </div>
+      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+        <div
+          className="bg-green-500 h-2 rounded-full transition-all duration-500"
+          style={{
+            width: `${
+              Number(profileData.ApplicationsSent) &&
+              maximumApplications
+                ? (Number(profileData.ApplicationsSent) /
+                    maximumApplications) *
+                  100
+                : 0
+            }%`,
+          }}
+        ></div>
+      </div>
+    </div>
+  </Card>
+)}
 
             <Card className="p-6 shadow-sm hover:shadow-md transition rounded-xl">
               <div className="flex items-center justify-between mb-4">
@@ -1541,6 +1586,119 @@ const StudentDashboard: React.FC = () => {
           </Card>
         </div>
       )}
+      {/* Applications Sent Modal */}
+{showApplicationsModal && (
+  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <Card className="max-w-3xl w-full p-6 max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xl font-semibold">Your Applications</h3>
+        <button
+          onClick={() => setShowApplicationsModal(false)}
+          className="text-gray-400 hover:text-gray-600 transition"
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {isApplicationsLoading ? (
+        <div className="text-center py-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading applications...</p>
+        </div>
+      ) : userApplications.length === 0 ? (
+        <div className="text-center py-6">
+          <FileText className="w-16 h-16 text-gray-400 mx-auto mb-3" />
+          <p className="text-gray-600">No applications submitted yet.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {userApplications.map((application) => (
+            <Card
+              key={application.internshipId}
+              className="p-4 border border-gray-100 shadow-sm hover:shadow-md transition rounded-lg"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-gray-900">
+                  {application.internshipTitle}
+                </h4>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    application.status === "accepted"
+                      ? "bg-green-100 text-green-800"
+                      : application.status === "rejected"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
+                  {application.status.charAt(0).toUpperCase() +
+                    application.status.slice(1)}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-600">Company</p>
+                  <p className="font-medium">{application.companyName}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Applied Date</p>
+                  <p className="font-medium">
+                    {new Date(application.appliedDate).toLocaleDateString()}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Interest Level</p>
+                  <p className="font-medium">{application.interestLevel}%</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Skills</p>
+                  <div className="flex flex-wrap gap-1">
+                    {application.skills.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {application.coverLetter && (
+                <div className="mt-3">
+                  <p className="text-gray-600 text-sm">Cover Letter</p>
+                  <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                    {application.coverLetter}
+                  </p>
+                </div>
+              )}
+            </Card>
+          ))}
+        </div>
+      )}
+      <div className="mt-6 flex justify-end">
+        <Button
+          variant="outline"
+          onClick={() => setShowApplicationsModal(false)}
+          className="hover:bg-gray-100 transition rounded-lg"
+        >
+          Close
+        </Button>
+      </div>
+    </Card>
+  </div>
+)}
     </div>
   );
 };
