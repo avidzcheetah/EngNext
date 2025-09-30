@@ -180,7 +180,7 @@ const CompanyDashboard: React.FC = () => {
           try {
             const studentRes = await fetch(`${baseUrl}/api/studentRoutes/getStudentById/${app.studentId}`);
             if (!studentRes.ok) throw new Error(`Error fetching student data: ${studentRes.status}`);
-            const studentData = await res.json();
+            const studentData = await studentRes.json();
             return { ...app, phone: studentData.phone || "" };
           } catch (err) {
             console.error(`Error fetching phone for student ${app.studentId}:`, err);
@@ -1485,7 +1485,7 @@ const CompanyDashboard: React.FC = () => {
             <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
               <h3 className="text-xl font-bold mb-6">Cover Letter</h3>
               <div className="space-y-4">
-                <p className="text-gray-700 leading-relaxed">
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
                   {applications.find(
                     (app) => String(app.studentId) === String(coverletterstudentID) && String(app._id) === String(coverletterID)
                   )?.coverLetter || "No cover letter submitted"}

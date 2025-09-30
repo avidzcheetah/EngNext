@@ -37,18 +37,14 @@ const ApplicationsPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [applications, setApplications] = useState<Application[]>([]);
-  const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(
-    null
-  );
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
   const [jobTitle, setJobTitle] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [coverletter, setCoverletter] = useState(false);
   const [coverletterstudentID, setCoverletterstudentId] = useState("");
   const [coverletterID, setCoverletterID] = useState("");
-  const [downloadingCV, setDownloadingCV] = useState<{
-    [key: string]: boolean;
-  }>({});
+  const [downloadingCV, setDownloadingCV] = useState<{ [key: string]: boolean }>({});
 
   const fetchApplications = async () => {
     try {
@@ -516,8 +512,8 @@ const ApplicationsPage: React.FC = () => {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
             <h3 className="text-xl font-bold mb-6">Cover Letter</h3>
-            <div className="space-y-4">
-              <p className="text-gray-700 leading-relaxed">
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+              <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
                 {applications.find(
                   (app) =>
                     String(app.studentId) === String(coverletterstudentID) &&
