@@ -797,7 +797,7 @@ const StudentDashboard: React.FC = () => {
           <p className="text-gray-600 animate-fade-in delay-100">
             Discover your next job opportunity and take your career forward.
           </p>
-          <Card className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm">
+          {/* <Card className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm">
             <div className="flex items-center gap-2 animate-notice">
               <span className="inline-block w-4 h-4 border-2 border-red-800 border-t-transparent rounded-full animate-spin"></span>
               <span className="font-medium text-red-800">
@@ -805,7 +805,7 @@ const StudentDashboard: React.FC = () => {
                 begin. Applications for new roles will open soon!
               </span>
             </div>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Success/Error Popup with higher z-index */}
