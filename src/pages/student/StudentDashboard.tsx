@@ -175,7 +175,7 @@ const StudentDashboard: React.FC = () => {
   const id = user?.id;
 
   const [showApplicationsModal, setShowApplicationsModal] = useState(false);
-const [isApplicationsLoading, setIsApplicationsLoading] = useState(false);
+  const [isApplicationsLoading, setIsApplicationsLoading] = useState(false);
 
   // Progress bar animation for success popup
   useEffect(() => {
@@ -427,34 +427,38 @@ const [isApplicationsLoading, setIsApplicationsLoading] = useState(false);
   };
 
   const fetchStudentApplications = async () => {
-  setIsApplicationsLoading(true);
-  try {
-    if (!id) throw new Error("User ID is missing");
-    
-    const response = await fetch(
-      `${baseUrl}/api/applicationRoutes/fetchByStudentId/${id}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    setIsApplicationsLoading(true);
+    try {
+      if (!id) throw new Error("User ID is missing");
+      
+      const response = await fetch(
+        `${baseUrl}/api/applicationRoutes/fetchByStudentId/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch applications");
       }
-    );
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch applications");
+      const data = await response.json();
+      setUserApplications(data);
+      setProfileData((prev) => ({
+        ...prev,
+        ApplicationsSent: data.length.toString(),
+      }));
+    } catch (err) {
+      console.error("Error fetching applications:", err);
+      setError("Failed to fetch your applications");
+      setShowSuccessPopup(true);
+    } finally {
+      setIsApplicationsLoading(false);
     }
-
-    const data = await response.json();
-    setUserApplications(data);
-  } catch (err) {
-    console.error("Error fetching applications:", err);
-    setError("Failed to fetch your applications");
-    setShowSuccessPopup(true);
-  } finally {
-    setIsApplicationsLoading(false);
-  }
-};
+  };
 
   const fetchCV = async () => {
     setCvLoading(true);
@@ -1678,7 +1682,7 @@ const [isApplicationsLoading, setIsApplicationsLoading] = useState(false);
               {application.coverLetter && (
                 <div className="mt-3">
                   <p className="text-gray-600 text-sm">Cover Letter</p>
-                  <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                  <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded whitespace-pre-line">
                     {application.coverLetter}
                   </p>
                 </div>
