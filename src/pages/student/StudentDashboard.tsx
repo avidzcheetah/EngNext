@@ -15,6 +15,7 @@ import {
   Check,
   AlertCircle,
   Loader2,
+  Info,
 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
@@ -140,6 +141,7 @@ const StudentDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [showInterestNotice, setShowInterestNotice] = useState(false);
   const [selectedInternship, setSelectedInternship] = useState<string | null>(
     null
   );
@@ -1339,8 +1341,11 @@ const StudentDashboard: React.FC = () => {
                   )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                <div className="cursor-help"
+                  onMouseEnter={() => setShowInterestNotice(true)}
+                  onMouseLeave={() => setShowInterestNotice(false)}
+                  onClick={() => setShowInterestNotice(true)}>
+                  <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                     <Heart className="w-4 h-4 inline mr-2" />
                     Select your Interest Level for this Position:
                   </label>
@@ -1460,22 +1465,17 @@ const StudentDashboard: React.FC = () => {
                         .map((app) => `${app.interestLevel}%`)
                         .join(", ") || "None"}
                     </p>
+                    <div className={`${showInterestNotice ? "block" : "hidden"} bg-yellow-50 text-yellow-800 p-3 rounded-lg text-sm animate-blink transition-opacity duration-300`}>
+                      <p className="font-medium flex items-center">
+                        <AlertCircle className="w-4 h-4 mr-2" />
+                        Choose 100% for the position you like the MOST, and 20% for the one you like the LEAST.
+                      </p>
+                      <p className="mt-1">
+                        Important: You can only use each interest level once across all your applications. You CANNOT use the same level to apply for multiple positions.
+                      </p>
+                    </div>
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Cover Letter (Recommended)
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={coverLetter}
-                    onChange={(e) => setCoverLetter(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500 transition-all"
-                    placeholder="Why are you interested in this position? Share a brief message with the employer..."
-                  />
-                </div>
-
                 <div className="bg-blue-50 text-blue-700 p-4 rounded-lg text-sm">
                   <p className="flex items-center">
                     <svg
@@ -1492,6 +1492,19 @@ const StudentDashboard: React.FC = () => {
                     Your interest level helps employers understand your priority
                     for this position
                   </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Cover Letter (Recommended)
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={coverLetter}
+                    onChange={(e) => setCoverLetter(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500 transition-all"
+                    placeholder="Why are you interested in this position? Share a brief message with the employer..."
+                  />
                 </div>
 
                 <div className="flex space-x-3">

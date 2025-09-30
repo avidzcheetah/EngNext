@@ -52,20 +52,25 @@ const Companies: React.FC = () => {
   useEffect(() => {
     const fetchStudentCount = async () => {
       try {
-        const response = await fetch(`${baseUrl}/api/studentRoutes/getAllStudents`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await fetch(
+          `${baseUrl}/api/studentRoutes/getAllStudents`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (!response.ok) {
-          throw new Error('Failed to fetch students');
+          throw new Error("Failed to fetch students");
         }
         const data = await response.json();
         setStudentCount(data.length); // Set student count based on the length of the students array
       } catch (err) {
         console.error("Error fetching students:", err);
-        setError(err instanceof Error ? err.message : "Failed to fetch student count");
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch student count"
+        );
       }
     };
 
@@ -152,69 +157,15 @@ const Companies: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <section className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-12 sm:py-20">
-        {/* Inline CSS for Animations - REMOVE LATER */}
-        <style>
-          {`
-            @keyframes notice {
-              0% {
-                opacity: 0;
-                transform: translateY(10px) scale(0.95);
-              }
-              100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-              }
-            }
-            @keyframes spin {
-              0% {
-                transform: rotate(0deg);
-              }
-              100% {
-                transform: rotate(360deg);
-              }
-            }
-          `}
-        </style>
-
         {/* Header Section - KEEP */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4">
             Partner Companies
           </h1>
           <p className="max-w-2xl mx-auto text-base sm:text-lg md:text-xl text-blue-100 mb-4 sm:mb-6 px-4">
-            Discover leading companies offering exciting job opportunities for Engineering students
+            Discover leading companies offering exciting job opportunities for
+            Engineering students
           </p>
-
-          {/* Notice with Inline CSS Animation and Rotating Spinner - REMOVE LATER */}
-          <div className="max-w-3xl mx-auto mb-6 sm:mb-8">
-            <div
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(8px)',
-                borderRadius: '0.5rem',
-                padding: '0.5rem 1.5rem',
-                fontSize: '1rem',
-                color: '#DBEAFE',
-                animation: 'notice 0.8s ease-out forwards',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-              }}
-            >
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: '1rem',
-                  height: '1rem',
-                  border: '2px solid #DBEAFE',
-                  borderTopColor: 'transparent',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite',
-                }}
-              ></span>
-              <span style={{ fontWeight: '500' }}>Notice:</span> Companies are currently being added. All companies will be available soon!
-            </div>
-          </div>
 
           {/* Stats - Display student count */}
           <div className="grid grid-cols-3 gap-2 sm:gap-6 max-w-4xl mx-auto px-4">
@@ -234,7 +185,9 @@ const Companies: React.FC = () => {
               <div className="text-xl sm:text-2xl md:text-3xl font-bold">
                 {industries.length}
               </div>
-              <div className="text-blue-100 text-xs sm:text-sm">Departments</div>
+              <div className="text-blue-100 text-xs sm:text-sm">
+                Departments
+              </div>
             </div>
           </div>
         </div>
