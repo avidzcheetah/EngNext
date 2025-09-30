@@ -168,6 +168,7 @@ const StudentDashboard: React.FC = () => {
 
   const [applications, setApplications] = useState<Application[]>([]);
   const [userApplications, setUserApplications] = useState<Application[]>([]);
+  const [applicationsLoaded, setApplicationsLoaded] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const id = user?.id;
 
@@ -390,6 +391,9 @@ const StudentDashboard: React.FC = () => {
   const fetchUserApplications = async () => {
     try {
       if (!id) throw new Error("User ID is missing");
+      
+      console.log("Fetching user applications for student:", id);
+      
       const response = await fetch(
         `${baseUrl}/api/applicationRoutes/getApplicationsByStudentId/${id}`,
         {
@@ -403,9 +407,16 @@ const StudentDashboard: React.FC = () => {
       if (!response.ok) throw new Error("Failed to fetch user applications");
 
       const data = await response.json();
+      console.log("Fetched user applications:", data);
+      console.log("Number of applications:", data.length);
+      console.log("Application IDs:", data.map((app: Application) => app.internshipId));
+      console.log("Interest levels used:", data.map((app: Application) => app.interestLevel));
+      
       setUserApplications(data);
+      setApplicationsLoaded(true);
     } catch (err) {
       console.error("Error fetching user applications:", err);
+      setApplicationsLoaded(true); // Set to true even on error to prevent blocking
       // Don't show error popup for this as it's not critical
     }
   };
@@ -457,6 +468,13 @@ const StudentDashboard: React.FC = () => {
       return;
     }
 
+    // Wait for applications to be loaded before proceeding
+    if (!applicationsLoaded) {
+      setError("Loading your application data. Please try again in a moment.");
+      setShowSuccessPopup(true);
+      return;
+    }
+
     if (Number(profileData.ApplicationsSent) >= maximumApplications) {
       setError(
         "You have reached the maximum number of job applications allowed."
@@ -469,6 +487,17 @@ const StudentDashboard: React.FC = () => {
     if (!useProfileCV && !uploadedCV) {
       setError("Please upload a new CV for this position.");
       setShowSuccessPopup(true);
+      return;
+    }
+
+    // Check if user has already applied for this internship
+    const hasAlreadyApplied = userApplications.some(
+      (app) => app.internshipId === selectedInternship
+    );
+    if (hasAlreadyApplied) {
+      setError("You have already applied for this position.");
+      setShowSuccessPopup(true);
+      setShowApplicationModal(false);
       return;
     }
 
@@ -597,7 +626,11 @@ const StudentDashboard: React.FC = () => {
       }
 
       setApplications((prev) => [...prev, data]);
-      setUserApplications((prev) => [...prev, data]);
+      setUserApplications((prev) => {
+        const updated = [...prev, data];
+        console.log("Updated userApplications after submission:", updated);
+        return updated;
+      });
       setSuccess("Application submitted successfully!");
       setShowSuccessPopup(true);
       setShowApplicationModal(false);
@@ -661,7 +694,10 @@ const StudentDashboard: React.FC = () => {
 
   // Helper function to check if user has already applied to this internship
   const hasUserApplied = (internshipId: string) => {
-    return userApplications.some((app) => app.internshipId === internshipId);
+    const hasApplied = userApplications.some((app) => app.internshipId === internshipId);
+    console.log(`Checking if user applied to ${internshipId}:`, hasApplied);
+    console.log("Current user applications:", userApplications);
+    return hasApplied;
   };
 
   const filteredInternships = fData
@@ -701,6 +737,14 @@ const StudentDashboard: React.FC = () => {
       navigate("/login");
       return;
     }
+
+    // Wait for applications to be loaded before allowing application
+    if (!applicationsLoaded) {
+      setError("Loading your application data. Please wait a moment and try again.");
+      setShowSuccessPopup(true);
+      return;
+    }
+
     if (Number(profileData.ApplicationsSent) >= maximumApplications) {
       setError(
         "You have reached the maximum number of job applications allowed."
@@ -708,6 +752,14 @@ const StudentDashboard: React.FC = () => {
       setShowSuccessPopup(true);
       return;
     }
+    
+    // Check if user has already applied for this internship
+    if (hasUserApplied(internshipId)) {
+      setError("You have already applied for this position.");
+      setShowSuccessPopup(true);
+      return;
+    }
+    
     setSelectedInternship(internshipId);
     setShowApplicationModal(true);
     setInterestLevel(60);
@@ -984,14 +1036,14 @@ const StudentDashboard: React.FC = () => {
                         <Button
                           onClick={() => handleApply(internship._id || "")}
                           className={`${
-                            alreadyApplied
+                            alreadyApplied || !applicationsLoaded
                               ? "bg-gray-400 cursor-not-allowed"
                               : "bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg hover:scale-[1.02]"
                           } text-white transition rounded-lg`}
-                          disabled={isAtLimit || !isRelevant || alreadyApplied}
+                          disabled={isAtLimit || !isRelevant || alreadyApplied || !applicationsLoaded}
                         >
                           <Send className="w-4 h-4 mr-2" />
-                          {alreadyApplied ? "Already Applied" : "Apply Now"}
+                          {!applicationsLoaded ? "Loading..." : alreadyApplied ? "Already Applied" : "Apply Now"}
                         </Button>
                       </div>
                     </Card>
