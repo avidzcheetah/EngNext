@@ -389,134 +389,145 @@ const StudentDashboard: React.FC = () => {
   };
 
   const handleSubmitApplication = useCallback(async () => {
-    if (!isAuthenticated || !id) {
-      setError('Please log in to apply for this position.');
-      setShowSuccessPopup(true);
-      setShowApplicationModal(false); // Close modal when showing error
-      navigate('/login');
-      return;
-    }
+  if (!isAuthenticated || !id) {
+    setError('Please log in to apply for this position.');
+    setShowSuccessPopup(true);
+    setShowApplicationModal(false);
+    navigate('/login');
+    return;
+  }
 
-    if (Number(profileData.ApplicationsSent) >= maximumApplications) {
-      setError('You have reached the maximum number of job applications allowed.');
-      setShowSuccessPopup(true);
-      setShowApplicationModal(false); // Close modal when showing error
-      return;
-    }
+  if (Number(profileData.ApplicationsSent) >= maximumApplications) {
+    setError('You have reached the maximum number of job applications allowed.');
+    setShowSuccessPopup(true);
+    setShowApplicationModal(false);
+    return;
+  }
 
-    if (!useProfileCV && !uploadedCV) {
-      setError('Please upload a new CV for this position.');
-      setShowSuccessPopup(true);
-      // Don't close modal for this error - user needs to fix it
-      return;
-    }
+  if (!useProfileCV && !uploadedCV) {
+    setError('Please upload a new CV for this position.');
+    setShowSuccessPopup(true);
+    return;
+  }
 
-    setIsSubmitting(true);
+  // Check if the interest level is already used in another application
+  const isInterestLevelUsed = userApplications.some(
+    (app) => app.interestLevel === interestLevel
+  );
+  if (isInterestLevelUsed) {
+    setError('You have already used this interest level for another application. Please choose a different interest level.');
+    setShowSuccessPopup(true);
+    return;
+  }
 
-    try {
-      const selectedInternshipData = fData?.find((item) => item._id === selectedInternship);
-      const newApplication: Application = {
-        studentId: id,
-        companyId: selectedInternshipData?.companyId || '',
-        studentName: `${profileData.firstName} ${profileData.lastName}`,
-        email: profileData.email,
-        internshipTitle: selectedInternshipData?.title || '',
-        appliedDate: new Date().toISOString(),
-        status: 'pending',
-        skills: profileData.skills,
-        gpa: profileData.gpa,
-        internshipId: selectedInternship || '',
-        coverLetter: coverLetter,
-        interestLevel: interestLevel,
-        companyName: selectedInternshipData?.companyName || '',
-        useProfileCV: useProfileCV,
-      };
+  setIsSubmitting(true);
 
-      let res;
+  try {
+    const selectedInternshipData = fData?.find((item) => item._id === selectedInternship);
+    const newApplication: Application = {
+      studentId: id,
+      companyId: selectedInternshipData?.companyId || '',
+      studentName: `${profileData.firstName} ${profileData.lastName}`,
+      email: profileData.email,
+      internshipTitle: selectedInternshipData?.title || '',
+      appliedDate: new Date().toISOString(),
+      status: 'pending',
+      skills: profileData.skills,
+      gpa: profileData.gpa,
+      internshipId: selectedInternship || '',
+      coverLetter: coverLetter,
+      interestLevel: interestLevel,
+      companyName: selectedInternshipData?.companyName || '',
+      useProfileCV: useProfileCV,
+    };
 
-      if (uploadedCV) {
-        const formData = new FormData();
-        Object.entries(newApplication).forEach(([key, value]) => {
-          formData.append(key, value !== undefined && value !== null ? value.toString() : '');
-        });
-        formData.append('cv', uploadedCV);
+    let res;
 
-        res = await fetch(`${baseUrl}/api/applicationRoutes/createApplication`, {
-          method: 'POST',
-          body: formData,
-        });
-      } else {
-        res = await fetch(`${baseUrl}/api/applicationRoutes/createApplication`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newApplication),
-        });
-      }
+    if (uploadedCV) {
+      const formData = new FormData();
+      Object.entries(newApplication).forEach(([key, value]) => {
+        formData.append(key, value !== undefined && value !== null ? value.toString() : '');
+      });
+      formData.append('cv', uploadedCV);
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        const userFriendlyError = handleApiError(errorData.message || '');
-        setError(userFriendlyError);
-        setShowSuccessPopup(true);
-        setShowApplicationModal(false); // Close modal when showing error
-        return;
-      }
-
-      const data = await res.json();
-      console.log('Application submitted to backend:', data);
-
-      const res2 = await fetch(`${baseUrl}/api/studentRoutes/incrementApplicationsSent/${id}`, {
-        method: 'PUT',
+      res = await fetch(`${baseUrl}/api/applicationRoutes/createApplication`, {
+        method: 'POST',
+        body: formData,
+      });
+    } else {
+      res = await fetch(`${baseUrl}/api/applicationRoutes/createApplication`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newApplication),
       });
+    }
 
-      if (res2.ok) {
-        const data2 = await res2.json();
-        console.log('Application sent incremented:', data2);
-        setApplicationsInfo(data2);
-        setProfileData((prev) => ({
-          ...prev,
-          ApplicationsSent: data2.ApplicationsSent || prev.ApplicationsSent,
-        }));
-        await fetchTotalNumberOfApplicableInternshipsperStudent();
-      } else {
-        console.warn('Incrementing application sent failed');
-      }
-
-      setApplications((prev) => [...prev, data]);
-      setSuccess('Application submitted successfully!');
-      setShowSuccessPopup(true);
-      setShowApplicationModal(false); // Close modal on success
-
-      // Reset form
-      setUploadedCV(null);
-      setCoverLetter('');
-      setInterestLevel(60);
-      setUseProfileCV(true);
-    } catch (error) {
-      console.error('Error submitting application:', error);
-      const userFriendlyError = handleApiError(error instanceof Error ? error.message : '');
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      const userFriendlyError = handleApiError(errorData.message || '');
       setError(userFriendlyError);
       setShowSuccessPopup(true);
-      setShowApplicationModal(false); // Close modal when showing error
-    } finally {
-      setIsSubmitting(false);
+      setShowApplicationModal(false);
+      return;
     }
-  }, [
-    isAuthenticated,
-    id,
-    profileData,
-    maximumApplications,
-    useProfileCV,
-    uploadedCV,
-    coverLetter,
-    interestLevel,
-    selectedInternship,
-    fData,
-    baseUrl,
-    navigate
-  ]);
+
+    const data = await res.json();
+    console.log('Application submitted to backend:', data);
+
+    const res2 = await fetch(`${baseUrl}/api/studentRoutes/incrementApplicationsSent/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newApplication),
+    });
+
+    if (res2.ok) {
+      const data2 = await res2.json();
+      console.log('Application sent incremented:', data2);
+      setApplicationsInfo(data2);
+      setProfileData((prev) => ({
+        ...prev,
+        ApplicationsSent: data2.ApplicationsSent || prev.ApplicationsSent,
+      }));
+      await fetchTotalNumberOfApplicableInternshipsperStudent();
+    } else {
+      console.warn('Incrementing application sent failed');
+    }
+
+    setApplications((prev) => [...prev, data]);
+    setUserApplications((prev) => [...prev, data]); // Update userApplications with the new application
+    setSuccess('Application submitted successfully!');
+    setShowSuccessPopup(true);
+    setShowApplicationModal(false);
+
+    // Reset form
+    setUploadedCV(null);
+    setCoverLetter('');
+    setInterestLevel(60);
+    setUseProfileCV(true);
+  } catch (error) {
+    console.error('Error submitting application:', error);
+    const userFriendlyError = handleApiError(error instanceof Error ? error.message : '');
+    setError(userFriendlyError);
+    setShowSuccessPopup(true);
+    setShowApplicationModal(false);
+  } finally {
+    setIsSubmitting(false);
+  }
+}, [
+  isAuthenticated,
+  id,
+  profileData,
+  maximumApplications,
+  useProfileCV,
+  uploadedCV,
+  coverLetter,
+  interestLevel,
+  selectedInternship,
+  fData,
+  baseUrl,
+  navigate,
+  userApplications, // Add userApplications to dependency array
+]);
 
   const mapDepartmentToCode = (dept: string) => {
     const lower = dept.toLowerCase();
@@ -809,35 +820,6 @@ const StudentDashboard: React.FC = () => {
                       </div>
 
                       <p className="text-gray-600 mb-4">{internship.description}</p>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div className="flex items-center space-x-2">
-                          <MapPin className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-600">{internship.location}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Clock className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-600">{internship.duration}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Building2 className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-600">Full-time</span>
-                        </div>
-                      </div>
-
-                      <div className="mb-4">
-                        <h4 className="text-sm font-medium text-gray-900 mb-2">Requirements:</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {internship.requirements?.map((req, index) => (
-                            <span
-                              key={index}
-                              className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm hover:bg-blue-100 transition"
-                            >
-                              {req}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
 
                       {!isRelevant && (
                         <div className="mb-4 flex items-center p-3 bg-red-50 rounded-lg">
