@@ -177,6 +177,9 @@ const StudentDashboard: React.FC = () => {
   const [showApplicationsModal, setShowApplicationsModal] = useState(false);
   const [isApplicationsLoading, setIsApplicationsLoading] = useState(false);
 
+  const applicationEndDate = new Date('2025-09-30');
+  const isApplicationPeriodOpen = new Date() <= applicationEndDate;
+
   // Progress bar animation for success popup
   useEffect(() => {
     if (showSuccessPopup) {
@@ -771,6 +774,12 @@ const StudentDashboard: React.FC = () => {
   });
 
   const handleApply = (internshipId: string) => {
+    if (!isApplicationPeriodOpen) {
+      setError("The application period has ended. You can no longer apply for positions.");
+      setShowSuccessPopup(true);
+      return;
+    }
+
     if (!isAuthenticated || !id) {
       setError("Please log in to apply for this position.");
       setShowSuccessPopup(true);
@@ -838,6 +847,23 @@ const StudentDashboard: React.FC = () => {
             Discover your next job opportunity and take your career forward.
           </p>
         </div>
+
+        {/* Application Period Ended Notice */}
+        {!isApplicationPeriodOpen && (
+          <Card className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm">
+            <div className="flex items-center">
+              <AlertTriangle className="w-6 h-6 text-red-600 mr-3" />
+              <div>
+                <h3 className="text-lg font-semibold text-red-800">
+                  Application Period Ended
+                </h3>
+                <p className="text-sm text-red-700">
+                  The application time has ended. You can no longer apply for positions. Apply Now buttons are disabled.
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Success/Error Popup with higher z-index */}
         {showSuccessPopup && (success || error) && (
@@ -1069,8 +1095,8 @@ const StudentDashboard: React.FC = () => {
                         </Link>
                         <Button
                           onClick={() => handleApply(internship._id || "")}
-                          className={`transition rounded-lg ${isRelevant && !alreadyApplied ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed text-white'}`}
-                          disabled={!isRelevant || alreadyApplied}
+                          className={`transition rounded-lg ${isRelevant && !alreadyApplied && isApplicationPeriodOpen ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed text-white'}`}
+                          disabled={!isRelevant || alreadyApplied || !isApplicationPeriodOpen}
                         >
                           <Send className="w-4 h-4 mr-2" />
                           Apply Now
