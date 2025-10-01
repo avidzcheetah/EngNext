@@ -517,9 +517,9 @@ const StudentDashboard: React.FC = () => {
     const selectedInternshipData = fData?.find(
       (item) => item._id === selectedInternship
     );
-    const isGflowPlus = selectedInternshipData?.companyName === "Gflow+";
+    const isSpecialCompany = selectedInternshipData ? ["Gflow+", "Thakshana"].includes(selectedInternshipData.companyName || "") : false;
 
-    if (Number(profileData.ApplicationsSent) >= maximumApplications && !isGflowPlus) {
+    if (Number(profileData.ApplicationsSent) >= maximumApplications && !isSpecialCompany) {
       setError(
         "You have reached the maximum number of job applications allowed."
       );
@@ -549,7 +549,7 @@ const StudentDashboard: React.FC = () => {
     const isInterestLevelUsed = userApplications.some(
       (app) => app.interestLevel === interestLevel
     );
-    if (isInterestLevelUsed && !isGflowPlus) {
+    if (isInterestLevelUsed && !isSpecialCompany) {
       setError(
         "You have already used this interest level for another application. Please choose a different interest level."
       );
@@ -787,9 +787,9 @@ const StudentDashboard: React.FC = () => {
     }
 
     const selectedInternshipData = fData?.find(item => item._id === internshipId);
-    const isGflowPlus = selectedInternshipData?.companyName === "Gflow+";
+    const isSpecialCompany = selectedInternshipData ? ["Gflow+", "Thakshana"].includes(selectedInternshipData.companyName || "") : false;
 
-    if (Number(profileData.ApplicationsSent) >= maximumApplications && !isGflowPlus) {
+    if (Number(profileData.ApplicationsSent) >= maximumApplications && !isSpecialCompany) {
       setError(
         "You have reached the maximum number of job applications allowed."
       );
@@ -1020,14 +1020,14 @@ const StudentDashboard: React.FC = () => {
                   const isRelevant =
                     internship.industry?.toLowerCase() === studentDeptCode;
                   const alreadyApplied = hasUserApplied(internship._id || "");
-                  const isGflowPlus = internship.companyName === "Gflow+";
+                  const isSpecialCompany = ["Gflow+", "Thakshana"].includes(internship.companyName || "");
                   return (
                     <Card
                       key={internship._id}
                       className="p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px] bg-white rounded-xl"
                     >
-                      {/* Gflow+ Special Note */}
-                      {isGflowPlus && (
+                      {/* Special Company Note */}
+                      {isSpecialCompany && (
                         <div className="mb-4 flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
                           <Info className="w-5 h-5 text-green-600 mr-2" />
                           <p className="text-sm text-green-800">
@@ -1071,7 +1071,7 @@ const StudentDashboard: React.FC = () => {
                         {internship.description}
                       </p>
 
-                      {!isRelevant && !isGflowPlus && (
+                      {!isRelevant && !isSpecialCompany && (
                         <div className="mb-4 flex items-center p-3 bg-red-50 rounded-lg">
                           <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
                           <p className="text-sm text-red-700">
@@ -1094,8 +1094,8 @@ const StudentDashboard: React.FC = () => {
                         </Link>
                         <Button
                           onClick={() => handleApply(internship._id || "")}
-                          className={`transition rounded-lg ${isGflowPlus && !alreadyApplied ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed text-white'}`}
-                          disabled={!isGflowPlus || alreadyApplied}
+                          className={`transition rounded-lg ${isSpecialCompany && !alreadyApplied ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed text-white'}`}
+                          disabled={!isSpecialCompany || alreadyApplied}
                         >
                           <Send className="w-4 h-4 mr-2" />
                           Apply Now
@@ -1308,300 +1308,308 @@ const StudentDashboard: React.FC = () => {
                 </Button>
               </div>
             ) : (
-              <div className="space-y-6">
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-3">
-                    Your Application Profile
-                  </h4>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-600">Name</p>
-                      <p className="font-medium">
-                        {profileData.firstName} {profileData.lastName}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Email</p>
-                      <p className="font-medium">{profileData.email}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Skills</p>
-                      <div className="flex flex-wrap gap-1">
-                        {profileData.skills.map((skill, index) => (
-                          <span
-                            key={index}
-                            className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">CV</p>
-                      {useProfileCV ? (
-                        <p className="text-green-600 font-medium flex items-center">
-                          <FileText className="w-4 h-4 mr-1" />
-                          Using Profile CV
-                        </p>
-                      ) : uploadedCV ? (
-                        <p className="text-green-600 font-medium flex items-center">
-                          <FileText className="w-4 h-4 mr-1" />
-                          New CV: {uploadedCV.name}
-                        </p>
-                      ) : (
-                        <p className="text-red-600 font-medium">
-                          Please upload new CV
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-3">
-                    CV Selection
-                  </h4>
-                  {cvPreview ? (
-                    <div className="space-y-2">
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          checked={useProfileCV}
-                          onChange={() => setUseProfileCV(true)}
-                          className="mr-2"
-                        />
-                        Use my profile CV
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          checked={!useProfileCV}
-                          onChange={() => setUseProfileCV(false)}
-                          className="mr-2"
-                        />
-                        Upload a new CV for this position
-                      </label>
-                    </div>
-                  ) : (
-                    <p className="text-gray-600 mb-2">
-                      No CV in profile. Please upload a new one for this
-                      position.
-                    </p>
-                  )}
-                  {!useProfileCV && (
-                    <div className="mt-2">
-                      <input
-                        type="file"
-                        accept="application/pdf"
-                        onChange={handleCVUpload}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500 transition-all"
-                      />
-                      {uploadedCV && (
-                        <p className="text-sm text-gray-600 mt-1">
-                          Selected: {uploadedCV.name}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div className="cursor-help"
-                  onMouseEnter={() => setShowInterestNotice(true)}
-                  onMouseLeave={() => setShowInterestNotice(false)}
-                  onClick={() => setShowInterestNotice(true)}>
-                  <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
-                    <Heart className="w-4 h-4 inline mr-2" />
-                    Select your Interest Level for this Position:
-                  </label>
-                  <div className="space-y-3">
-                    <div className="relative">
-                      <div className="w-full h-4 bg-gray-200 rounded-full shadow-inner overflow-hidden">
-                        <div
-                          className={`h-4 rounded-full transition-all duration-300 ease-out ${
-                            getInterestLevelInfo(interestLevel).color
-                          } shadow-sm`}
-                          style={{ width: `${interestLevel}%` }}
-                        ></div>
-                      </div>
-                      <input
-                        type="range"
-                        min="20"
-                        max="100"
-                        step="20"
-                        value={interestLevel}
-                        onChange={(e) =>
-                          setInterestLevel(Number(e.target.value))
-                        }
-                        className="absolute top-0 w-full h-4 opacity-0 cursor-pointer"
-                      />
-                      <div
-                        className="absolute top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white border-2 rounded-full shadow-md pointer-events-none transition-all duration-300"
-                        style={{
-                          left: `calc(${interestLevel}% - 12px)`,
-                          borderColor: getInterestLevelInfo(interestLevel)
-                            .color.replace("bg-", "")
-                            .replace("-400", "-500"),
-                        }}
-                      >
-                        <div
-                          className={`w-2 h-2 ${
-                            getInterestLevelInfo(interestLevel).color
-                          } rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`}
-                        ></div>
-                      </div>
-                      <div className="relative mt-2">
-                        <div className="flex justify-between text-xs text-gray-500">
-                          <span
-                            style={{
-                              position: "absolute",
-                              left: "0%",
-                              transform: "translateX(-50%)",
-                            }}
-                          >
-                            0%
-                          </span>
-                          <span
-                            style={{
-                              position: "absolute",
-                              left: "20%",
-                              transform: "translateX(-50%)",
-                            }}
-                          >
-                            20%
-                          </span>
-                          <span
-                            style={{
-                              position: "absolute",
-                              left: "40%",
-                              transform: "translateX(-50%)",
-                            }}
-                          >
-                            40%
-                          </span>
-                          <span
-                            style={{
-                              position: "absolute",
-                              left: "60%",
-                              transform: "translateX(-50%)",
-                            }}
-                          >
-                            60%
-                          </span>
-                          <span
-                            style={{
-                              position: "absolute",
-                              left: "80%",
-                              transform: "translateX(-50%)",
-                            }}
-                          >
-                            80%
-                          </span>
-                          <span
-                            style={{
-                              position: "absolute",
-                              left: "100%",
-                              transform: "translateX(-50%)",
-                            }}
-                          >
-                            100%
-                          </span>
+              <>
+                {(() => {
+                  const selectedInternshipData = fData?.find(item => item._id === selectedInternship);
+                  const isSpecialCompany = selectedInternshipData ? ["Gflow+", "Thakshana"].includes(selectedInternshipData.companyName || "") : false;
+                  return (
+                    <div className="space-y-6">
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <h4 className="font-medium text-gray-900 mb-3">
+                          Your Application Profile
+                        </h4>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="text-gray-600">Name</p>
+                            <p className="font-medium">
+                              {profileData.firstName} {profileData.lastName}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600">Email</p>
+                            <p className="font-medium">{profileData.email}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600">Skills</p>
+                            <div className="flex flex-wrap gap-1">
+                              {profileData.skills.map((skill, index) => (
+                                <span
+                                  key={index}
+                                  className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded"
+                                >
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-gray-600">CV</p>
+                            {useProfileCV ? (
+                              <p className="text-green-600 font-medium flex items-center">
+                                <FileText className="w-4 h-4 mr-1" />
+                                Using Profile CV
+                              </p>
+                            ) : uploadedCV ? (
+                              <p className="text-green-600 font-medium flex items-center">
+                                <FileText className="w-4 h-4 mr-1" />
+                                New CV: {uploadedCV.name}
+                              </p>
+                            ) : (
+                              <p className="text-red-600 font-medium">
+                                Please upload new CV
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center justify-center space-x-2 p-3 bg-gray-50 rounded-lg">
-                      <Heart
-                        className={`w-5 h-5 ${getInterestLevelInfo(
-                          interestLevel
-                        ).color.replace("bg-", "text-")}`}
-                      />
-                      <span
-                        className={`font-medium ${
-                          getInterestLevelInfo(interestLevel).textColor
-                        }`}
-                      >
-                        {getInterestLevelInfo(interestLevel).text} (
-                        {interestLevel}%)
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-2">
-                      Used interest levels:{" "}
-                      {userApplications
-                        .map((app) => `${app.interestLevel}%`)
-                        .join(", ") || "None"}
-                    </p>
-                    <div className={`${showInterestNotice ? "block" : "hidden"} bg-yellow-50 text-yellow-800 p-3 rounded-lg text-sm animate-blink transition-opacity duration-300`}>
-                      <p className="font-medium flex items-center">
-                        <AlertCircle className="w-4 h-4 mr-2" />
-                        Choose 100% for the position you like the MOST, and 20% for the one you like the LEAST.
-                      </p>
-                      <p className="mt-1">
-                        Important: You can only use each interest level once across all your applications. You CANNOT use the same level to apply for multiple positions.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-blue-50 text-blue-700 p-4 rounded-lg text-sm">
-                  <p className="flex items-center">
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Your interest level helps employers understand your priority
-                    for this position
-                  </p>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Cover Letter (Recommended)
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={coverLetter}
-                    onChange={(e) => setCoverLetter(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500 transition-all"
-                    placeholder="Why are you interested in this position? Share a brief message with the employer..."
-                  />
-                </div>
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <h4 className="font-medium text-gray-900 mb-3">
+                          CV Selection
+                        </h4>
+                        {cvPreview ? (
+                          <div className="space-y-2">
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                checked={useProfileCV}
+                                onChange={() => setUseProfileCV(true)}
+                                className="mr-2"
+                              />
+                              Use my profile CV
+                            </label>
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                checked={!useProfileCV}
+                                onChange={() => setUseProfileCV(false)}
+                                className="mr-2"
+                              />
+                              Upload a new CV for this position
+                            </label>
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 mb-2">
+                            No CV in profile. Please upload a new one for this
+                            position.
+                          </p>
+                        )}
+                        {!useProfileCV && (
+                          <div className="mt-2">
+                            <input
+                              type="file"
+                              accept="application/pdf"
+                              onChange={handleCVUpload}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500 transition-all"
+                            />
+                            {uploadedCV && (
+                              <p className="text-sm text-gray-600 mt-1">
+                                Selected: {uploadedCV.name}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
 
-                <div className="flex space-x-3">
-                  <Button
-                    variant="outline"
-                    fullWidth
-                    onClick={() => setShowApplicationModal(false)}
-                    className="hover:bg-red-300 hover:text-white transition rounded-lg"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    fullWidth
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-[1.02] transition rounded-lg flex items-center justify-center"
-                    onClick={handleSubmitApplication}
-                    disabled={
-                      isSubmitting ||
-                      isAtLimit ||
-                      (!useProfileCV && !uploadedCV)
-                    }
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                        Submitting...
-                      </>
-                    ) : (
-                      "Submit Application"
-                    )}
-                  </Button>
-                </div>
-              </div>
+                      <div className="cursor-help"
+                        onMouseEnter={() => setShowInterestNotice(true)}
+                        onMouseLeave={() => setShowInterestNotice(false)}
+                        onClick={() => setShowInterestNotice(true)}>
+                        <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                          <Heart className="w-4 h-4 inline mr-2" />
+                          Select your Interest Level for this Position:
+                        </label>
+                        <div className="space-y-3">
+                          <div className="relative">
+                            <div className="w-full h-4 bg-gray-200 rounded-full shadow-inner overflow-hidden">
+                              <div
+                                className={`h-4 rounded-full transition-all duration-300 ease-out ${
+                                  getInterestLevelInfo(interestLevel).color
+                                } shadow-sm`}
+                                style={{ width: `${interestLevel}%` }}
+                              ></div>
+                            </div>
+                            <input
+                              type="range"
+                              min="20"
+                              max="100"
+                              step="20"
+                              value={interestLevel}
+                              onChange={(e) =>
+                                setInterestLevel(Number(e.target.value))
+                              }
+                              className="absolute top-0 w-full h-4 opacity-0 cursor-pointer"
+                            />
+                            <div
+                              className="absolute top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white border-2 rounded-full shadow-md pointer-events-none transition-all duration-300"
+                              style={{
+                                left: `calc(${interestLevel}% - 12px)`,
+                                borderColor: getInterestLevelInfo(interestLevel)
+                                  .color.replace("bg-", "")
+                                  .replace("-400", "-500"),
+                              }}
+                            >
+                              <div
+                                className={`w-2 h-2 ${
+                                  getInterestLevelInfo(interestLevel).color
+                                } rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`}
+                              ></div>
+                            </div>
+                            <div className="relative mt-2">
+                              <div className="flex justify-between text-xs text-gray-500">
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    left: "0%",
+                                    transform: "translateX(-50%)",
+                                  }}
+                                >
+                                  0%
+                                </span>
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    left: "20%",
+                                    transform: "translateX(-50%)",
+                                  }}
+                                >
+                                  20%
+                                </span>
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    left: "40%",
+                                    transform: "translateX(-50%)",
+                                  }}
+                                >
+                                  40%
+                                </span>
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    left: "60%",
+                                    transform: "translateX(-50%)",
+                                  }}
+                                >
+                                  60%
+                                </span>
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    left: "80%",
+                                    transform: "translateX(-50%)",
+                                  }}
+                                >
+                                  80%
+                                </span>
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    left: "100%",
+                                    transform: "translateX(-50%)",
+                                  }}
+                                >
+                                  100%
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-center space-x-2 p-3 bg-gray-50 rounded-lg">
+                            <Heart
+                              className={`w-5 h-5 ${getInterestLevelInfo(
+                                interestLevel
+                              ).color.replace("bg-", "text-")}`}
+                            />
+                            <span
+                              className={`font-medium ${
+                                getInterestLevelInfo(interestLevel).textColor
+                              }`}
+                            >
+                              {getInterestLevelInfo(interestLevel).text} (
+                              {interestLevel}%)
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-2">
+                            Used interest levels:{" "}
+                            {userApplications
+                              .map((app) => `${app.interestLevel}%`)
+                              .join(", ") || "None"}
+                          </p>
+                          <div className={`${showInterestNotice ? "block" : "hidden"} bg-yellow-50 text-yellow-800 p-3 rounded-lg text-sm animate-blink transition-opacity duration-300`}>
+                            <p className="font-medium flex items-center">
+                              <AlertCircle className="w-4 h-4 mr-2" />
+                              Choose 100% for the position you like the MOST, and 20% for the one you like the LEAST.
+                            </p>
+                            <p className="mt-1">
+                              Important: You can only use each interest level once across all your applications. You CANNOT use the same level to apply for multiple positions.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-blue-50 text-blue-700 p-4 rounded-lg text-sm">
+                        <p className="flex items-center">
+                          <svg
+                            className="w-5 h-5 mr-2"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          Your interest level helps employers understand your priority
+                          for this position
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Cover Letter (Recommended)
+                        </label>
+                        <textarea
+                          rows={4}
+                          value={coverLetter}
+                          onChange={(e) => setCoverLetter(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-blue-500 transition-all"
+                          placeholder="Why are you interested in this position? Share a brief message with the employer..."
+                        />
+                      </div>
+
+                      <div className="flex space-x-3">
+                        <Button
+                          variant="outline"
+                          fullWidth
+                          onClick={() => setShowApplicationModal(false)}
+                          className="hover:bg-red-300 hover:text-white transition rounded-lg"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          fullWidth
+                          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-[1.02] transition rounded-lg flex items-center justify-center"
+                          onClick={handleSubmitApplication}
+                          disabled={
+                            isSubmitting ||
+                            (isAtLimit && !isSpecialCompany) ||
+                            (!useProfileCV && !uploadedCV)
+                          }
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                              Submitting...
+                            </>
+                          ) : (
+                            "Submit Application"
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </>
             )}
           </Card>
         </div>
