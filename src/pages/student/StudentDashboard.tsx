@@ -517,9 +517,8 @@ const StudentDashboard: React.FC = () => {
     const selectedInternshipData = fData?.find(
       (item) => item._id === selectedInternship
     );
-    const isSpecialCompany = selectedInternshipData ? ["Gflow+", "Thakshana"].includes(selectedInternshipData.companyName || "") : false;
 
-    if (Number(profileData.ApplicationsSent) >= maximumApplications && !isSpecialCompany) {
+    if (Number(profileData.ApplicationsSent) >= maximumApplications) {
       setError(
         "You have reached the maximum number of job applications allowed."
       );
@@ -549,7 +548,7 @@ const StudentDashboard: React.FC = () => {
     const isInterestLevelUsed = userApplications.some(
       (app) => app.interestLevel === interestLevel
     );
-    if (isInterestLevelUsed && !isSpecialCompany) {
+    if (isInterestLevelUsed) {
       setError(
         "You have already used this interest level for another application. Please choose a different interest level."
       );
@@ -787,9 +786,8 @@ const StudentDashboard: React.FC = () => {
     }
 
     const selectedInternshipData = fData?.find(item => item._id === internshipId);
-    const isSpecialCompany = selectedInternshipData ? ["Gflow+", "Thakshana"].includes(selectedInternshipData.companyName || "") : false;
 
-    if (Number(profileData.ApplicationsSent) >= maximumApplications && !isSpecialCompany) {
+    if (Number(profileData.ApplicationsSent) >= maximumApplications) {
       setError(
         "You have reached the maximum number of job applications allowed."
       );
@@ -839,19 +837,6 @@ const StudentDashboard: React.FC = () => {
           <p className="text-gray-600 animate-fade-in delay-100">
             Discover your next job opportunity and take your career forward.
           </p>
-          <Card className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm">
-            <div className="flex items-center gap-2 animate-notice">
-              <AlertTriangle className="w-6 h-6 text-red-600 mr-3" />
-              <div>
-                <h3 className="text-lg font-semibold text-red-800">
-                  Application Period Ended
-                </h3>
-                <p className="text-sm text-red-700">
-                  The application period for new jobs has closed. You can no longer apply for positions.
-                </p>
-              </div>
-            </div>
-          </Card>
         </div>
 
         {/* Success/Error Popup with higher z-index */}
@@ -1020,21 +1005,11 @@ const StudentDashboard: React.FC = () => {
                   const isRelevant =
                     internship.industry?.toLowerCase() === studentDeptCode;
                   const alreadyApplied = hasUserApplied(internship._id || "");
-                  const isSpecialCompany = ["Gflow+", "Thakshana"].includes(internship.companyName || "");
                   return (
                     <Card
                       key={internship._id}
                       className="p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px] bg-white rounded-xl"
                     >
-                      {/* Special Company Note */}
-                      {isSpecialCompany && (
-                        <div className="mb-4 flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
-                          <Info className="w-5 h-5 text-green-600 mr-2" />
-                          <p className="text-sm text-green-800">
-                            A new company added. Apply if you're interested.
-                          </p>
-                        </div>
-                      )}
 
                       {/* Already Applied Warning */}
                       {alreadyApplied && (
@@ -1071,7 +1046,7 @@ const StudentDashboard: React.FC = () => {
                         {internship.description}
                       </p>
 
-                      {!isRelevant && !isSpecialCompany && (
+                      {!isRelevant && (
                         <div className="mb-4 flex items-center p-3 bg-red-50 rounded-lg">
                           <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
                           <p className="text-sm text-red-700">
@@ -1094,8 +1069,8 @@ const StudentDashboard: React.FC = () => {
                         </Link>
                         <Button
                           onClick={() => handleApply(internship._id || "")}
-                          className={`transition rounded-lg ${isSpecialCompany && !alreadyApplied ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed text-white'}`}
-                          disabled={!isSpecialCompany || alreadyApplied}
+                          className={`transition rounded-lg ${isRelevant && !alreadyApplied ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed text-white'}`}
+                          disabled={!isRelevant || alreadyApplied}
                         >
                           <Send className="w-4 h-4 mr-2" />
                           Apply Now
@@ -1311,7 +1286,6 @@ const StudentDashboard: React.FC = () => {
               <>
                 {(() => {
                   const selectedInternshipData = fData?.find(item => item._id === selectedInternship);
-                  const isSpecialCompany = selectedInternshipData ? ["Gflow+", "Thakshana"].includes(selectedInternshipData.companyName || "") : false;
                   return (
                     <div className="space-y-6">
                       <div className="bg-gray-50 rounded-lg p-4">
@@ -1592,7 +1566,7 @@ const StudentDashboard: React.FC = () => {
                           onClick={handleSubmitApplication}
                           disabled={
                             isSubmitting ||
-                            (isAtLimit && !isSpecialCompany) ||
+                            isAtLimit ||
                             (!useProfileCV && !uploadedCV)
                           }
                         >
