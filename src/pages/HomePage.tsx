@@ -17,6 +17,11 @@ const HomePage: React.FC = () => {
 
   const { companyProfiles, loading, error } = useCompany();
 
+  // Limit the number of companies displayed in the carousel for performance
+  // Full list is available on the dedicated companies page
+  const MAX_CAROUSEL_COMPANIES = 20;
+  const limitedProfiles = companyProfiles.slice(0, MAX_CAROUSEL_COMPANIES);
+
   const handleNavigate = () => {
     navigate("/companies", { state: { companies: companyProfiles } });
   };
@@ -142,7 +147,7 @@ const HomePage: React.FC = () => {
                   onMouseEnter={(e) => e.currentTarget.style.animationPlayState = 'paused'}
                   onMouseLeave={(e) => e.currentTarget.style.animationPlayState = 'running'}
                 >
-                  {[...companyProfiles, ...companyProfiles].map((profile, index) => (
+                  {[...limitedProfiles, ...limitedProfiles].map((profile, index) => (
                     <div
                       key={`${profile.id}-${index}`}
                       className="flex-none"
@@ -161,6 +166,7 @@ const HomePage: React.FC = () => {
                                 height: 'auto',
                                 width: 'auto'
                               }}
+                              loading="lazy" // Add lazy loading for images to improve performance
                             />
                           </div>
                           <div style={{ height: '15%' }} className="flex items-center justify-center w-full">
@@ -187,6 +193,12 @@ const HomePage: React.FC = () => {
                   }
                 `}
               </style>
+
+              {companyProfiles.length > MAX_CAROUSEL_COMPANIES && (
+                <p className="text-center text-gray-500 mt-4">
+                  Showing {limitedProfiles.length} of {companyProfiles.length} partners...
+                </p>
+              )}
 
               <div className="text-center mt-12">
                 <Button

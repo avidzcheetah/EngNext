@@ -514,7 +514,12 @@ const StudentDashboard: React.FC = () => {
       return;
     }
 
-    if (Number(profileData.ApplicationsSent) >= maximumApplications) {
+    const selectedInternshipData = fData?.find(
+      (item) => item._id === selectedInternship
+    );
+    const isGflowPlus = selectedInternshipData?.companyName === "Gflow+";
+
+    if (Number(profileData.ApplicationsSent) >= maximumApplications && !isGflowPlus) {
       setError(
         "You have reached the maximum number of job applications allowed."
       );
@@ -544,7 +549,7 @@ const StudentDashboard: React.FC = () => {
     const isInterestLevelUsed = userApplications.some(
       (app) => app.interestLevel === interestLevel
     );
-    if (isInterestLevelUsed) {
+    if (isInterestLevelUsed && !isGflowPlus) {
       setError(
         "You have already used this interest level for another application. Please choose a different interest level."
       );
@@ -553,9 +558,6 @@ const StudentDashboard: React.FC = () => {
     }
 
     // Check if the company has reached the application limit
-    const selectedInternshipData = fData?.find(
-      (item) => item._id === selectedInternship
-    );
     const companyId = selectedInternshipData?.companyId;
     const MAX_COMPANY_APPLICATIONS = 27; // Configurable limit
     if (companyId) {
@@ -784,7 +786,10 @@ const StudentDashboard: React.FC = () => {
       return;
     }
 
-    if (Number(profileData.ApplicationsSent) >= maximumApplications) {
+    const selectedInternshipData = fData?.find(item => item._id === internshipId);
+    const isGflowPlus = selectedInternshipData?.companyName === "Gflow+";
+
+    if (Number(profileData.ApplicationsSent) >= maximumApplications && !isGflowPlus) {
       setError(
         "You have reached the maximum number of job applications allowed."
       );
@@ -1015,11 +1020,22 @@ const StudentDashboard: React.FC = () => {
                   const isRelevant =
                     internship.industry?.toLowerCase() === studentDeptCode;
                   const alreadyApplied = hasUserApplied(internship._id || "");
+                  const isGflowPlus = internship.companyName === "Gflow+";
                   return (
                     <Card
                       key={internship._id}
                       className="p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px] bg-white rounded-xl"
                     >
+                      {/* Gflow+ Special Note */}
+                      {isGflowPlus && (
+                        <div className="mb-4 flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <Info className="w-5 h-5 text-green-600 mr-2" />
+                          <p className="text-sm text-green-800">
+                            A new company added. Apply if you're interested.
+                          </p>
+                        </div>
+                      )}
+
                       {/* Already Applied Warning */}
                       {alreadyApplied && (
                         <div className="mb-4 flex items-center p-3 bg-orange-50 border border-orange-200 rounded-lg">
@@ -1055,7 +1071,7 @@ const StudentDashboard: React.FC = () => {
                         {internship.description}
                       </p>
 
-                      {!isRelevant && (
+                      {!isRelevant && !isGflowPlus && (
                         <div className="mb-4 flex items-center p-3 bg-red-50 rounded-lg">
                           <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
                           <p className="text-sm text-red-700">
@@ -1078,8 +1094,8 @@ const StudentDashboard: React.FC = () => {
                         </Link>
                         <Button
                           onClick={() => handleApply(internship._id || "")}
-                          className="bg-gray-400 cursor-not-allowed text-white transition rounded-lg"
-                          disabled={true}
+                          className={`transition rounded-lg ${isGflowPlus && !alreadyApplied ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed text-white'}`}
+                          disabled={!isGflowPlus || alreadyApplied}
                         >
                           <Send className="w-4 h-4 mr-2" />
                           Apply Now
