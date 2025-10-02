@@ -12,6 +12,7 @@ import {
   Check,
   X,
   Plus,
+  Table,
 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
@@ -51,6 +52,7 @@ const AllStudents: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [progress, setProgress] = useState(100);
+  const [showTablePopup, setShowTablePopup] = useState(false);
 
   const isAdmin = user?.role === "admin";
 
@@ -376,9 +378,9 @@ const AllStudents: React.FC = () => {
           </div>
         )}
 
-        {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative">
+        {/* Search Bar and Table Button */}
+        <div className="mb-6 flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
@@ -388,6 +390,15 @@ const AllStudents: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          {isAdmin && (
+            <Button
+              onClick={() => setShowTablePopup(true)}
+              className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg transition-all duration-200"
+            >
+              <Table className="w-4 h-4" />
+              <span>View Table</span>
+            </Button>
+          )}
         </div>
 
         {/* Students Sections */}
@@ -524,6 +535,66 @@ const AllStudents: React.FC = () => {
           ))
         )}
       </div>
+
+      {/* Table Popup */}
+      {showTablePopup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] shadow-2xl border border-gray-100 transform transition-all duration-300 scale-100 animate-fade-in">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
+                <Table className="w-5 h-5" />
+                Students Overview Table
+              </h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Student Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Phone Number
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Reg No
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {students.map((student) => (
+                    <tr key={student.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {student.firstName || "Unknown"} {student.lastName || "Student"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {student.email || "N/A"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {student.phone || "N/A"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {student.registrationNumber || "N/A"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="p-6 border-t border-gray-200 flex justify-end">
+              <Button
+                onClick={() => setShowTablePopup(false)}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {editingStudent && (
         <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 overflow-y-auto py-8">
