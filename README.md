@@ -44,7 +44,7 @@ The platform provides separate dashboards for students, companies, and admins â€
 | **Frontend** | React, TypeScript, Tailwind CSS |
 | **Backend** | Node.js, Express.js, TypeScript |
 | **Database** | MongoDB |
-| **Deployment** | Vercel (Frontend) & Render / Railway / similar (Backend) |
+| **Deployment** | Vercel (Frontend) & Render (Backend) |
 | **Auth** | JWT-based Authentication |
 
 ---
