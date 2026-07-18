@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { 
   User, 
   Camera, 
@@ -24,19 +24,8 @@ interface StudentProfile {
   lastName: string;
   email: string;
   phone?: string;
-  profilePicture?: File | null;
-  bio?: string;
-  skills: string[];
-  subfields: string[]; // New field for interested subfields
-  gpa?: number;
-  year: string;
-  department: string;
-  registrationNumber: string;
-  cv?: {
-    filename: string;
-    uploadDate: string;
-    size: string;
-  };
+  profilePicture?: string | File | null;
+  cv?: string | File | null;
   portfolio?: string;
   linkedin?: string;
   github?: string;
@@ -83,11 +72,10 @@ const StudentProfile: React.FC = () => {
   });
 
   const [cv, setCV] = useState<File | null>(null);
-  const [cvPreview, setCvPreview] = useState<string | null>(null);
-  const location = useLocation();
+  const [, setCvPreview] = useState<string | null>(null);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   
-  let id = user?.id;
+  const id = user?.id;
 
   // Memoized fetch functions to prevent unnecessary re-renders
   const fetchProfile = useCallback(async () => {
@@ -104,7 +92,13 @@ const StudentProfile: React.FC = () => {
 
       const data = await response.json();
       setProfileData({ ...data, department: data.department, subfields: data.subfields || [] });
-    } catch (err) {
+      if (data.profilePicture) {
+        setProfilePreview(data.profilePicture);
+      }
+      if (data.cv) {
+        setCvPreview(data.cv);
+      }
+    } catch {
       console.log("Error fetching data");
       setError("Failed to fetch profile");
     } finally {
@@ -112,42 +106,10 @@ const StudentProfile: React.FC = () => {
     }
   }, [baseUrl, id]);
 
-  const fetchProfilePicture = useCallback(async () => {
-    try {
-      const response = await fetch(`${baseUrl}/api/studentRoutes/getProfilePicture/${id}`);
-      if (!response.ok) throw new Error("Failed to fetch image");
-
-      const blob = await response.blob();
-      const imageUrl = URL.createObjectURL(blob);
-      setProfilePreview(imageUrl);
-    } catch (err) {
-      console.error(err);
-    }
-  }, [baseUrl, id]);
-
-  const fetchCV = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(`${baseUrl}/api/studentRoutes/getCV/${id}`, { method: "GET" });
-      if (!response.ok) throw new Error("Failed to fetch CV");
-
-      const blob = await response.blob();
-      const fileUrl = URL.createObjectURL(blob);
-      setCvPreview(fileUrl);
-    } catch (err) {
-      console.log("Error fetching CV:", err);
-      setError("Failed to fetch CV");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [baseUrl, id]);
-
   // Load profile data on component mount
   useEffect(() => {
-    Promise.all([fetchProfile(), fetchCV(), fetchProfilePicture()]);
-  }, [fetchProfile, fetchCV, fetchProfilePicture]);
+    fetchProfile();
+  }, [fetchProfile]);
 
   // Progress bar animation for success popup
   useEffect(() => {

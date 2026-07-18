@@ -5,8 +5,8 @@ import CompanyController from "../controllers/companyController.js";
 
 const router = express.Router();
 
-// Multer setup for memory storage
-const storage = multer.memoryStorage();
+import { storage } from "../config/cloudinary.js";
+
 const upload = multer({ storage });
 
 // POST /api/companies

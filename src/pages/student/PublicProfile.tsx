@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import {
   User,
   Mail,
@@ -40,11 +40,7 @@ interface StudentProfile {
   github?: string;
   availability?: boolean;
   ApplicationsSent?: number;
-  cv?: {
-    filename: string;
-    uploadDate: string;
-    size: string;
-  };
+  cv?: string;
 }
 
 interface PublicStudentProfileProps {
@@ -71,7 +67,6 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
   const [error, setError] = useState<string | null>(null);
 
   const location = useLocation();
-  const navigate = useNavigate();
   const { id: paramId } = useParams<{ id: string }>();
   const { id: stateId } = location.state || {};
 
@@ -95,6 +90,8 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
       if (!res.ok) throw new Error("Failed to fetch profile");
       const data = await res.json();
       setProfileData({ ...data, subfields: data.subfields || [] });
+      if (data.profilePicture) setProfilePreview(data.profilePicture);
+      if (data.cv) setCvPreview(data.cv);
     } catch (err) {
       console.error(err);
       setError("Failed to fetch profile");
@@ -103,47 +100,15 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
     }
   };
 
-  const fetchProfilePicture = async () => {
-    if (!studentId) return;
-    try {
-      const res = await fetch(
-        `${baseUrl}/api/studentRoutes/getProfilePicture/${studentId}`
-      );
-      if (!res.ok) return;
-      const blob = await res.blob();
-      setProfilePreview(URL.createObjectURL(blob));
-    } catch (err) {
-      console.error("Failed to fetch profile picture", err);
-    }
-  };
-
-  const fetchCV = async () => {
-    if (!studentId) return;
-    try {
-      const res = await fetch(
-        `${baseUrl}/api/studentRoutes/getCV/${studentId}`
-      );
-      if (!res.ok) return;
-      const blob = await res.blob();
-      setCvPreview(URL.createObjectURL(blob));
-    } catch (err) {
-      console.error("Failed to fetch CV", err);
-    }
-  };
-
   useEffect(() => {
-    Promise.all([fetchProfile(), fetchProfilePicture(), fetchCV()]);
+    fetchProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studentId]);
 
   // Function to handle CV download
   const handleDownloadCV = () => {
-    if (cvPreview && profileData.cv) {
-      const link = document.createElement('a');
-      link.href = cvPreview;
-      link.download = profileData.cv.filename || 'cv.pdf';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    if (cvPreview) {
+      window.open(cvPreview, "_blank");
     }
   };
 

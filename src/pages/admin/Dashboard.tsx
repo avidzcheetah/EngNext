@@ -23,13 +23,9 @@ const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { refetch, companyProfiles } = useCompany();
-  const [companies, setCompanies] = useState<any[]>([]);
-  const [internships, setInternships] = useState<any[]>([]);
   const [maximumApplications, setMaximumApplications] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [showform, setshowForm] = useState(false);
-  const [restrictionNumber, setRestrictionNumber] = useState(0);
-  const [isLoadingInternships, setIsLoadingInternships] = useState(false);
   const [isLoadingApplications, setIsLoadingApplications] = useState(false);
   const [showCompaniesModal, setShowCompaniesModal] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -63,6 +59,7 @@ const AdminDashboard: React.FC = () => {
       fetchTotalNumberOfApplicableInternshipsperStudent();
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const fetchTotalNumberOfApplicableInternshipsperStudent = async () => {
@@ -130,17 +127,12 @@ const AdminDashboard: React.FC = () => {
 
   const fetchInternships = async () => {
     if (!user || !user.department) return;
-    setIsLoadingInternships(true);
     try {
-      const res = await fetch(
+      await fetch(
         `${baseUrl}/api/InternshipRoutes/getByDepartment/${user.department}`
       );
-      const data = await res.json();
-      setInternships(data);
     } catch (err) {
       console.error("Failed to fetch jobs:", err);
-    } finally {
-      setIsLoadingInternships(false);
     }
   };
 

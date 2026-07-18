@@ -160,7 +160,7 @@ const Contact: React.FC = () => {
                   {info.title}
                 </h3>
                 <div className="flex flex-col gap-3">
-                  {info.details.map((detail: any, idx: number) => (
+                  {info.details.map((detail: { main: string; sub: string }, idx: number) => (
                     <div
                       key={idx}
                       className="bg-gray-50 hover:bg-gray-100 transition rounded-lg p-3"

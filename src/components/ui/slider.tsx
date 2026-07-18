@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Users, Building2, Award, Globe } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import Button from './Button';
 
 const slidesData = [
@@ -22,16 +22,11 @@ const slidesData = [
 
 const Slider: React.FC = () => {
   const [index, setIndex] = useState(0);
-  const [isLoaded, setIsLoaded] = useState(false);
   const timeoutRef = useRef<number | null>(null);
 
   const resetTimeout = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
   };
-
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
 
   useEffect(() => {
     resetTimeout();

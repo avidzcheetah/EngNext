@@ -10,6 +10,7 @@ type CompanyProfile = {
   logoType?: string;
   logoUrl?: string;
   companyName?: string;
+  name?: string;
   industry?:string;
   location?:string
 };
@@ -38,7 +39,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
 
       const data = await res.json();
 
-      const companies = data.companies.map((company: any) => {
+      const companies = data.companies.map((company: CompanyProfile) => {
         const logoBase64 = company.logo || null;
         const contentType = company.logoType || "image/png";
 
@@ -50,8 +51,8 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
       });
 
       setCompanyProfiles(companies);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }

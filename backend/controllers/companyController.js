@@ -20,13 +20,9 @@ class CompanyController {
       }
     }*/
 console.log("Received company data 2:");
-      // If a logo file is uploaded
+      // If a logo file is uploaded (Cloudinary)
       if (req.file) {
-          companyData.logo = {
-          data: req.file.buffer,
-          contentType: req.file.mimetype,
-          filename: req.file.originalname
-        };
+          companyData.logo = req.file.path;
       }
 
        // Parse array fields if they are JSON strings
@@ -76,13 +72,9 @@ static async updateCompany(req, res) {
   }
 });
 
-    // Update logo if uploaded
+    // Update logo if uploaded (Cloudinary)
     if (req.file) {
-      company.logo = {
-        data: req.file.buffer,
-        contentType: req.file.mimetype,
-        filename: req.file.originalname
-      };
+      company.logo = req.file.path;
       console.log("Logo updated");
     } else {
       console.log("No logo uploaded, keeping existing logo");
@@ -114,9 +106,7 @@ static async getAllCompanies(req, res) {
       location: c.location,
       employees: c.employees,
       industry: c.industry,
-      logo: c.logo?.data ? c.logo.data.toString("base64") : null,
-      logoType: c.logo?.contentType || "image/png",
-      logoFilename: c.logo?.filename || null,
+      logo: c.logo || null,
       isApproved: c.isApproved,
       internships: c.internships || [],
       phoneNo :c.phoneNo,
@@ -125,7 +115,8 @@ static async getAllCompanies(req, res) {
       OurValues:c.OurValues ||[],
       createdAt: c.createdAt,
       updatedAt: c.updatedAt,
-      subfield:c.subfield || "",
+      subfield: c.subfield || "",
+      departments: c.departments || [],
     }));
 
     res.status(200).json({ companies: formattedCompanies });
@@ -155,9 +146,7 @@ static async getAllCompanies(req, res) {
         role: company.role,
         website: company.website,
         description: company.description,
-        logo: company.logo?.data ? company.logo.data.toString("base64") : null,
-        logoType: company.logo?.contentType || "image/png",
-        logoFilename: company.logo?.filename || null,
+        logo: company.logo || null,
         isApproved: company.isApproved,
         location: company.location,
         employees: company.employees,
@@ -176,7 +165,8 @@ static async getAllCompanies(req, res) {
         address:company.address,
         createdAt: company.createdAt,
         updatedAt: company.updatedAt,
-        subfield:company.subfield || "",
+        subfield: company.subfield || "",
+        departments: company.departments || [],
       };
 
       res.status(200).json({ company: formattedCompany });
@@ -186,21 +176,7 @@ static async getAllCompanies(req, res) {
     }
   }
 
-  // Optional: Serve the logo directly as an image
-  static async getCompanyLogo(req, res) {
-    try {
-      const company = await companySchema.findById(req.params.id);
-      if (!company || !company.logo?.data) {
-        return res.status(404).json({ message: "Logo not found" });
-      }
-
-      res.set("Content-Type", company.logo.contentType);
-      res.send(company.logo.data);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Server error", error });
-    }
-  }
+  // Removed getCompanyLogo since URLs are now directly available
 
 // Company login / verification
 static async verifyCompany(req, res) {
@@ -222,12 +198,6 @@ static async verifyCompany(req, res) {
       return res.status(401).json({ exists: false, message: "Invalid email or password" });
     }
 
-    // Convert profile picture to Base64 if exists
-    let profilePictureBase64 = null;
-    if (company.logo && company.logo.data) {
-      profilePictureBase64 = `data:${company.logo.contentType};base64,${company.logo.data.toString('base64')}`;
-    }
-
     // Send all necessary info to frontend
     return res.status(200).json({
       exists: true,
@@ -235,7 +205,7 @@ static async verifyCompany(req, res) {
       email: company.email,
       role: 'company',
       companyName: company.companyName,
-      profilePicture: profilePictureBase64 || null,
+      profilePicture: company.logo || null,
     });
 
   } catch (error) {

@@ -61,12 +61,7 @@ const applicationSchema = new mongoose.Schema(
      interestLevel: {
     type: Number
   },
-   cv: {
-    data: Buffer,
-    contentType: String, // "application/pdf"
-    filename: String,
-    uploadDate: { type: Date, default: Date.now }
-  },
+   cv: { type: String },
   useProfileCV:{
     type:Boolean
   }

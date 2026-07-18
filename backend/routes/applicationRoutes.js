@@ -8,12 +8,11 @@ import {
   fetchByCompanyId,
   fetchByStudentId,
   fetchByInternshipId,
-  fetchAllApplications,
-  getCV
+  fetchAllApplications
 } from "../controllers/applicationController.js";
 
 
-const storage = multer.memoryStorage();
+import { storage } from "../config/cloudinary.js";
 const upload = multer({ storage: storage });
 
 router.post("/createApplication", upload.single("cv"), createApplication);
@@ -23,5 +22,4 @@ router.get("/fetchByCompanyId/:companyId", fetchByCompanyId);
 router.get("/fetchByStudentId/:studentId", fetchByStudentId);
 router.get("/fetchAllApplications", fetchAllApplications);
 router.get("/fetchByInternshipId/:internshipId", fetchByInternshipId);
-router.get("/getCV/:id", getCV);
 export default router;

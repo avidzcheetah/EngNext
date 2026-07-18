@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import emailjs from "emailjs-com";
+
 import { Eye, Download, Phone, Loader2 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
@@ -23,6 +23,7 @@ interface Application {
   interestLevel?: number;
   __v: number;
   useProfileCV?: boolean;
+  cv?: string;
 }
 
 interface CompanyProfile {
@@ -99,113 +100,50 @@ const ApplicationsPage: React.FC = () => {
         throw new Error(`Error fetching company: ${companyRes.status}`);
       const companyData = await companyRes.json();
       setCompanyProfile(companyData.company);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || "Something went wrong");
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
-  const downloadCV = async (id: string) => {
+  const DOWNLOADCV = async (app: Application) => {
+    const id = app._id;
     setDownloadingCV((prev) => ({ ...prev, [id]: true }));
     try {
-      const res = await fetch(`${baseUrl}/api/applicationRoutes/getCV/${id}`);
-      if (!res.ok) {
-        throw new Error("CV not found or failed to download");
+      if (app.useProfileCV) {
+        const response = await fetch(`${baseUrl}/api/studentRoutes/getStudentById/${app.studentId}`);
+        if (!response.ok) throw new Error("Failed to fetch student details");
+        const studentData = await response.json();
+        if (studentData.cv) {
+          window.open(studentData.cv, "_blank");
+        } else {
+          setError("Student does not have a CV uploaded");
+        }
+      } else {
+        if (app.cv) {
+          window.open(app.cv, "_blank");
+        } else {
+          setError("No CV found for this application");
+        }
       }
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      const disposition = res.headers.get("Content-Disposition");
-      let filename = "cv.pdf";
-      if (disposition && disposition.includes("filename=")) {
-        filename = disposition.split("filename=")[1].replace(/"/g, "");
-      }
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Error downloading CV:", error);
-      setError("Error downloading CV");
+      console.error("Error opening CV:", error);
+      setError("Error opening CV");
     } finally {
       setDownloadingCV((prev) => ({ ...prev, [id]: false }));
-    }
-  };
-
-  const handleDownloadCV = async (id: string) => {
-    setDownloadingCV((prev) => ({ ...prev, [id]: true }));
-    try {
-      const response = await fetch(`${baseUrl}/api/studentRoutes/getCV/${id}`);
-      if (!response.ok) {
-        throw new Error("CV download failed");
-      }
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      const disposition = response.headers.get("Content-Disposition");
-      let filename = "CV.pdf";
-      if (disposition && disposition.includes("filename=")) {
-        filename = disposition.split("filename=")[1].replace(/"/g, "");
-      }
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error downloading CV:", error);
-      setError("Error downloading CV");
-    } finally {
-      setDownloadingCV((prev) => ({ ...prev, [id]: false }));
-    }
-  };
-
-  const DOWNLOADCV = async (Fid1: string, Sid2: string, value: boolean) => {
-    if (!value) {
-      await downloadCV(Fid1);
-    } else {
-      await handleDownloadCV(Sid2);
     }
   };
 
   useEffect(() => {
     fetchApplications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [internshipId]);
 
-  const sendEmail = (studentId: string, templateId: string) => {
-    const app = applications.find((app) => app._id === studentId);
-    if (!app) return;
-
-    emailjs
-      .send(
-        "service_yeke3la",
-        templateId,
-        {
-          toemail: app.email,
-          applicat_name: app.studentName,
-          title: app.internshipTitle,
-          hr_email: companyProfile?.email,
-          organization_name: companyProfile?.companyName,
-          time: new Date().toLocaleDateString(),
-          email: companyProfile?.email,
-        },
-        "xoBLJNkyjseJaPApW"
-      )
-      .then(
-        (result) => {
-          console.log("✅ Email sent:", result.text);
-          setError("");
-        },
-        (error) => {
-          console.error("❌ Email failed:", error.text);
-          setError("Failed to send email.");
-        }
-      );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const sendEmail = (_ID: string, _templateId: string) => {
+    // Disabled automatic emails per user request
   };
 
   const handleAccept = async (ID: string) => {
@@ -458,13 +396,7 @@ const ApplicationsPage: React.FC = () => {
                     variant="outline"
                     size="sm"
                     className="hover:scale-105 transition"
-                    onClick={() =>
-                      DOWNLOADCV(
-                        app._id,
-                        app.studentId,
-                        app.useProfileCV ?? true
-                      )
-                    }
+                    onClick={() => DOWNLOADCV(app)}
                     disabled={downloadingCV[app._id]}
                   >
                     {downloadingCV[app._id] ? (

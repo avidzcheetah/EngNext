@@ -3,9 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   Search,
   Filter,
-  MapPin,
-  Clock,
-  Building2,
   FileText,
   Send,
   Bell,
@@ -15,20 +12,13 @@ import {
   Check,
   AlertCircle,
   Loader2,
-  Info,
 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
-import { mockInternships, mockCompanies } from "../../data/mockData";
-import { useLocation } from "react-router-dom";
+
 import { useAuth } from "../../contexts/AuthContext";
 
-// Define types for mock data
-interface Company {
-  id: string;
-  name: string;
-}
 
 interface Internship {
   _id?: string;
@@ -145,12 +135,7 @@ const StudentDashboard: React.FC = () => {
   const [selectedInternship, setSelectedInternship] = useState<string | null>(
     null
   );
-  const location = useLocation();
-  const [applicationsInfo, setApplicationsInfo] = useState<{
-    ApplicationsSent: number;
-    maximumApplications: number;
-    message: string;
-  } | null>(null);
+
   const [isLoading, setIsLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(true);
   const [jobsLoading, setJobsLoading] = useState(true);
@@ -168,7 +153,7 @@ const StudentDashboard: React.FC = () => {
   const [maximumApplications, setMaximumApplications] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [applications, setApplications] = useState<Application[]>([]);
+
   const [userApplications, setUserApplications] = useState<Application[]>([]);
   const [applicationsLoaded, setApplicationsLoaded] = useState(false);
   const { user, isAuthenticated } = useAuth();
@@ -199,9 +184,7 @@ const StudentDashboard: React.FC = () => {
     }
   }, [showSuccessPopup]);
 
-  const handleNavigateClick = (id: string) => {
-    navigate(`/company/PublicProfile/${id}`);
-  };
+
 
   const handleCVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -248,11 +231,7 @@ const StudentDashboard: React.FC = () => {
 
   const [fData, setFdata] = useState<Internship[] | null>(null);
   const [cvPreview, setCvPreview] = useState<string | null>(null);
-  const [CVPreview, setCVPreview] = useState<{
-    filename: string;
-    uploadDate: string;
-    size: string;
-  } | null>(null);
+
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
 
   const getInterestLevelInfo = (level: number) => {
@@ -292,19 +271,19 @@ const StudentDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    if (user?.id) {
+    if (id && isInitialRender.current) {
+      isInitialRender.current = false;
       const loadData = async () => {
         setIsLoading(true);
         try {
           await Promise.all([
             fetchProfile(),
-            fetchCV(),
-            fetchProfilePicture(),
             fetchAllJobs(),
-            fetchTotalNumberOfApplicableInternshipsperStudent(),
+            fetchStudentApplications(),
             fetchUserApplications(),
+            fetchTotalNumberOfApplicableInternshipsperStudent(),
           ]);
-        } catch (err) {
+        } catch {
           setError("Failed to load dashboard data");
           setShowSuccessPopup(true);
         } finally {
@@ -313,6 +292,7 @@ const StudentDashboard: React.FC = () => {
       };
       loadData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, id]);
 
   const fetchProfile = async () => {
@@ -335,6 +315,12 @@ const StudentDashboard: React.FC = () => {
 
       const data = await response.json();
       setProfileData(data);
+      if (data.profilePicture) {
+        setProfilePreview(data.profilePicture);
+      }
+      if (data.cv) {
+        setCvPreview(data.cv);
+      }
     } catch (err) {
       console.error("Error fetching profile:", err);
       setError("Failed to fetch profile");
@@ -344,22 +330,6 @@ const StudentDashboard: React.FC = () => {
     }
   };
 
-  const fetchProfilePicture = async () => {
-    try {
-      if (!id) throw new Error("User ID is missing");
-      const response = await fetch(
-        `${baseUrl}/api/studentRoutes/getProfilePicture/${id}`
-      );
-
-      if (!response.ok) throw new Error("Failed to fetch profile picture");
-
-      const blob = await response.blob();
-      const imageUrl = URL.createObjectURL(blob);
-      setProfilePreview(imageUrl);
-    } catch (err) {
-      console.error("Error fetching profile picture:", err);
-    }
-  };
 
   const fetchAllJobs = async () => {
     setJobsLoading(true);
@@ -463,29 +433,6 @@ const StudentDashboard: React.FC = () => {
     }
   };
 
-  const fetchCV = async () => {
-    setCvLoading(true);
-    try {
-      if (!id) throw new Error("User ID is missing");
-      const response = await fetch(`${baseUrl}/api/studentRoutes/getCV/${id}`, {
-        method: "GET",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch CV");
-      }
-
-      const blob = await response.blob();
-      const fileUrl = URL.createObjectURL(blob);
-      setCvPreview(fileUrl);
-    } catch (err) {
-      console.error("Error fetching CV:", err);
-      setError("Failed to fetch CV");
-      setShowSuccessPopup(true);
-    } finally {
-      setCvLoading(false);
-    }
-  };
 
   const fetchCompanyApplicationCount = async (companyId: string) => {
     try {
@@ -658,7 +605,6 @@ const StudentDashboard: React.FC = () => {
       if (res2.ok) {
         const data2 = await res2.json();
         console.log("Application sent incremented:", data2);
-        setApplicationsInfo(data2);
         setProfileData((prev) => ({
           ...prev,
           ApplicationsSent: data2.ApplicationsSent || prev.ApplicationsSent,
@@ -668,7 +614,6 @@ const StudentDashboard: React.FC = () => {
         console.warn("Incrementing application sent failed");
       }
 
-      setApplications((prev) => [...prev, data]);
       setUserApplications((prev) => {
         const updated = [...prev, data];
         console.log("Updated userApplications after submission:", updated);
@@ -694,6 +639,7 @@ const StudentDashboard: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isAuthenticated,
     id,
@@ -793,8 +739,6 @@ const StudentDashboard: React.FC = () => {
       setShowSuccessPopup(true);
       return;
     }
-
-    const selectedInternshipData = fData?.find(item => item._id === internshipId);
 
     if (Number(profileData.ApplicationsSent) >= maximumApplications) {
       setError(
@@ -1311,7 +1255,6 @@ const StudentDashboard: React.FC = () => {
             ) : (
               <>
                 {(() => {
-                  const selectedInternshipData = fData?.find(item => item._id === selectedInternship);
                   return (
                     <div className="space-y-6">
                       <div className="bg-gray-50 rounded-lg p-4">

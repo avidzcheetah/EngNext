@@ -2,11 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   User,
-  Mail,
-  Lock,
   Eye,
   EyeOff,
-  Upload,
   CheckCircle,
 } from "lucide-react";
 import Card from "../../components/ui/Card";
@@ -23,7 +20,7 @@ const RegisterStudentPage: React.FC = () => {
     confirmPassword: "",
     department: "", // Added department field
   });
-  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -55,27 +52,7 @@ const RegisterStudentPage: React.FC = () => {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 3 * 1024 * 1024) {
-        setErrors((prev) => ({
-          ...prev,
-          profilePicture: "File size must be less than 3MB",
-        }));
-        return;
-      }
-      if (!file.type.startsWith("image/")) {
-        setErrors((prev) => ({
-          ...prev,
-          profilePicture: "Please select an image file",
-        }));
-        return;
-      }
-      setProfilePicture(file);
-      setErrors((prev) => ({ ...prev, profilePicture: "" }));
-    }
-  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,7 +110,7 @@ const RegisterStudentPage: React.FC = () => {
       } else {
         setEmailSent(true);
       }
-    } catch (error) {
+    } catch {
       setErrors({ submit: "Registration failed. Please try again." });
     } finally {
       setLoading(false);

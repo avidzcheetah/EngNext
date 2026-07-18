@@ -2,12 +2,9 @@ import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   Building2,
-  Mail,
-  Lock,
   Eye,
   EyeOff,
   Upload,
-  Globe,
   CheckCircle,
   Clock,
   ArrowLeft,
@@ -35,9 +32,11 @@ const RegisterCompanyPage: React.FC = () => {
     password: "",
     confirmPassword: "",
     logo: null,
-    industry: isAdminMode ? user?.department || "" : "",
+    departments: [] as string[],
     subfield: "",
   });
+
+  const availableDepartments = ["COM", "EEE", "Mech", "Civil"];
   const [Logo, setLogo] = useState<File | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -71,6 +70,21 @@ const RegisterCompanyPage: React.FC = () => {
 
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleDepartmentToggle = (dept: string) => {
+    setFormData((prev) => {
+      const isSelected = prev.departments.includes(dept);
+      return {
+        ...prev,
+        departments: isSelected
+          ? prev.departments.filter((d) => d !== dept)
+          : [...prev.departments, dept],
+      };
+    });
+    if (errors.departments) {
+      setErrors((prev) => ({ ...prev, departments: "" }));
     }
   };
 
@@ -113,12 +127,8 @@ const RegisterCompanyPage: React.FC = () => {
     if (!formData.description.trim())
       newErrors.description = "Company description is required";
 
-    if (isAdminMode) {
-      if (!formData.industry.trim())
-        newErrors.industry = "Industry is required";
-     /* if (!formData.subfield.trim())
-        newErrors.subfield = "Subfield is required";*/
-    }
+    if (formData.departments.length === 0)
+      newErrors.departments = "Select at least one department";
 
     if (formData.website && !validateURL(formData.website)) {
       newErrors.website = "Please enter a valid URL";
@@ -148,8 +158,12 @@ const RegisterCompanyPage: React.FC = () => {
       fd.append("description", formData.description);
       if (formData.website) fd.append("website", formData.website);
 
+      // Append departments as array
+      formData.departments.forEach((dept, index) => {
+        fd.append(`departments[${index}]`, dept);
+      });
+
       if (isAdminMode) {
-        fd.append("industry", formData.industry);
         fd.append("subfield", formData.subfield || "");
         fd.append("addedByAdmin", "true");
       } else {
@@ -173,7 +187,7 @@ const RegisterCompanyPage: React.FC = () => {
       } else {
         setSubmitted(true);
       }
-    } catch (error) {
+    } catch {
       setErrors({ submit: "Registration failed. Please try again." });
     } finally {
       setLoading(false);
@@ -209,7 +223,7 @@ const RegisterCompanyPage: React.FC = () => {
                       password: "",
                       confirmPassword: "",
                       logo: null,
-                      industry: user?.department || "",
+                      departments: [],
                       subfield: "",
                     });
                     setLogo(null);
@@ -349,41 +363,31 @@ const RegisterCompanyPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Industry & Subfield - Admin only */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Target Departments
+                </label>
+                <div className="flex gap-4 flex-wrap">
+                  {availableDepartments.map((dept) => (
+                    <label key={dept} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={formData.departments.includes(dept)}
+                        onChange={() => handleDepartmentToggle(dept)}
+                        className="rounded text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-gray-700">{dept}</span>
+                    </label>
+                  ))}
+                </div>
+                {errors.departments && (
+                  <p className="text-red-500 text-sm mt-1">{errors.departments}</p>
+                )}
+              </div>
+
+              {/* Subfield - Admin only */}
               {isAdminMode && (
                 <>
-                  <Input
-                    name="industry"
-                    type="text"
-                    label="Industry"
-                    value={
-                      formData.industry.toLowerCase() === "com"
-                        ? "Computer Engineering"
-                        : formData.industry.toLowerCase() === "eee"
-                        ? "Electrical & Electronics Engineering"
-                        : formData.industry
-                    }
-                    onChange={handleInputChange}
-                    error={errors.industry}
-                    fullWidth
-                    required
-                    disabled
-                    className="bg-gray-100 cursor-not-allowed"
-                  />
-
-                  {/* Department-specific message */}
-                  {formData.industry.toLowerCase() === "eee" && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      *Use COM admin account to add companies related to
-                      Computer Engineering.
-                    </p>
-                  )}
-                  {formData.industry.toLowerCase() === "com" && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      *Use EEE admin account to add companies related to
-                      Electrical & Electronics Engineering.
-                    </p>
-                  )}
 
                   <Input
                     name="subfield"

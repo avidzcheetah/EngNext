@@ -72,6 +72,7 @@ const AllStudents: React.FC = () => {
 
   useEffect(() => {
     fetchAllStudents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -109,7 +110,7 @@ const AllStudents: React.FC = () => {
       if (!res.ok) throw new Error("Failed to fetch students");
       const data = await res.json();
       setStudents(
-        data.map((s: any) => ({
+        data.map((s: Partial<StudentProfile> & { _id?: string }) => ({
           ...s,
           id: s._id || s.id,
           subfields: s.subfields || [], // Ensure subfields is always an array
@@ -144,7 +145,8 @@ const AllStudents: React.FC = () => {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value, type, checked } = e.target as any;
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
     setEditForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -231,9 +233,9 @@ const AllStudents: React.FC = () => {
       setEditingStudent(null);
       setSuccess("Student profile updated successfully!");
       setShowSuccessPopup(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to update student:", err);
-      setError(err.message || "Failed to update student. Please try again.");
+      setError(err instanceof Error ? err.message : "Failed to update student. Please try again.");
       setEditingStudent(null);
       setShowSuccessPopup(true);
     }
@@ -427,7 +429,7 @@ const AllStudents: React.FC = () => {
                       <div className="flex items-center space-x-4">
                         <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
                           <img
-                            src={`${baseUrl}/api/studentRoutes/getProfilePicture/${student.id}`}
+                            src={student.profilePicture || "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iMTYiIHk9IjM2IiBmb250LXNpemU9IjE2IiBmaWxsPSIjYWFhIj5Vc2VyPC90ZXh0Pjwvc3ZnPg=="}
                             alt={`${student.firstName || "Student"} ${student.lastName || ""}`}
                             className="w-full h-full object-cover"
                             onError={(e) => {

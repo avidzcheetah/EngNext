@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import emailjs from "emailjs-com";
+
 import {
   Plus,
   Users,
@@ -11,7 +11,6 @@ import {
   MapPin,
   Clock,
   Loader2,
-  CheckCircle,
   AlertTriangle,
   Check,
   Phone,
@@ -64,9 +63,10 @@ const CompanyDashboard: React.FC = () => {
     logoUrl?: string;
     companyName?: string;
     location?: string;
-    industry?: string;
+    departments?: string[];
     subfield?: string[];
     phoneNo?: string;
+    industry?: string;
   }
 
   const [companyProfile, setCompanyProfile] = useState<CompanyProfileData | null>(null);
@@ -89,6 +89,7 @@ const CompanyDashboard: React.FC = () => {
     interestLevel?: number;
     __v: number;
     useProfileCV?: boolean;
+    cv?: string;
   }
 
   const [applications, setApplications] = useState<Application[]>([]);
@@ -106,6 +107,7 @@ const CompanyDashboard: React.FC = () => {
     }>
   >([]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [editJob, setEditJob] = useState<{
     _id?: string;
     companyName?: string;
@@ -160,8 +162,8 @@ const CompanyDashboard: React.FC = () => {
       if (!res.ok) throw new Error(`Error: ${res.status}`);
       const data = await res.json();
       setJob(Array.isArray(data) ? data : data.internships || []);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setIsLoadingJobs(false);
     }
@@ -190,8 +192,8 @@ const CompanyDashboard: React.FC = () => {
       );
 
       setApplications(applicationsWithPhone);
-    } catch (error: any) {
-      setError(error.message || "Something went wrong");
+    } catch (error: unknown) {
+      setError((error as Error).message || "Something went wrong");
     } finally {
       setIsLoadingApplications(false);
     }
@@ -209,8 +211,8 @@ const CompanyDashboard: React.FC = () => {
         data.company.logoUrl = logoDataUrl;
       }
       setCompanyProfile(data.company);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError((err as Error).message);
     } finally {
       setIsLoadingProfile(false);
     }
@@ -224,6 +226,7 @@ const CompanyDashboard: React.FC = () => {
       fetchJobs();
       fetchApplication();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, navigate]);
 
   const [formData, setFormData] = useState({
@@ -233,7 +236,7 @@ const CompanyDashboard: React.FC = () => {
     description: "",
     logoFile: null as File | null,
     location: "",
-    industry: "",
+    departments: [] as string[],
     subfield: [] as string[],
     phoneNo: "",
   });
@@ -248,7 +251,7 @@ const CompanyDashboard: React.FC = () => {
         description: companyProfile.description || "",
         logoFile: prev.logoFile || null,
         location: companyProfile.location || "",
-        industry: companyProfile.industry || "",
+        departments: companyProfile.departments || [],
         subfield: Array.isArray(companyProfile.subfield) ? [...new Set(companyProfile.subfield)] : [],
         phoneNo: companyProfile.phoneNo || "",
       }));
@@ -277,6 +280,7 @@ const CompanyDashboard: React.FC = () => {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleSubfieldChange = (subfield: string) => {
     try {
       setFormData((prev) => {
@@ -310,7 +314,7 @@ const CompanyDashboard: React.FC = () => {
       formToSend.append("email", formData.email);
       formToSend.append("description", formData.description);
       formToSend.append("location", formData.location);
-      formToSend.append("industry", formData.industry);
+      formToSend.append("departments", JSON.stringify(formData.departments));
       formToSend.append("subfield", JSON.stringify(formData.subfield));
       formToSend.append("phoneNo", formData.phoneNo);
 
@@ -332,7 +336,7 @@ const CompanyDashboard: React.FC = () => {
       setTimeout(() => {
         setShowSuccessModal(false);
       }, 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       setError("Failed to save changes. Please try again.");
     } finally {
@@ -404,7 +408,7 @@ const CompanyDashboard: React.FC = () => {
           description: fData.description || "",
           title: fData.title,
           location: fData.location || "",
-          industry: companyProfile?.industry || "",
+          departments: companyProfile?.departments || [],
         }),
       });
 
@@ -421,6 +425,7 @@ const CompanyDashboard: React.FC = () => {
         location: "",
       });
     } catch (error) {
+      console.error(error);
       setError("Failed to create job. Please try again.");
     } finally {
       setIsCreatingJob(false);
@@ -465,6 +470,7 @@ const CompanyDashboard: React.FC = () => {
         location: "",
       });
     } catch (error) {
+      console.error(error);
       setError("Failed to save changes. Please try again.");
     } finally {
       setIsUpdatingJob(false);
@@ -491,6 +497,7 @@ const CompanyDashboard: React.FC = () => {
       fetchJobs();
       setShowDeleteConfirmModal(false);
     } catch (error) {
+      console.error(error);
       setError("Something went wrong while deleting.");
     } finally {
       setIsDeletingJob(false);
@@ -519,64 +526,13 @@ const CompanyDashboard: React.FC = () => {
   };
 
   const sendAcceptmail = (studentid: string) => {
-    const studentName = applications.find((app) => app._id === studentid)?.studentName;
-    const position = applications.find((app) => app._id === studentid)?.internshipTitle;
-    const email = applications.find((app) => app._id === studentid)?.email;
-
-    emailjs
-      .send(
-        "service_yeke3la",
-        "template_mogx38j",
-        {
-          toemail: email,
-          applicat_name: studentName,
-          title: position,
-          hr_email: companyProfile?.email,
-          organization_name: companyProfile?.companyName,
-          time: new Date().toLocaleDateString(),
-          email: companyProfile?.email,
-        },
-        "xoBLJNkyjseJaPApW"
-      )
-      .then(
-        (result) => {
-          console.log("✅ Email sent:", result.text);
-        },
-        (error) => {
-          console.error("❌ Email failed:", error.text);
-        }
-      );
+    console.log("Accept mail disabled for:", studentid);
+    // Disabled automatic emails per user request
   };
 
   const sendRejectemail = (studentid: string) => {
-    const studentName = applications.find((app) => app._id === studentid)?.studentName;
-    const position = applications.find((app) => app._id === studentid)?.internshipTitle;
-    const email = applications.find((app) => app._id === studentid)?.email;
-
-    emailjs
-      .send(
-        "service_yeke3la",
-        "template_06tm1fa",
-        {
-          toemail: email,
-          Applicant_Name: studentName,
-          Position: position,
-          hr_email: companyProfile?.email,
-          Organization_Name: companyProfile?.companyName,
-          time: new Date().toLocaleDateString(),
-          email: companyProfile?.email,
-          name: companyProfile?.companyName,
-        },
-        "xoBLJNkyjseJaPApW"
-      )
-      .then(
-        (result) => {
-          console.log("✅ Email sent:", result.text);
-        },
-        (error) => {
-          console.error("❌ Email failed:", error.text);
-        }
-      );
+    console.log("Reject mail disabled for:", studentid);
+    // Disabled automatic emails per user request
   };
 
   const incrementProfileView = async (ID: string) => {
@@ -660,62 +616,31 @@ const CompanyDashboard: React.FC = () => {
     }
   };
 
-  const handleDownloadCV = async (id: string) => {
+  const DOWNLOADCV = async (app: Application) => {
+    const id = app._id;
+    setDownloadingCV((prev) => ({ ...prev, [id]: true }));
     try {
-      const response = await fetch(`${baseUrl}/api/studentRoutes/getCV/${id}`);
-      if (!response.ok) throw new Error("CV download failed");
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      const disposition = response.headers.get("Content-Disposition");
-      let filename = "CV.pdf";
-      if (disposition && disposition.includes("filename=")) {
-        filename = disposition.split("filename=")[1].replace(/"/g, "");
-      }
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      setError("Error downloading CV");
-    }
-  };
-
-  const downloadCV = async (id: string) => {
-    try {
-      const res = await fetch(`${baseUrl}/api/applicationRoutes/getCV/${id}`);
-      if (!res.ok) throw new Error("CV not found or failed to download");
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      const disposition = res.headers.get("Content-Disposition");
-      let filename = "cv.pdf";
-      if (disposition && disposition.includes("filename=")) {
-        filename = disposition.split("filename=")[1].replace(/"/g, "");
-      }
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      setError("Error downloading CV");
-    }
-  };
-
-  const DOWNLOADCV = async (Fid1: string, Sid2: string, value: boolean) => {
-    setDownloadingCV((prev) => ({ ...prev, [Fid1]: true }));
-    try {
-      if (!value) {
-        await downloadCV(Fid1);
+      if (app.useProfileCV) {
+        const response = await fetch(`${baseUrl}/api/studentRoutes/getStudentById/${app.studentId}`);
+        if (!response.ok) throw new Error("Failed to fetch student details");
+        const studentData = await response.json();
+        if (studentData.cv) {
+          window.open(studentData.cv, "_blank");
+        } else {
+          setError("Student does not have a CV uploaded");
+        }
       } else {
-        await handleDownloadCV(Sid2);
+        if (app.cv) {
+          window.open(app.cv, "_blank");
+        } else {
+          setError("No CV found for this application");
+        }
       }
+    } catch (error) {
+      console.error("Error opening CV:", error);
+      setError("Error opening CV");
     } finally {
-      setDownloadingCV((prev) => ({ ...prev, [Fid1]: false }));
+      setDownloadingCV((prev) => ({ ...prev, [id]: false }));
     }
   };
 
@@ -809,16 +734,12 @@ const CompanyDashboard: React.FC = () => {
     </div>
   );
 
-  const industryOptions = [
+  const departmentOptions = [
     { value: "EEE", label: "Electrical and Electronic Engineering" },
-    { value: "Com", label: "Computer Engineering" },
+    { value: "COM", label: "Computer Engineering" },
     { value: "Mech", label: "Mechanical Engineering" },
     { value: "Civil", label: "Civil Engineering" },
   ];
-
-  const availableSubfieldOptions = industryOptions.filter(
-    (option) => option.value !== formData.industry
-  );
 
   const isApplicationLimitReached = applications.length >= MAX_COMPANY_APPLICATIONS;
   const isApplicationLimitNear = applications.length >= MAX_COMPANY_APPLICATIONS - 1 && applications.length < MAX_COMPANY_APPLICATIONS;
@@ -1034,7 +955,7 @@ const CompanyDashboard: React.FC = () => {
                         variant="outline"
                         size="sm"
                         className="hover:scale-105 transition"
-                        onClick={() => DOWNLOADCV(forms._id, forms.studentId, forms.useProfileCV ?? true)}
+                        onClick={() => DOWNLOADCV(forms)}
                         disabled={isUpdatingApplication[forms._id] || downloadingCV[forms._id]}
                       >
                         {downloadingCV[forms._id] ? (
@@ -1260,56 +1181,32 @@ const CompanyDashboard: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Industry
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Target Departments
                     </label>
-                    <select
-                      name="industry"
-                      value={formData.industry}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, industry: e.target.value, subfield: [] }))}
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
-                    >
-                      <option value="">Select Industry</option>
-                      {industryOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
+                    <div className="space-y-2">
+                      {departmentOptions.map((option) => (
+                        <label key={option.value} className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={(formData.departments || []).includes(option.value)}
+                            onChange={() => {
+                              setFormData((prev) => {
+                                const isSelected = (prev.departments || []).includes(option.value);
+                                return {
+                                  ...prev,
+                                  departments: isSelected
+                                    ? prev.departments.filter((d) => d !== option.value)
+                                    : [...(prev.departments || []), option.value],
+                                };
+                              });
+                            }}
+                            className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">{option.label}</span>
+                        </label>
                       ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Subfield (Select up to 3)
-                    </label>
-                    {availableSubfieldOptions.length > 0 ? (
-                      <div className="space-y-2">
-                        {availableSubfieldOptions.map((option) => (
-                          <label
-                            key={option.value}
-                            className="flex items-center space-x-2 cursor-pointer"
-                          >
-                            <input
-                              type="checkbox"
-                              value={option.value}
-                              checked={(formData.subfield || []).includes(option.value)}
-                              onChange={() => handleSubfieldChange(option.value)}
-                              disabled={
-                                !(formData.subfield || []).includes(option.value) &&
-                                (formData.subfield || []).length >= 3
-                              }
-                              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                            />
-                            <span className="text-sm text-gray-700">{option.label}</span>
-                          </label>
-                        ))}
-                        <p className="text-xs text-gray-500 mt-1">
-                          Selected: {(formData.subfield || []).length}/3
-                        </p>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-500">No subfields available. Select an industry first.</p>
-                    )}
+                    </div>
                   </div>
                 </div>
 

@@ -41,12 +41,7 @@ const studentSchema = new Schema({
   postalCode: {
     type: String,
   },
-   profilePicture: {
-    data: Buffer,
-    contentType: String, // "image/jpeg" / "image/png"
-    filename: String,
-    uploadDate: { type: Date, default: Date.now }
-  },
+   profilePicture: { type: String },
   bio: {
     type: String,
   },
@@ -86,12 +81,7 @@ const studentSchema = new Schema({
     type: Boolean,
     default: true,
   },
-  cv: {
-    data: Buffer,
-    contentType: String, // "application/pdf"
-    filename: String,
-    uploadDate: { type: Date, default: Date.now }
-  },
+  cv: { type: String },
  
   // ✅ New fields
   profileCompletion: {

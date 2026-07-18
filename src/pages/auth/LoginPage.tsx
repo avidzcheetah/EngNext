@@ -17,6 +17,7 @@ interface LoginResponse {
 
 const LoginPage: React.FC = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const [activeTab, setActiveTab] = useState<"student" | "company">("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -32,7 +33,9 @@ const LoginPage: React.FC = () => {
     setError("");
 
     try {
-      const url = `${baseUrl}/api/studentRoutes/loginStudent`;
+      const url = activeTab === "student" 
+        ? `${baseUrl}/api/studentRoutes/loginStudent` 
+        : `${baseUrl}/api/companyRoutes/verifyCompany`;
 
       const response = await fetch(url, {
         method: "POST",
@@ -50,7 +53,7 @@ const LoginPage: React.FC = () => {
       const data: LoginResponse = await response.json();
 
       if (!data.exists) {
-        setError("Student not found or invalid password.");
+        setError(`${activeTab === "student" ? "Student" : "Company"} not found or invalid password.`);
         return;
       }
 
@@ -58,13 +61,17 @@ const LoginPage: React.FC = () => {
       login({
         id: data.id,
         email: data.email,
-        role: "student",
+        role: activeTab,
         profilePicture: data.profilePicture || "",
         department: data.department || "",
         createdAt: new Date(),
       });
 
-      navigate("/student/dashboard", { state: { id: data.id } });
+      if (activeTab === "student") {
+        navigate("/student/dashboard", { state: { id: data.id } });
+      } else {
+        navigate("/company/dashboard", { state: { id: data.id } });
+      }
     } catch (err) {
       console.error(err);
       setError("Server error. Please try again later.");
@@ -216,10 +223,28 @@ const LoginPage: React.FC = () => {
 
         <Card className="p-8 bg-white/90 backdrop-blur-sm">
           <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
-            <div className="flex-1 flex items-center justify-center py-2 px-4 rounded-md bg-white shadow-sm text-blue-600">
+            <button
+              onClick={() => setActiveTab("student")}
+              className={`flex-1 flex items-center justify-center py-2 px-4 rounded-md transition-all ${
+                activeTab === "student"
+                  ? "bg-white shadow-sm text-blue-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
               <User className="w-4 h-4 mr-2" />
               Student Login
-            </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("company")}
+              className={`flex-1 flex items-center justify-center py-2 px-4 rounded-md transition-all ${
+                activeTab === "company"
+                  ? "bg-white shadow-sm text-blue-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <User className="w-4 h-4 mr-2" />
+              Company Login
+            </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -232,7 +257,7 @@ const LoginPage: React.FC = () => {
             <div className="relative">
               <Input
                 type="email"
-                placeholder="Enter your student email"
+                placeholder={`Enter your ${activeTab} email`}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 fullWidth

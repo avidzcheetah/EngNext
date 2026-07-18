@@ -1,19 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, Users, Building2, Award, Globe } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import Slider from "../components/ui/slider";
-import { lecturers, partners } from "../data/mockData";
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCompany } from "../contexts/CompanyContext";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
-
-  const [errors, setError] = useState<string | null>(null);
-  const [loadings, setLoading] = useState(false);
 
   const { companyProfiles, loading, error } = useCompany();
 
@@ -239,13 +234,13 @@ const HomePage: React.FC = () => {
                 Register as Student
               </Button>
             </Link>
-            <Link to="/adminlogin">
+            <Link to="/register/company">
               <Button
                 variant="outline"
                 size="lg"
                 className="border-white text-white hover:bg-white hover:text-black"
               >
-                Login as an Admin
+                Register a Company
               </Button>
             </Link>
           </div>

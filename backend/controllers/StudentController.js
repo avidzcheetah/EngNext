@@ -66,30 +66,16 @@ if (req.body.subfields) {
   }
 }
 
-    // Update files if uploaded and they are actual files
+    // Update files if uploaded (Cloudinary)
     if (req.files) {
       // CV
-      if (req.files.cv && req.files.cv[0] && req.files.cv[0].buffer) {
-        student.cv = {
-          data: req.files.cv[0].buffer,
-          contentType: req.files.cv[0].mimetype,
-          filename: req.files.cv[0].originalname,
-          uploadDate: new Date()
-        };
+      if (req.files.cv && req.files.cv[0]) {
+        student.cv = req.files.cv[0].path;
       }
 
       // Profile picture
-      if (
-        req.files.profilePicture &&
-        req.files.profilePicture[0] &&
-        req.files.profilePicture[0].buffer
-      ) {
-        student.profilePicture = {
-          data: req.files.profilePicture[0].buffer,
-          contentType: req.files.profilePicture[0].mimetype,
-          filename: req.files.profilePicture[0].originalname,
-          uploadDate: new Date()
-        };
+      if (req.files.profilePicture && req.files.profilePicture[0]) {
+        student.profilePicture = req.files.profilePicture[0].path;
       }
     }
 
@@ -104,8 +90,7 @@ if (req.body.subfields) {
 
   static async getAllStudents(req, res) {
     try {
-      const students = await Student.find().select("-cv.data -profilePicture.data"); 
-      // Exclude actual file data for performance
+      const students = await Student.find(); 
       res.status(200).json(students);
     } catch (error) {
       console.error(error);
@@ -116,7 +101,7 @@ if (req.body.subfields) {
   // Get single student by ID
   static async getStudentById(req, res) {
     try {
-      const student = await Student.findById(req.params.id).select("-cv.data -profilePicture.data");
+      const student = await Student.findById(req.params.id);
       if (!student) return res.status(404).json({ message: "Student not found" });
       res.status(200).json(student);
     } catch (error) {
@@ -125,20 +110,7 @@ if (req.body.subfields) {
     }
   }
 
-  // Optional: get actual CV or profile picture
-  static async getCV(req, res) {
-    try {
-      const student = await Student.findById(req.params.id);
-      if (!student || !student.cv || !student.cv.data) {
-        return res.status(404).json({ message: "CV not found" });
-      }
-      res.set("Content-Type", student.cv.contentType);
-      res.send(student.cv.data);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Server error", error });
-    }
-  }
+  // Removed getCV since URLs are now directly available
 
   // Assuming Student is your Mongoose model
 static async addRecentNotification(req, res) {
@@ -172,19 +144,7 @@ static async addRecentNotification(req, res) {
 
 
 
-  static async getProfilePicture(req, res) {
-    try {
-      const student = await Student.findById(req.params.id);
-      if (!student || !student.profilePicture || !student.profilePicture.data) {
-        return res.status(404).json({ message: "Profile picture not found" });
-      }
-      res.set("Content-Type", student.profilePicture.contentType);
-      res.send(student.profilePicture.data);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Server error", error });
-    }
-  }
+  // Removed getProfilePicture since URLs are directly available
 
 // Student login / verification (plain text password)
 static async loginStudent(req, res) {
@@ -206,19 +166,13 @@ static async loginStudent(req, res) {
       return res.status(401).json({ exists: false, message: "Invalid email or password" });
     }
 
-    // Convert profile picture to Base64 if exists
-    let profilePictureBase64 = null;
-    if (student.profilePicture && student.profilePicture.data) {
-      profilePictureBase64 = `data:${student.profilePicture.contentType};base64,${student.profilePicture.data.toString('base64')}`;
-    }
-
     // Send all necessary info to frontend
     return res.status(200).json({
       exists: true,
       id: student._id,
       email: student.email,
       role: 'student',
-      profilePicture: profilePictureBase64 || null,
+      profilePicture: student.profilePicture || null,
     });
 
   } catch (error) {

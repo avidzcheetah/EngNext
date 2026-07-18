@@ -4,11 +4,9 @@ import {
   ExternalLink,
   MapPin,
   Users,
-  Calendar,
   Search,
   Filter,
   Building2,
-  Globe,
   Mail,
 } from "lucide-react";
 
@@ -37,8 +35,8 @@ const Companies: React.FC = () => {
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [loadings, setLoading] = useState(true);
   const [studentCount, setStudentCount] = useState(0); // State for student count
-  const { companyProfiles, loading, error } = useCompany();
-  const [errors, setError] = useState<string | null>(null);
+  const { companyProfiles, loading } = useCompany();
+  const [, setError] = useState<string | null>(null);
 
   // Get unique industries and locations for filters
   const industries = [

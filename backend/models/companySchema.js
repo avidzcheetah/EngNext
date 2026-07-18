@@ -9,11 +9,7 @@ const companySchema = new Schema({
   role: { type: String, default: "company" },
   website: { type: String },
   description: { type: String },
-  logo: {
-    data: Buffer,          // binary data of the image
-    contentType: String,   // e.g., 'image/png', 'image/jpeg'
-    filename: String       // original file name
-  },
+  logo: { type: String },
   phoneNo:{type:String},
   OurValues:[String],
   WorkCulture:{type:String},
@@ -30,6 +26,7 @@ const companySchema = new Schema({
   companyType:{type:String},
   address:{type:String},
   subfield:[String],
+  departments: [{ type: String, enum: ["COM", "EEE", "Mech", "Civil"] }],
   internships: [
     {
       title: { type: String},

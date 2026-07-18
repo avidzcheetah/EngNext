@@ -8,21 +8,11 @@ import {
   MapPin, 
   Users, 
   Calendar,
-  ExternalLink,
   ArrowLeft,
   Loader2,
   AlertCircle,
   Briefcase,
   Clock,
-  CheckCircle,
-  Star,
-  Award,
-  Target,
-  TrendingUp,
-  Heart,
-  Shield,
-  Zap,
-  Eye,
   Send
 } from 'lucide-react';
 
@@ -37,7 +27,7 @@ import {
    logoUrl?: string;
    companyName?: string;
    location?: string;
-   industry?: string;
+   departments?: string[];
    employees?: string;
    phoneNo?:string;
    OurValues?:[string];
@@ -74,6 +64,7 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
   useEffect(() => {
     fetchCompanyDetails();
     fetchJobs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyId]);
   const { id } = useParams<{ id: string }>();
   const fetchCompanyDetails = async () => {
@@ -101,8 +92,8 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
         }
   
         setCompanyProfile(data.company);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : String(err));
       } finally {
         setIsLoading(false);
       }
@@ -141,8 +132,8 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
       
    
          setJob(data);
-       } catch (err: any) {
-         setError(err.message);
+       } catch (err: unknown) {
+         setError(err instanceof Error ? err.message : String(err));
        } finally {
          setIsLoading(false);
        }
@@ -234,7 +225,7 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
                   <div className="flex items-center space-x-4 text-gray-600 mb-4">
                     <span className="flex items-center space-x-1">
                       <Building2 className="w-4 h-4" />
-                      <span>{companyProfile.industry}</span>
+                      <span>{companyProfile.departments?.join(", ") || "No departments specified"}</span>
                     </span>
                     <span className="flex items-center space-x-1">
                       <Users className="w-4 h-4" />

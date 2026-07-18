@@ -9,11 +9,7 @@ export const createApplication = async (req, res) => {
     };
 
     if (req.file) {
-      applicationData.cv = {
-        data: req.file.buffer,
-        contentType: req.file.mimetype,
-        filename: req.file.originalname,
-      };
+      applicationData.cv = req.file.path;
     }
 
     const application = new Application(applicationData);
@@ -43,24 +39,7 @@ export const acceptApplication = async (req, res) => {
   }
 };
 
-// ✅ Get CV by application ID
-export const getCV = async (req, res) => {
-  try {
-    const { id } = req.params; // Application ID
-    const application = await Application.findById(id);
-    console.log(id);
-    if (!application || !application.cv || !application.cv.data) {
-      
-      return res.status(404).json({ message: "CV not found" });
-    }
-    
-    res.set("Content-Type", application.cv.contentType);
-    res.set("Content-Disposition", `inline; filename="${application.cv.filename}"`);
-    res.send(application.cv.data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+// Removed getCV since URLs are now directly available
 
 // ✅ Reject an application
 export const rejectApplication = async (req, res) => {
@@ -84,7 +63,7 @@ export const rejectApplication = async (req, res) => {
 export const fetchByCompanyId = async (req, res) => {
   try {
     const { companyId } = req.params;
-    const apps = await Application.find({ companyId }).select("-cv"); // exclude cv
+    const apps = await Application.find({ companyId });
     res.json(apps);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -94,7 +73,7 @@ export const fetchByCompanyId = async (req, res) => {
 // ✅ Fetch all applications
 export const fetchAllApplications = async (req, res) => {
   try {
-    const apps = await Application.find().select("-cv"); // exclude cv
+    const apps = await Application.find();
     res.json(apps);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -105,7 +84,7 @@ export const fetchAllApplications = async (req, res) => {
 export const fetchByStudentId = async (req, res) => {
   try {
     const { studentId } = req.params;
-    const apps = await Application.find({ studentId }).select("-cv"); // exclude cv
+    const apps = await Application.find({ studentId });
     res.json(apps);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -116,7 +95,7 @@ export const fetchByStudentId = async (req, res) => {
 export const fetchByInternshipId = async (req, res) => {
   try {
     const { internshipId } = req.params;
-    const apps = await Application.find({ internshipId }).select("-cv"); // exclude cv
+    const apps = await Application.find({ internshipId });
     res.json(apps);
   } catch (error) {
     res.status(500).json({ message: error.message });
