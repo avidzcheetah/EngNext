@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Search,
@@ -164,6 +164,7 @@ const StudentDashboard: React.FC = () => {
 
   const applicationEndDate = new Date('2025-09-30');
   const isApplicationPeriodOpen = new Date() <= applicationEndDate;
+  const isInitialRender = useRef(true);
 
   // Progress bar animation for success popup
   useEffect(() => {

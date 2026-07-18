@@ -1,41 +1,38 @@
-import companySchema from "../models/companySchema.js"
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 class CompanyController {
-  // Create a new company
   static async createCompany(req, res) {
     try {
       const companyData = req.body;
-     console.log("Received company data 1:");
-      // Required fields validation
       const { email, companyName } = companyData;
-     /* if (!email || !companyName) {
-        return res.status(400).json({ message: "Email and Company Name are required" });
-      }*/
 
-      // Check if email already exists
-     /* if(email){
-      const existingCompany = await companySchema.findOne({ email });
-      if (existingCompany) {
-        return res.status(400).json({ message: "Company with this email already exists" });
-      }
-    }*/
-console.log("Received company data 2:");
-      // If a logo file is uploaded (Cloudinary)
       if (req.file) {
-          companyData.logo = req.file.path;
+        companyData.logo = req.file.path;
       }
 
-       // Parse array fields if they are JSON strings
-    if (companyData.OurValues && typeof companyData.OurValues === "string") {
-      companyData.OurValues = JSON.parse(companyData.OurValues);
-    }
+      if (companyData.OurValues && typeof companyData.OurValues === "string") {
+        try { companyData.OurValues = JSON.parse(companyData.OurValues); } catch(e) { companyData.OurValues = []; }
+      }
 
-    if (companyData.internBenifits && typeof companyData.internBenifits === "string") {
-      companyData.internBenifits = JSON.parse(companyData.internBenifits);
-    }
-      // Create company document
-      const company = new companySchema(companyData);
-      await company.save();
+      if (companyData.internBenifits && typeof companyData.internBenifits === "string") {
+        try { companyData.internBenifits = JSON.parse(companyData.internBenifits); } catch(e) { companyData.internBenifits = []; }
+      }
+
+      companyData.id = Date.now().toString();
+
+      const { data: company, error } = await supabase
+        .from('companies')
+        .insert([companyData])
+        .select()
+        .single();
+
+      if (error) throw error;
 
       res.status(201).json({
         message: "Company created successfully",
@@ -44,103 +41,103 @@ console.log("Received company data 2:");
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Server error", error });
+      res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
-  // Update company by ID
-static async updateCompany(req, res) {
-  try {
-    const companyId = req.params.id;
-    if (!companyId) {
-      return res.status(400).json({ message: "Company ID is required" });
+  static async updateCompany(req, res) {
+    try {
+      const companyId = req.params.id;
+      if (!companyId) return res.status(400).json({ message: "Company ID is required" });
+
+      const { data: company, error: fetchError } = await supabase
+        .from('companies')
+        .select('*')
+        .eq('id', companyId)
+        .single();
+
+      if (fetchError || !company) return res.status(404).json({ message: "Company not found" });
+
+      const updates = {};
+      Object.keys(req.body).forEach(key => {
+        if ((key === "OurValues" || key === "internBenifits" || key === "subfield") && typeof req.body[key] === "string") {
+          try { updates[key] = JSON.parse(req.body[key]); } catch(e) { updates[key] = []; }
+        } else {
+          updates[key] = req.body[key];
+        }
+      });
+
+      if (req.file) {
+        updates.logo = req.file.path;
+      }
+      
+      updates.updatedAt = new Date().toISOString();
+
+      const { data: updatedCompany, error } = await supabase
+        .from('companies')
+        .update(updates)
+        .eq('id', companyId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      res.status(200).json({ message: "Company updated successfully", company: updatedCompany });
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server error", error: error.message });
     }
+  }
 
-    const company = await companySchema.findById(companyId);
-    if (!company) {
-      return res.status(404).json({ message: "Company not found" });
+  static async getAllCompanies(req, res) {
+    try {
+      const { data: companies, error } = await supabase.from('companies').select('*');
+      if (error) throw error;
+
+      const formattedCompanies = companies.map(c => ({
+        id: c.id,
+        name: c.companyName,
+        description: c.description,
+        website: c.website,
+        email: c.email,
+        role: c.role,
+        companyName: c.companyName,
+        location: c.location,
+        employees: c.employees,
+        industry: c.industry,
+        logo: c.logo || null,
+        isApproved: c.isApproved,
+        internships: c.internships || [],
+        phoneNo: c.phoneNo,
+        WorkCulture: c.WorkCulture,
+        internBenifits: c.internBenifits || [],
+        OurValues: c.OurValues || [],
+        createdAt: c.createdAt,
+        updatedAt: c.updatedAt,
+        subfield: c.subfield || "",
+        departments: c.departments || [],
+      }));
+
+      res.status(200).json({ companies: formattedCompanies });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server error", error: error.message });
     }
-
-    // Update text fields
-  Object.keys(req.body).forEach(key => {
-  if ((key === "OurValues" || key === "internBenifits" || key === "subfield") 
-      && typeof req.body[key] === "string") {
-    company[key] = JSON.parse(req.body[key]); // parse array fields
-    console.log(`Parsed and updated `);
-  } else {
-    company[key] = req.body[key];
   }
-});
 
-    // Update logo if uploaded (Cloudinary)
-    if (req.file) {
-      company.logo = req.file.path;
-      console.log("Logo updated");
-    } else {
-      console.log("No logo uploaded, keeping existing logo");
-    }
-
-    await company.save();
-    res.status(200).json({ message: "Company updated successfully", company });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error", error });
-  }
-}
-
-
-
-static async getAllCompanies(req, res) {
-  try {
-    const companies = await companySchema.find();
-
-    const formattedCompanies = companies.map(c => ({
-      id: c._id,
-      name: c.name,
-      description: c.description,
-      website: c.website,
-      email: c.email,
-      role: c.role,
-      companyName: c.companyName,
-      location: c.location,
-      employees: c.employees,
-      industry: c.industry,
-      logo: c.logo || null,
-      isApproved: c.isApproved,
-      internships: c.internships || [],
-      phoneNo :c.phoneNo,
-      WorkCulture:c.WorkCulture,
-      internBenifits:c.internBenifits || [],
-      OurValues:c.OurValues ||[],
-      createdAt: c.createdAt,
-      updatedAt: c.updatedAt,
-      subfield: c.subfield || "",
-      departments: c.departments || [],
-    }));
-
-    res.status(200).json({ companies: formattedCompanies });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error", error });
-  }
-}
-
-
-  
-// Fetch a company by ID
   static async getCompanyById(req, res) {
     try {
       const companyId = req.params.id;
-      const company = await companySchema.findById(companyId);
+      const { data: company, error } = await supabase
+        .from('companies')
+        .select('*')
+        .eq('id', companyId)
+        .single();
 
-      if (!company) {
-        return res.status(404).json({ message: "Company not found" });
-      }
+      if (error || !company) return res.status(404).json({ message: "Company not found" });
 
-      // Convert logo buffer → Base64 if it exists
       const formattedCompany = {
-        id: company._id,
+        id: company.id,
         email: company.email,
         companyName: company.companyName,
         role: company.role,
@@ -151,18 +148,18 @@ static async getAllCompanies(req, res) {
         location: company.location,
         employees: company.employees,
         industry: company.industry,
-        phoneNo :company.phoneNo,
-        WorkCulture:company.WorkCulture,
-        internBenifits:company.internBenifits || [],
-        OurValues:company.OurValues ||[],
+        phoneNo: company.phoneNo,
+        WorkCulture: company.WorkCulture,
+        internBenifits: company.internBenifits || [],
+        OurValues: company.OurValues || [],
         internships: company.internships || [],
-        fullTimeOpportunities:company.fullTimeOpportunities,
-        certification:company.companycertification,
-        mentorship:company.mentorship,
-        stipend:company.stipend,
-        foundedYear:company.foundedYear,
-        companyType:company.companyType,
-        address:company.address,
+        fullTimeOpportunities: company.fullTimeOpportunities,
+        certification: company.certification,
+        mentorship: company.mentorship,
+        stipend: company.stipend,
+        foundedYear: company.foundedYear,
+        companyType: company.companyType,
+        address: company.address,
         createdAt: company.createdAt,
         updatedAt: company.updatedAt,
         subfield: company.subfield || "",
@@ -172,77 +169,58 @@ static async getAllCompanies(req, res) {
       res.status(200).json({ company: formattedCompany });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Server error", error });
+      res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
-  // Removed getCompanyLogo since URLs are now directly available
+  static async verifyCompany(req, res) {
+    try {
+      const { email, password } = req.body;
+      if (!email || !password) return res.status(400).json({ message: "Email and password are required" });
 
-// Company login / verification
-static async verifyCompany(req, res) {
-  try {
-    const { email, password } = req.body; // use password for login
+      const { data: company, error } = await supabase
+        .from('companies')
+        .select('id, email, password, companyName, logo')
+        .eq('email', email)
+        .single();
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+      if (error || !company || company.password !== password) {
+        return res.status(401).json({ exists: false, message: "Invalid email or password" });
+      }
+
+      return res.status(200).json({
+        exists: true,
+        id: company.id,
+        email: company.email,
+        role: 'company',
+        companyName: company.companyName,
+        profilePicture: company.logo || null,
+      });
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server error", error: error.message });
     }
-
-    // Find company by email
-    const company = await companySchema.findOne({ email });
-    if (!company) {
-      return res.status(401).json({ exists: false, message: "Invalid email or password" });
-    }
-
-    // Compare password directly (plain text)
-    if (company.password !== password) {
-      return res.status(401).json({ exists: false, message: "Invalid email or password" });
-    }
-
-    // Send all necessary info to frontend
-    return res.status(200).json({
-      exists: true,
-      id: company._id,
-      email: company.email,
-      role: 'company',
-      companyName: company.companyName,
-      profilePicture: company.logo || null,
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server  error", error });
   }
-}
 
-// Delete a company by ID
-static async deleteCompanyById(req, res) {
-  try {
-    const companyId = req.params.id;
+  static async deleteCompanyById(req, res) {
+    try {
+      const companyId = req.params.id;
 
-    const deletedCompany = await companySchema.findByIdAndDelete(companyId);
+      const { data, error } = await supabase
+        .from('companies')
+        .delete()
+        .eq('id', companyId)
+        .select();
 
-    if (!deletedCompany) {
-      return res.status(404).json({ message: "Company not found" });
+      if (error || !data.length) return res.status(404).json({ message: "Company not found" });
+
+      res.status(200).json({ message: "Company deleted successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server error", error: error.message });
     }
-
-    res.status(200).json({ message: "Company deleted successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error", error });
   }
-}
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 export default CompanyController;

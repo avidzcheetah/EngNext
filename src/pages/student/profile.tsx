@@ -234,7 +234,7 @@ const StudentProfile: React.FC = () => {
 
       if (!response.ok) throw new Error("Failed to update profile");
 
-      await Promise.all([fetchCV(), fetchProfilePicture(), fetchProfile()]);
+      await fetchProfile();
       
       setSuccess("Profile updated successfully!");
       setShowSuccessPopup(true);
@@ -250,7 +250,7 @@ const StudentProfile: React.FC = () => {
       setError(null);
       setShowSuccessPopup(false);
     }, 5000);
-  }, [baseUrl, id, profileData, cv, fetchCV, fetchProfilePicture, fetchProfile]);
+  }, [baseUrl, id, profileData, cv, fetchProfile]);
 
   // Memoized profile picture component to prevent re-renders
   const ProfilePicture = useMemo(() => (
@@ -635,9 +635,15 @@ const StudentProfile: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       <FileText className="w-8 h-8 text-red-600" />
                       <div>
-                        <p className="font-medium text-gray-900">{profileData.cv.filename}</p>
+                        <p className="font-medium text-gray-900">
+                          {typeof profileData.cv === 'string' 
+                            ? profileData.cv.split('/').pop() || 'Resume'
+                            : (profileData.cv as any)?.filename || 'Resume'}
+                        </p>
                         <p className="text-sm text-gray-500">
-                          Uploaded on {new Date(profileData.cv.uploadDate).toLocaleDateString()} • {profileData.cv.size}
+                          {typeof profileData.cv === 'string' 
+                            ? 'Document'
+                            : `Uploaded on ${new Date((profileData.cv as any)?.uploadDate || Date.now()).toLocaleDateString()} • ${(profileData.cv as any)?.size || ''}`}
                         </p>
                       </div>
                     </div>

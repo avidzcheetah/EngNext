@@ -1,19 +1,28 @@
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+dotenv.config();
 
-import Application from "../models/applicationSchema.js";
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// ✅ Create new application
 export const createApplication = async (req, res) => {
   try {
-    const applicationData = {
-      ...req.body,
-    };
+    const applicationData = { ...req.body };
 
     if (req.file) {
       applicationData.cv = req.file.path;
     }
 
-    const application = new Application(applicationData);
-    const savedApplication = await application.save();
+    applicationData.id = Date.now().toString();
+
+    const { data: savedApplication, error } = await supabase
+      .from('applications')
+      .insert([applicationData])
+      .select()
+      .single();
+
+    if (error) throw error;
 
     res.status(201).json(savedApplication);
   } catch (error) {
@@ -21,16 +30,17 @@ export const createApplication = async (req, res) => {
   }
 };
 
-// ✅ Accept an application
 export const acceptApplication = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedApp = await Application.findByIdAndUpdate(
-      id,
-      { status: "accepted" },
-      { new: true }
-    );
-    if (!updatedApp) {
+    const { data: updatedApp, error } = await supabase
+      .from('applications')
+      .update({ status: "accepted", updatedAt: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error || !updatedApp) {
       return res.status(404).json({ message: "Application not found" });
     }
     res.json(updatedApp);
@@ -39,18 +49,17 @@ export const acceptApplication = async (req, res) => {
   }
 };
 
-// Removed getCV since URLs are now directly available
-
-// ✅ Reject an application
 export const rejectApplication = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedApp = await Application.findByIdAndUpdate(
-      id,
-      { status: "rejected" },
-      { new: true }
-    );
-    if (!updatedApp) {
+    const { data: updatedApp, error } = await supabase
+      .from('applications')
+      .update({ status: "rejected", updatedAt: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error || !updatedApp) {
       return res.status(404).json({ message: "Application not found" });
     }
     res.json(updatedApp);
@@ -59,43 +68,55 @@ export const rejectApplication = async (req, res) => {
   }
 };
 
-// ✅ Fetch applications by companyId
 export const fetchByCompanyId = async (req, res) => {
   try {
     const { companyId } = req.params;
-    const apps = await Application.find({ companyId });
+    const { data: apps, error } = await supabase
+      .from('applications')
+      .select('*')
+      .eq('companyId', companyId);
+      
+    if (error) throw error;
     res.json(apps);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// ✅ Fetch all applications
 export const fetchAllApplications = async (req, res) => {
   try {
-    const apps = await Application.find();
+    const { data: apps, error } = await supabase.from('applications').select('*');
+    if (error) throw error;
     res.json(apps);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// ✅ Fetch applications by studentId
 export const fetchByStudentId = async (req, res) => {
   try {
     const { studentId } = req.params;
-    const apps = await Application.find({ studentId });
+    const { data: apps, error } = await supabase
+      .from('applications')
+      .select('*')
+      .eq('studentId', studentId);
+      
+    if (error) throw error;
     res.json(apps);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// ✅ Fetch applications by internshipId
 export const fetchByInternshipId = async (req, res) => {
   try {
     const { internshipId } = req.params;
-    const apps = await Application.find({ internshipId });
+    const { data: apps, error } = await supabase
+      .from('applications')
+      .select('*')
+      .eq('internshipId', internshipId);
+      
+    if (error) throw error;
     res.json(apps);
   } catch (error) {
     res.status(500).json({ message: error.message });

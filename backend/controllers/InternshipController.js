@@ -1,16 +1,21 @@
-import InternshipSchema from "../models/InternshipSchema.js";
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+dotenv.config();
 
-// ✅ Create new internship
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 export const createInternship = async (req, res) => {
   try {
     const { companyId, title, companyName, description, requirements, duration, location, industry } = req.body;
 
-    // Basic validation to ensure required fields are present
     if (!companyId || !title) {
       return res.status(400).json({ message: "companyId and title are required" });
     }
 
-    const internship = new InternshipSchema({
+    const internshipData = {
+      id: Date.now().toString(),
       companyId,
       title,
       companyName: companyName || "",
@@ -19,11 +24,16 @@ export const createInternship = async (req, res) => {
       duration: duration || "",
       location: location || "",
       industry: industry || "",
-      isActive: true, // Default to true for new internships
-    });
+      isActive: true,
+    };
 
-    const savedInternship = await internship.save();
-    console.log("Internship created successfully:", savedInternship);
+    const { data: savedInternship, error } = await supabase
+      .from('internships')
+      .insert([internshipData])
+      .select()
+      .single();
+
+    if (error) throw error;
     res.status(201).json(savedInternship);
   } catch (error) {
     console.error("Error creating internship:", error);
@@ -31,10 +41,10 @@ export const createInternship = async (req, res) => {
   }
 };
 
-// ✅ Get all internships
 export const getAllInternships = async (req, res) => {
   try {
-    const internships = await InternshipSchema.find();
+    const { data: internships, error } = await supabase.from('internships').select('*');
+    if (error) throw error;
     res.status(200).json(internships);
   } catch (error) {
     console.error("Error fetching all internships:", error);
@@ -42,14 +52,17 @@ export const getAllInternships = async (req, res) => {
   }
 };
 
-// ✅ Get internships by CompanyId
 export const getInternshipsByCompanyId = async (req, res) => {
   try {
     const { companyId } = req.params;
-    if (!companyId) {
-      return res.status(400).json({ message: "companyId is required" });
-    }
-    const internships = await InternshipSchema.find({ companyId });
+    if (!companyId) return res.status(400).json({ message: "companyId is required" });
+
+    const { data: internships, error } = await supabase
+      .from('internships')
+      .select('*')
+      .eq('companyId', companyId);
+      
+    if (error) throw error;
     res.status(200).json(internships);
   } catch (error) {
     console.error("Error fetching internships by companyId:", error);
@@ -57,42 +70,38 @@ export const getInternshipsByCompanyId = async (req, res) => {
   }
 };
 
-// ✅ Delete internship by ID
 export const deleteInternshipById = async (req, res) => {
   try {
     const { id } = req.params;
-    if (!id) {
-      return res.status(400).json({ message: "Internship ID is required" });
-    }
+    if (!id) return res.status(400).json({ message: "Internship ID is required" });
 
-    const deleted = await InternshipSchema.findByIdAndDelete(id);
+    const { data, error } = await supabase
+      .from('internships')
+      .delete()
+      .eq('id', id)
+      .select();
 
-    if (!deleted) {
-      return res.status(404).json({ message: "Internship not found" });
-    }
+    if (error || !data.length) return res.status(404).json({ message: "Internship not found" });
 
-    console.log("Internship deleted successfully:", id);
-    res.status(200).json({ message: "Internship deleted successfully", deleted });
+    res.status(200).json({ message: "Internship deleted successfully", deleted: data[0] });
   } catch (error) {
     console.error("Error deleting internship:", error);
     res.status(500).json({ message: error.message || "Failed to delete internship" });
   }
 };
 
-// ✅ Get internship by ID
 export const getInternshipById = async (req, res) => {
   try {
     const { id } = req.params;
-    if (!id) {
-      return res.status(400).json({ message: "Internship ID is required" });
-    }
+    if (!id) return res.status(400).json({ message: "Internship ID is required" });
 
-    const internship = await InternshipSchema.findById(id);
+    const { data: internship, error } = await supabase
+      .from('internships')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    if (!internship) {
-      return res.status(404).json({ message: "Internship not found" });
-    }
-
+    if (error || !internship) return res.status(404).json({ message: "Internship not found" });
     res.status(200).json(internship);
   } catch (error) {
     console.error("Error fetching internship by ID:", error);
@@ -100,18 +109,13 @@ export const getInternshipById = async (req, res) => {
   }
 };
 
-// ✅ Edit internship by ID
 export const editInternshipById = async (req, res) => {
   try {
-    const { id } = req.params; // Changed from editId to id for consistency
+    const { id } = req.params;
     const { companyId, title, companyName, description, requirements, duration, location, industry } = req.body;
 
-    if (!id) {
-      return res.status(400).json({ message: "Internship ID is required" });
-    }
-    if (!title) {
-      return res.status(400).json({ message: "Title is required" });
-    }
+    if (!id) return res.status(400).json({ message: "Internship ID is required" });
+    if (!title) return res.status(400).json({ message: "Title is required" });
 
     const updateData = {
       companyId,
@@ -122,21 +126,18 @@ export const editInternshipById = async (req, res) => {
       duration: duration || "",
       location: location || "",
       industry: industry || "",
+      updatedAt: new Date().toISOString()
     };
 
-    console.log("Updating internship with data:", updateData);
+    const { data: updatedInternship, error } = await supabase
+      .from('internships')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
 
-    const updatedInternship = await InternshipSchema.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true, runValidators: true } // Return updated document
-    );
+    if (error || !updatedInternship) return res.status(404).json({ message: "Internship not found" });
 
-    if (!updatedInternship) {
-      return res.status(404).json({ message: "Internship not found" });
-    }
-
-    console.log("Internship updated successfully:", updatedInternship);
     res.status(200).json(updatedInternship);
   } catch (error) {
     console.error("Error updating internship:", error);

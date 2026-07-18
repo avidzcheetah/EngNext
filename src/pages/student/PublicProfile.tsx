@@ -293,9 +293,11 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
               <div className="flex items-center space-x-3">
                 <FileText className="w-8 h-8 text-red-600" />
                 <div>
-                  <p className="font-medium text-gray-900">{profileData.cv.filename}</p>
+                  <p className="font-medium text-gray-900">
+                    {profileData.cv.split('/').pop() || 'Resume'}
+                  </p>
                   <p className="text-sm text-gray-500">
-                    Uploaded on {new Date(profileData.cv.uploadDate).toLocaleDateString()} • {profileData.cv.size}
+                    Document
                   </p>
                 </div>
               </div>

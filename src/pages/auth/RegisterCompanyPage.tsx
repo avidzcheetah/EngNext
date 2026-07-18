@@ -243,21 +243,18 @@ const RegisterCompanyPage: React.FC = () => {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-md w-full text-center">
             <Card className="p-8">
-              <Clock className="w-16 h-16 text-orange-500 mx-auto mb-6" />
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Application Submitted
+                Registration Successful
               </h2>
               <p className="text-gray-600 mb-6">
-                Thank you for registering with EngNext! Your company
-                application has been submitted and is now pending approval from
-                our administrators.
+                Thank you for registering with EngNext! Your company account has been created successfully.
               </p>
               <p className="text-sm text-gray-500 mb-6">
-                You will receive an email notification once your account is
-                approved. This typically takes 1-2 business days.
+                You can now log in to your account.
               </p>
-              <Button onClick={() => navigate("/")} fullWidth>
-                Return to Home
+              <Button onClick={() => navigate("/login")} fullWidth>
+                Go to Login
               </Button>
             </Card>
           </div>
