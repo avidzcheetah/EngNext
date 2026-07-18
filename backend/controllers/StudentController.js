@@ -299,7 +299,10 @@ class StudentController {
         .limit(1)
         .single();
 
-      if (error || !student) return res.status(404).json({ message: "No students found" });
+      if (error || !student) {
+        // If there are no students yet, return a default max applications value
+        return res.status(200).json({ maximumApplications: 0 });
+      }
 
       res.status(200).json({
         maximumApplications: student.maximumApplications

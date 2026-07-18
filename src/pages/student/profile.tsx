@@ -79,6 +79,7 @@ const StudentProfile: React.FC = () => {
 
   // Memoized fetch functions to prevent unnecessary re-renders
   const fetchProfile = useCallback(async () => {
+    if (!id) return;
     setIsLoading(true);
     setError(null);
     

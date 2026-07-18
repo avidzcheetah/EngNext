@@ -374,7 +374,7 @@ const StudentDashboard: React.FC = () => {
       console.log("Fetching user applications for student:", id);
       
       const response = await fetch(
-        `${baseUrl}/api/applicationRoutes/getApplicationsByStudentId/${id}`,
+        `${baseUrl}/api/applicationRoutes/fetchByStudentId/${id}`,
         {
           method: "GET",
           headers: {
@@ -1147,7 +1147,7 @@ const StudentDashboard: React.FC = () => {
                   <p className="text-sm font-medium text-blue-900">
                     Application Status
                   </p>
-                  <p className="text-xs text-blue-700">
+                  <div className="text-xs text-blue-700">
                     {profileData.RecentNotifications.length > 0 ? (
                       profileData.RecentNotifications.filter(
                         (note) =>
@@ -1159,13 +1159,13 @@ const StudentDashboard: React.FC = () => {
                     ) : (
                       <div>No recent status updates</div>
                     )}
-                  </p>
+                  </div>
                 </div>
                 <div className="p-3 bg-green-50 rounded-lg hover:bg-green-100 transition">
                   <p className="text-sm font-medium text-green-900">
                     Application Viewed
                   </p>
-                  <p className="text-xs text-green-700">
+                  <div className="text-xs text-green-700">
                     {profileData.RecentNotifications.length > 0 ? (
                       profileData.RecentNotifications.filter((note) =>
                         note.toLowerCase().includes("viewed")
@@ -1175,7 +1175,7 @@ const StudentDashboard: React.FC = () => {
                     ) : (
                       <div>No recent views</div>
                     )}
-                  </p>
+                  </div>
                 </div>
               </div>
             </Card>
