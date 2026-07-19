@@ -83,12 +83,15 @@ const PublicCompanyProfile: React.FC<PublicCompanyProfileProps> = ({
         const data = await res.json();
         console.log("API response:", data);
   
-        // Convert Base64 logo to data URL
         if (data.company.logo) {
-          const logoDataUrl = `data:${
-            data.company.logoType || "image/png"
-          };base64,${data.company.logo}`;
-          data.company.logoUrl = logoDataUrl;
+          if (data.company.logo.startsWith('http')) {
+            data.company.logoUrl = data.company.logo;
+          } else {
+            const logoDataUrl = `data:${
+              data.company.logoType || "image/png"
+            };base64,${data.company.logo}`;
+            data.company.logoUrl = logoDataUrl;
+          }
         }
   
         setCompanyProfile(data.company);

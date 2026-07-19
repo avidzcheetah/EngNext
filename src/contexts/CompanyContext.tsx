@@ -40,12 +40,19 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
       const data = await res.json();
 
       const companies = data.companies.map((company: CompanyProfile) => {
-        const logoBase64 = company.logo || null;
-        const contentType = company.logoType || "image/png";
+        let finalLogoUrl = null;
+        if (company.logo) {
+          if (company.logo.startsWith('http')) {
+            finalLogoUrl = company.logo;
+          } else {
+            const contentType = company.logoType || "image/png";
+            finalLogoUrl = `data:${contentType};base64,${company.logo}`;
+          }
+        }
 
         return {
           ...company,
-          logoUrl: logoBase64 ? `data:${contentType};base64,${logoBase64}` : null,
+          logoUrl: finalLogoUrl,
           companyName: company.companyName || company.name,
         };
       });

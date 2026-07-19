@@ -855,7 +855,13 @@ const CompanyDashboard: React.FC = () => {
             ].map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key as typeof activeTab)}
+                onClick={() => {
+                  if (tab.key === "company") {
+                    navigate("/company/profile");
+                  } else {
+                    setActiveTab(tab.key as typeof activeTab);
+                  }
+                }}
                 className={`pb-2 transition-all text-sm font-medium border-b-2 ${
                   activeTab === tab.key ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-blue-500"
                 }`}
