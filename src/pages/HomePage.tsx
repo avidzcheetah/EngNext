@@ -22,31 +22,31 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Slider Section */}
       <section className="bg-white">
         <Slider />
       </section>
 
       {/* About Faculty Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-slate-900 mb-6 tracking-tight">
               Faculty of Engineering
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
               Excellence in engineering education and research at the University
               of Jaffna's Faculty of Engineering.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
+              <h3 className="text-3xl font-display font-bold text-slate-900 mb-6">
                 Our Mission
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-lg text-slate-600 mb-8 leading-relaxed">
                 The Faculty of Engineering is committed to providing world-class
                 education and fostering innovation in Electrical and Electronic
                 Engineering, Computer Engineering, Mechanical Engineering and
@@ -54,56 +54,57 @@ const HomePage: React.FC = () => {
                 their fields through comprehensive academic programs and
                 hands-on research opportunities.
               </p>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white text-sm">✓</span>
+              <div className="space-y-5">
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-bold">✓</span>
                   </div>
-                  <p className="text-gray-700">
+                  <p className="text-slate-700 font-medium pt-1">
                     Cutting-edge curriculum aligned with industry needs
                   </p>
                 </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white text-sm">✓</span>
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-bold">✓</span>
                   </div>
-                  <p className="text-gray-700">
+                  <p className="text-slate-700 font-medium pt-1">
                     State-of-the-art laboratories and research facilities
                   </p>
                 </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white text-sm">✓</span>
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-bold">✓</span>
                   </div>
-                  <p className="text-gray-700">
+                  <p className="text-slate-700 font-medium pt-1">
                     Strong industry partnerships and engineering programs
                   </p>
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-6 relative">
+              <div className="absolute -inset-4 bg-gradient-to-tr from-brand-100/50 to-purple-100/50 rounded-[2rem] blur-2xl -z-10"></div>
+              <div className="space-y-6">
                 <img
                   src="https://images.pexels.com/photos/3862132/pexels-photo-3862132.jpeg?auto=compress&cs=tinysrgb&w=400"
                   alt="EEE Laboratory"
-                  className="rounded-lg shadow-lg"
+                  className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 object-cover aspect-[4/5]"
                 />
                 <img
                   src="https://images.pexels.com/photos/159298/gears-cogs-machine-machinery-159298.jpeg?auto=compress&cs=tinysrgb&w=400"
                   alt="Engineering Equipment"
-                  className="rounded-lg shadow-lg"
+                  className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 object-cover aspect-square"
                 />
               </div>
-              <div className="space-y-4 mt-8">
+              <div className="space-y-6 mt-12">
                 <img
                   src="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=400"
                   alt="Students Working"
-                  className="rounded-lg shadow-lg"
+                  className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 object-cover aspect-square"
                 />
                 <img
                   src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=400"
                   alt="Research Lab"
-                  className="rounded-lg shadow-lg"
+                  className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 object-cover aspect-[4/5]"
                 />
               </div>
             </div>
@@ -112,13 +113,13 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Partner Companies Section */}
-      <section className="py-16 bg-white">
+      <section className="py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-slate-900 mb-4 tracking-tight">
               Our Industry Partners
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-slate-600">
               Collaborating with leading companies to create opportunities
             </p>
           </div>
@@ -132,9 +133,11 @@ const HomePage: React.FC = () => {
             <p className="text-center text-red-500">{error}</p>
           ) : (
             <>
-              <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-gray-50 to-white p-6 shadow-sm">
+              <div className="relative overflow-hidden rounded-2xl bg-white p-8 shadow-sm border border-slate-100">
+                <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+                <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
                 <div
-                  className="flex gap-6"
+                  className="flex gap-8"
                   style={{
                     animation: 'slide-left 60s linear infinite',
                     width: 'fit-content'
@@ -190,7 +193,7 @@ const HomePage: React.FC = () => {
               </style>
 
               {companyProfiles.length > MAX_CAROUSEL_COMPANIES && (
-                <p className="text-center text-gray-500 mt-4">
+                <p className="text-center text-slate-500 mt-6 font-medium">
                   Showing {limitedProfiles.length} of {companyProfiles.length} partners...
                 </p>
               )}
@@ -200,7 +203,7 @@ const HomePage: React.FC = () => {
                   size="lg"
                   onClick={handleNavigate}
                   disabled={loading || companyProfiles.length === 0}
-                  className={`bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 transition-all duration-300 ${
+                  className={`bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-600/20 hover:shadow-lg hover:shadow-brand-600/30 transition-all duration-300 font-medium px-8 ${
                     loading || companyProfiles.length === 0
                       ? "opacity-50 cursor-not-allowed"
                       : ""
@@ -215,12 +218,15 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-teal-600 text-white">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold mb-4">
+      <section className="py-24 bg-brand-600 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-400 rounded-full blur-3xl opacity-20 transform translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-800 rounded-full blur-3xl opacity-20 transform -translate-x-1/2 translate-y-1/2"></div>
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10">
+          <h2 className="text-4xl md:text-5xl font-display font-bold mb-6 tracking-tight">
             Ready to Start Your Journey?
           </h2>
-          <p className="text-xl mb-8">
+          <p className="text-xl text-brand-50 mb-10 max-w-2xl mx-auto leading-relaxed">
             Join the community to find the perfect
             job match through EngNext.
           </p>
@@ -229,7 +235,7 @@ const HomePage: React.FC = () => {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-white text-white hover:bg-white hover:text-black"
+                className="!border-white/50 !text-white hover:!bg-white hover:!text-brand-700 font-semibold px-8 hover:!border-white shadow-lg shadow-black/10"
               >
                 Register as Student
               </Button>
@@ -238,7 +244,7 @@ const HomePage: React.FC = () => {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-white text-white hover:bg-white hover:text-black"
+                className="!border-white/50 !text-white hover:!bg-white hover:!text-brand-700 font-semibold px-8 hover:!border-white shadow-lg shadow-black/10"
               >
                 Register a Company
               </Button>

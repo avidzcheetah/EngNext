@@ -348,7 +348,7 @@ const Contact: React.FC = () => {
                   {/* Developer 1 */}
                   <div className="flex items-center space-x-4">
                     <img
-                      src="https://media.licdn.com/dms/image/v2/D5603AQHc96-ENua_uA/profile-displayphoto-crop_800_800/B56ZffMhySG0AM-/0/1751796294656?e=1759968000&v=beta&t=7ix-p8zDkslvHG_Xd8aXrgb351De0ui4Tn0dP382TUA"
+                      src="https://res.cloudinary.com/ayba9tzb/image/upload/v1784449271/engnext_assets/f9kkhlxgiycquqidpzi6.png"
                       alt="Avidu Witharana"
                       className="w-20 h-20 rounded-full object-cover border-2 border-blue-500"
                     />
@@ -385,7 +385,7 @@ const Contact: React.FC = () => {
                   {/* Developer 2 */}
                   <div className="flex items-center space-x-4">
                     <img
-                      src="https://media.licdn.com/dms/image/v2/D4D03AQHl06FEFwAWTQ/profile-displayphoto-shrink_800_800/B4DZQOZsHnHYAc-/0/1735408404012?e=1759968000&v=beta&t=RnNCIBtjmxPANVThTocVD3kd6E_3Hp5BykY_oKp6Ikk"
+                      src="https://res.cloudinary.com/ayba9tzb/image/upload/v1784449253/engnext_assets/i46yywbosnlfqjmf1nva.jpg"
                       alt="Aakil Ahamed"
                       className="w-20 h-20 rounded-full object-cover border-2 border-blue-500"
                     />

@@ -29,25 +29,25 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white/80 backdrop-blur-md shadow-md sticky top-0 z-50 border-b border-gray-200/50 transition-all duration-300">
+    <header className="bg-white/85 backdrop-blur-lg shadow-[0_2px_20px_rgb(0,0,0,0.04)] sticky top-0 z-50 border-b border-slate-100 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center space-x-3 group">
               <div className="flex items-center space-x-2">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform duration-300">
                   <img
                     src="https://i.postimg.cc/sMHMSGWy/engnextlogo.png"
                     alt="EngNext logo"
                   />
                 </div>
                 <div className="hidden md:block">
-                  <h1 className="text-xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
+                  <h1 className="text-xl font-display font-extrabold bg-gradient-to-r from-brand-600 via-brand-500 to-brand-700 bg-clip-text text-transparent">
                     EngNext
                   </h1>
-                  <p className="text-xs text-gray-500">
-                    Engineering Your Next Step.
+                  <p className="text-xs font-medium text-slate-500 tracking-wide uppercase mt-0.5">
+                    Engineering Your Next Step
                   </p>
                 </div>
               </div>
@@ -60,7 +60,7 @@ const Header: React.FC = () => {
               <Link
                 key={item}
                 to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
-                className="relative text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium after:content-[''] after:absolute after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-blue-600 after:to-purple-600 after:left-0 after:-bottom-1 hover:after:w-full after:transition-all after:duration-300"
+                className="relative text-slate-600 hover:text-brand-600 transition-all duration-200 font-semibold text-sm tracking-wide after:content-[''] after:absolute after:w-0 after:h-0.5 after:bg-brand-500 after:left-0 after:-bottom-1 hover:after:w-full after:transition-all after:duration-300"
               >
                 {item}
               </Link>
@@ -72,24 +72,24 @@ const Header: React.FC = () => {
                   onClick={() =>
                     setIsProfileDropdownOpen(!isProfileDropdownOpen)
                   }
-                  className="flex items-center bg-blue-50 rounded-full p-1 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 border border-transparent hover:border-blue-200 transition-all duration-300 shadow-sm"
+                  className="flex items-center bg-slate-50 rounded-full p-1 hover:bg-brand-50 border border-slate-200 hover:border-brand-200 transition-all duration-300 shadow-sm"
                 >
                   {user?.profilePicture ? (
                     <img
                       src={user.profilePicture}
                       alt="Profile"
-                      className="w-8 h-8 rounded-full object-cover ring-2 ring-white"
+                      className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm"
                     />
                   ) : (
-                    <User className="w-8 h-8 text-blue-600" />
+                    <User className="w-8 h-8 text-brand-600 p-1" />
                   )}
                 </button>
 
                 {isProfileDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 py-1 animate-fadeIn">
+                  <div className="absolute right-0 mt-2 w-52 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-100 py-2 animate-fade-in origin-top-right">
                     <Link
                       to={getDashboardLink()}
-                      className="block px-4 py-2 text-gray-700 hover:bg-blue-50 flex items-center space-x-2 transition-colors duration-200"
+                      className="flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-brand-50 hover:text-brand-700 transition-colors duration-200"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
                       <User className="w-4 h-4" />
@@ -97,18 +97,22 @@ const Header: React.FC = () => {
                     </Link>
                     <Link
                       to={`/${user?.role}/profile`}
-                      className="block px-4 py-2 text-gray-700 hover:bg-purple-50 flex items-center space-x-2 transition-colors duration-200"
+                      className="flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-brand-50 hover:text-brand-700 transition-colors duration-200"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
                       <Settings className="w-4 h-4" />
-                      <span>Profile</span>
+                      <span>Settings</span>
                     </Link>
+                    <div className="border-t border-slate-100 my-1"></div>
                     <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-red-50 flex items-center space-x-2 transition-colors duration-200"
+                      onClick={() => {
+                        handleLogout();
+                        setIsProfileDropdownOpen(false);
+                      }}
+                      className="w-full text-left flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors duration-200"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Logout</span>
+                      <span>Sign out</span>
                     </button>
                   </div>
                 )}
@@ -116,9 +120,9 @@ const Header: React.FC = () => {
             ) : (
               <Link
                 to="/login"
-                className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                className="bg-brand-600 text-white px-5 py-2.5 rounded-full hover:bg-brand-700 transition-colors shadow-md shadow-brand-600/20 hover:shadow-lg hover:shadow-brand-600/30 active:scale-[0.98] font-medium"
               >
-                Login
+                Sign in
               </Link>
             )}
           </nav>
@@ -140,13 +144,13 @@ const Header: React.FC = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden pb-4 animate-slideDown">
-            <div className="flex flex-col space-y-2">
+          <div className="md:hidden py-4 border-t border-slate-100 animate-fade-in">
+            <nav className="flex flex-col space-y-2">
               {["Home", "About", "Companies", "Contact"].map((item) => (
                 <Link
                   key={item}
                   to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
-                  className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition-all duration-200"
+                  className="block text-slate-700 hover:bg-brand-50 hover:text-brand-600 px-4 py-2.5 rounded-xl transition-colors font-medium"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item}
@@ -154,38 +158,50 @@ const Header: React.FC = () => {
               ))}
 
               {isAuthenticated ? (
-                <div className="pt-2 border-t border-gray-200">
+                <div className="pt-2 border-t border-slate-100">
                   <Link
                     to={getDashboardLink()}
-                    className="block text-gray-700 hover:text-blue-600 py-2"
+                    className="block text-slate-700 hover:bg-brand-50 hover:text-brand-600 px-4 py-2.5 rounded-xl transition-colors font-medium"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Dashboard
                   </Link>
                   <Link
                     to={`/${user?.role}/profile`}
-                    className="block text-gray-700 hover:text-blue-600 py-2"
+                    className="block text-slate-700 hover:bg-brand-50 hover:text-brand-600 px-4 py-2.5 rounded-xl transition-colors font-medium"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Profile
+                    Settings
                   </Link>
                   <button
-                    onClick={handleLogout}
-                    className="block w-full text-left text-gray-700 hover:text-red-600 py-2"
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full text-left text-red-600 hover:bg-red-50 px-4 py-2.5 rounded-xl transition-colors font-medium mt-1"
                   >
-                    Logout
+                    Sign out
                   </button>
                 </div>
               ) : (
-                <Link
-                  to="/login"
-                  className="mt-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg text-center hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Login
-                </Link>
+                <div className="pt-4 flex flex-col space-y-3">
+                  <Link
+                    to="/login"
+                    className="w-full text-center text-brand-600 border-2 border-brand-600 px-4 py-2.5 rounded-xl hover:bg-brand-50 transition-colors font-semibold"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    to="/student/register"
+                    className="w-full text-center bg-brand-600 text-white px-4 py-2.5 rounded-xl hover:bg-brand-700 transition-colors font-semibold"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Get Started
+                  </Link>
+                </div>
               )}
-            </div>
+            </nav>
           </div>
         )}
       </div>
