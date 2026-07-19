@@ -19,13 +19,16 @@ import {
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 const CompanyDashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const { companyId } = location.state || { companyId: null };
-  const id = companyId;
-  console.log("Company ID from state:", id);
+  const id = companyId || user?.id;
+
+  console.log("Company ID from state or auth:", id);
 
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const MAX_COMPANY_APPLICATIONS = 27; // Configurable limit
@@ -857,7 +860,7 @@ const CompanyDashboard: React.FC = () => {
                 key={tab.key}
                 onClick={() => {
                   if (tab.key === "company") {
-                    navigate("/company/profile");
+                    navigate("/company/profile", { state: { companyId: id } });
                   } else {
                     setActiveTab(tab.key as typeof activeTab);
                   }

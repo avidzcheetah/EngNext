@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Building2,
   Camera,
@@ -34,6 +34,9 @@ const CompanyProfile: React.FC = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const location = useLocation();
+  const { companyId } = location.state || { companyId: null };
+  const id = companyId || user?.id;
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -67,7 +70,6 @@ const CompanyProfile: React.FC = () => {
   });
 
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
-  const id = user?.id;
 
   const fetchProfile = useCallback(async () => {
     if (!id) return;
