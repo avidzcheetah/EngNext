@@ -312,6 +312,41 @@ class StudentController {
       res.status(500).json({ message: "Server error", error: error.message });
     }
   }
+
+  static async downloadCV(req, res) {
+    try {
+      const { id } = req.params;
+
+      const { data: student, error } = await supabase
+        .from('students')
+        .select('cv, firstName, lastName')
+        .eq('id', id)
+        .single();
+
+      if (error || !student || !student.cv) {
+        return res.status(404).json({ message: "CV not found" });
+      }
+
+      const cvUrl = student.cv;
+      const filename = `${student.firstName}_${student.lastName}_CV.pdf`;
+
+      // Fetch the file from Cloudinary
+      const response = await fetch(cvUrl);
+      if (!response.ok) {
+        return res.status(502).json({ message: "Failed to fetch CV from storage" });
+      }
+
+      // Stream it back with correct headers
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+      const buffer = await response.arrayBuffer();
+      res.send(Buffer.from(buffer));
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server error", error: error.message });
+    }
+  }
 }
 
 export default StudentController;

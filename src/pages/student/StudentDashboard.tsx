@@ -12,6 +12,7 @@ import {
   Check,
   AlertCircle,
   Loader2,
+  Info,
 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
@@ -793,22 +794,37 @@ const StudentDashboard: React.FC = () => {
           </p>
         </div>
 
-        {/* Application Period Ended Notice */}
+        {/* Application Period Notice */}
         {!isApplicationPeriodOpen && (
-          <Card className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm">
+          <Card className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
             <div className="flex items-center">
-              <AlertTriangle className="w-6 h-6 text-red-600 mr-3" />
+              <Info className="w-6 h-6 text-blue-600 mr-3" />
               <div>
-                <h3 className="text-lg font-semibold text-red-800">
-                  Application Period Ended
+                <h3 className="text-lg font-semibold text-blue-800">
+                  Applications will be opened soon
                 </h3>
-                <p className="text-sm text-red-700">
-                  The application time has ended. You can no longer apply for positions. Apply Now buttons are disabled.
+                <p className="text-sm text-blue-700">
+                  We are currently preparing for the next application period. Please check back later.
                 </p>
               </div>
             </div>
           </Card>
         )}
+
+        {/* CV Re-upload Notice */}
+        <Card className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm">
+          <div className="flex items-center">
+            <AlertTriangle className="w-6 h-6 text-yellow-600 mr-3" />
+            <div>
+              <h3 className="text-lg font-semibold text-yellow-800">
+                Important: CV Re-upload Required
+              </h3>
+              <p className="text-sm text-yellow-700">
+                Due to a server issue, if you uploaded your CV before 10:10 PM on July 20th, please go to <Link to="/student/profile" className="font-semibold underline hover:text-yellow-900">your profile</Link> and re-upload it. This ensures it downloads correctly for companies.
+              </p>
+            </div>
+          </div>
+        </Card>
 
         {/* Success/Error Popup with higher z-index */}
         {showSuccessPopup && (success || error) && (

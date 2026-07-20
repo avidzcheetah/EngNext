@@ -112,20 +112,42 @@ const ApplicationsPage: React.FC = () => {
     const id = app._id;
     setDownloadingCV((prev) => ({ ...prev, [id]: true }));
     try {
+      let cvUrl = "";
       if (app.useProfileCV) {
         const response = await fetch(`${baseUrl}/api/studentRoutes/getStudentById/${app.studentId}`);
         if (!response.ok) throw new Error("Failed to fetch student details");
         const studentData = await response.json();
         if (studentData.cv) {
-          window.open(studentData.cv, "_blank");
+          cvUrl = studentData.cv;
         } else {
           setError("Student does not have a CV uploaded");
+          return;
         }
       } else {
         if (app.cv) {
-          window.open(app.cv, "_blank");
+          cvUrl = app.cv;
         } else {
           setError("No CV found for this application");
+          return;
+        }
+      }
+
+      if (cvUrl) {
+        try {
+          const res = await fetch(cvUrl);
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          const filename = cvUrl.split('/').pop() || 'resume';
+          link.download = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        } catch (downloadErr) {
+          console.error("Error downloading CV:", downloadErr);
+          window.open(cvUrl, "_blank");
         }
       }
     } catch (error) {

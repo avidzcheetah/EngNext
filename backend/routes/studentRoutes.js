@@ -47,4 +47,7 @@ router.put("/incrementApplicationsSent/:id", StudentController.incrementApplicat
 // get maximum profile views
 router.get("/getMaximumApplications", StudentController.getMaximumApplications);
 
+// download CV as PDF with correct headers
+router.get("/downloadCV/:id", StudentController.downloadCV);
+
 export default router;

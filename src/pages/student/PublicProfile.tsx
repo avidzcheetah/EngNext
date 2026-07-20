@@ -106,9 +106,26 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
   }, [studentId]);
 
   // Function to handle CV download
-  const handleDownloadCV = () => {
+  const handleDownloadCV = async () => {
     if (cvPreview) {
-      window.open(cvPreview, "_blank");
+      try {
+        const response = await fetch(cvPreview);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        const filename = typeof profileData?.cv === 'string' 
+          ? profileData.cv.split('/').pop() || 'resume'
+          : 'resume';
+        link.download = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Error downloading CV:", error);
+        window.open(cvPreview, "_blank"); // Fallback
+      }
     }
   };
 
@@ -303,16 +320,6 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
               </div>
               <div className="flex items-center space-x-2">
                 {cvPreview && (
-                  <>
-                    <a
-                      href={cvPreview}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3 py-1 text-sm text-blue-600 hover:text-blue-700 flex items-center space-x-1 transition-colors"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      <span>View</span>
-                    </a>
                     <button
                       onClick={handleDownloadCV}
                       className="px-3 py-1 text-sm text-blue-600 hover:text-blue-700 flex items-center space-x-1 transition-colors"
@@ -320,7 +327,6 @@ const PublicStudentProfile: React.FC<PublicStudentProfileProps> = ({ onBack }) =
                       <Download className="w-4 h-4" />
                       <span>Download</span>
                     </button>
-                  </>
                 )}
               </div>
             </div>
