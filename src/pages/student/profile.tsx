@@ -34,7 +34,7 @@ interface StudentProfile {
 
 const StudentProfile: React.FC = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cvInputRef = useRef<HTMLInputElement>(null);
 
@@ -95,6 +95,9 @@ const StudentProfile: React.FC = () => {
       setProfileData({ ...data, department: data.department, subfields: data.subfields || [] });
       if (data.profilePicture) {
         setProfilePreview(data.profilePicture);
+        if (user && data.profilePicture !== user.profilePicture) {
+          login({ ...user, profilePicture: data.profilePicture });
+        }
       }
       if (data.cv) {
         setCvPreview(data.cv);
@@ -105,7 +108,7 @@ const StudentProfile: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [baseUrl, id]);
+  }, [baseUrl, id, user, login]);
 
   // Load profile data on component mount
   useEffect(() => {

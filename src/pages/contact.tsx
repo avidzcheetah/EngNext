@@ -25,7 +25,7 @@ const Contact: React.FC = () => {
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -74,9 +74,9 @@ const Contact: React.FC = () => {
       icon: Phone,
       title: "Phone",
       details: [
-        { main: "+94 77 050 2392", sub: "Ms. Jalini (Lecturer)" },
-        { main: "+94 76 014 4977", sub: "Prabath" },
-        { main: "+94 71 017 1111", sub: "Avidu (Web Developer)" },
+        { main: "+94 76 302 9567", sub: "Eng. Barathraj (Lecturer)" },
+        { main: "+94 77 865 8970", sub: "Dr. Mukunthan (Lecturer)" },
+        { main: "+94 71 017 1111", sub: "Avidu" },
       ],
       color: "text-green-600",
       bgColor: "bg-green-100",
@@ -160,17 +160,19 @@ const Contact: React.FC = () => {
                   {info.title}
                 </h3>
                 <div className="flex flex-col gap-3">
-                  {info.details.map((detail: { main: string; sub: string }, idx: number) => (
-                    <div
-                      key={idx}
-                      className="bg-gray-50 hover:bg-gray-100 transition rounded-lg p-3"
-                    >
-                      <p className="text-gray-800 font-medium text-sm">
-                        {detail.main}
-                      </p>
-                      <p className="text-gray-600 text-xs">{detail.sub}</p>
-                    </div>
-                  ))}
+                  {info.details.map(
+                    (detail: { main: string; sub: string }, idx: number) => (
+                      <div
+                        key={idx}
+                        className="bg-gray-50 hover:bg-gray-100 transition rounded-lg p-3"
+                      >
+                        <p className="text-gray-800 font-medium text-sm">
+                          {detail.main}
+                        </p>
+                        <p className="text-gray-600 text-xs">{detail.sub}</p>
+                      </div>
+                    ),
+                  )}
                 </div>
               </div>
             ))}
@@ -467,7 +469,7 @@ const Contact: React.FC = () => {
                       <button
                         onClick={() =>
                           navigator.clipboard?.writeText(
-                            "Faculty of Engineering, University of Jaffna, Ariviyal Nagar, Kilinochchi 44000, Sri Lanka"
+                            "Faculty of Engineering, University of Jaffna, Ariviyal Nagar, Kilinochchi 44000, Sri Lanka",
                           )
                         }
                         className="inline-flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-full hover:bg-gray-200 transition-colors duration-200"

@@ -14,6 +14,18 @@ export const createApplication = async (req, res) => {
       applicationData.cv = req.file.path;
     }
 
+    if (typeof applicationData.skills === 'string') {
+      try {
+        applicationData.skills = JSON.parse(applicationData.skills);
+      } catch (e) {
+        // Ignore if it fails to parse
+      }
+    }
+
+    if (typeof applicationData.useProfileCV === 'string') {
+      applicationData.useProfileCV = applicationData.useProfileCV === 'true';
+    }
+
     applicationData.id = Date.now().toString();
 
     const { data: savedApplication, error } = await supabase
@@ -77,6 +89,27 @@ export const fetchByCompanyId = async (req, res) => {
       .eq('companyId', companyId);
       
     if (error) throw error;
+    
+    // Fetch profile pictures for students
+    if (apps && apps.length > 0) {
+      const studentIds = [...new Set(apps.map(app => app.studentId))];
+      const { data: students, error: studentsError } = await supabase
+        .from('students')
+        .select('id, profilePicture')
+        .in('id', studentIds);
+        
+      if (!studentsError && students) {
+        const studentMap = students.reduce((acc, student) => {
+          acc[student.id] = student.profilePicture;
+          return acc;
+        }, {});
+        
+        apps.forEach(app => {
+          app.profilePicture = studentMap[app.studentId] || null;
+        });
+      }
+    }
+    
     res.json(apps);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -157,13 +157,13 @@ const StudentDashboard: React.FC = () => {
 
   const [userApplications, setUserApplications] = useState<Application[]>([]);
   const [applicationsLoaded, setApplicationsLoaded] = useState(false);
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, login } = useAuth();
   const id = user?.id;
 
   const [showApplicationsModal, setShowApplicationsModal] = useState(false);
   const [isApplicationsLoading, setIsApplicationsLoading] = useState(false);
 
-  const applicationEndDate = new Date('2025-09-30');
+  const applicationEndDate = new Date('2026-12-31');
   const isApplicationPeriodOpen = new Date() <= applicationEndDate;
   const isInitialRender = useRef(true);
 
@@ -319,6 +319,9 @@ const StudentDashboard: React.FC = () => {
       setProfileData(data);
       if (data.profilePicture) {
         setProfilePreview(data.profilePicture);
+        if (user && data.profilePicture !== user.profilePicture) {
+          login({ ...user, profilePicture: data.profilePicture } as any);
+        }
       }
       if (data.cv) {
         setCvPreview(data.cv);
@@ -329,6 +332,7 @@ const StudentDashboard: React.FC = () => {
       setShowSuccessPopup(true);
     } finally {
       setProfileLoading(false);
+      setCvLoading(false);
     }
   };
 
@@ -467,7 +471,7 @@ const StudentDashboard: React.FC = () => {
     }
 
     const selectedInternshipData = fData?.find(
-      (item) => item._id === selectedInternship
+      (item) => (item._id || item.id) === selectedInternship
     );
 
     if (Number(profileData.ApplicationsSent) >= maximumApplications) {
@@ -560,7 +564,7 @@ const StudentDashboard: React.FC = () => {
         Object.entries(newApplication).forEach(([key, value]) => {
           formData.append(
             key,
-            value !== undefined && value !== null ? value.toString() : ""
+            Array.isArray(value) ? JSON.stringify(value) : (value !== undefined && value !== null ? value.toString() : "")
           );
         });
         formData.append("cv", uploadedCV);
@@ -795,21 +799,19 @@ const StudentDashboard: React.FC = () => {
         </div>
 
         {/* Application Period Notice */}
-        {!isApplicationPeriodOpen && (
-          <Card className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
-            <div className="flex items-center">
-              <Info className="w-6 h-6 text-blue-600 mr-3" />
-              <div>
-                <h3 className="text-lg font-semibold text-blue-800">
-                  Applications will be opened soon
-                </h3>
-                <p className="text-sm text-blue-700">
-                  We are currently preparing for the next application period. Please check back later.
-                </p>
-              </div>
+        <Card className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+          <div className="flex items-center">
+            <Info className="w-6 h-6 text-blue-600 mr-3" />
+            <div>
+              <h3 className="text-lg font-semibold text-blue-800">
+                Applications will be opened soon
+              </h3>
+              <p className="text-sm text-blue-700">
+                We are currently preparing for the next application period. Please check back later.
+              </p>
             </div>
-          </Card>
-        )}
+          </div>
+        </Card>
 
         {/* CV Re-upload Notice */}
         <Card className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm">
@@ -991,10 +993,10 @@ const StudentDashboard: React.FC = () => {
                 sortedInternships.map((internship) => {
                   const isRelevant =
                     internship.industry?.toLowerCase() === studentDeptCode;
-                  const alreadyApplied = hasUserApplied(internship._id || "");
+                  const alreadyApplied = hasUserApplied(internship._id || internship.id || "");
                   return (
                     <Card
-                      key={internship._id}
+                      key={internship._id || internship.id}
                       className="p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px] bg-white rounded-xl"
                     >
 
@@ -1055,7 +1057,7 @@ const StudentDashboard: React.FC = () => {
                           </Button>
                         </Link>
                         <Button
-                          onClick={() => handleApply(internship._id || "")}
+                          onClick={() => handleApply(internship._id || internship.id || "")}
                           className={`transition rounded-lg ${isRelevant && !alreadyApplied && isApplicationPeriodOpen ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed text-white'}`}
                           disabled={!isRelevant || alreadyApplied || !isApplicationPeriodOpen}
                         >
@@ -1164,14 +1166,15 @@ const StudentDashboard: React.FC = () => {
                     Application Status
                   </p>
                   <div className="text-xs text-blue-700">
-                    {profileData.RecentNotifications.length > 0 ? (
-                      profileData.RecentNotifications.filter(
-                        (note) =>
-                          note.toLowerCase().includes("accepted") ||
-                          note.toLowerCase().includes("rejected")
-                      )
+                    {userApplications.filter(app => app.status === "accepted" || app.status === "rejected").length > 0 ? (
+                      userApplications
+                        .filter(app => app.status === "accepted" || app.status === "rejected")
                         .slice(-3)
-                        .map((note, index) => <div key={index}>{note}</div>)
+                        .map((app, index) => (
+                          <div key={index} className="mb-1">
+                            Your application for <span className="font-semibold">{app.internshipTitle}</span> at <span className="font-semibold">{app.companyName}</span> was <span className="font-semibold">{app.status}</span>.
+                          </div>
+                        ))
                     ) : (
                       <div>No recent status updates</div>
                     )}

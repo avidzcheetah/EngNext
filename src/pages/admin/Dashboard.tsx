@@ -170,24 +170,12 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const getRequiredDept = (companyIndustry: string) => {
-    const industryLower = companyIndustry?.toLowerCase() || "";
-    if (industryLower.includes("com")) return "com";
-    if (industryLower.includes("elect") || industryLower.includes("eee")) return "eee";
-    if (industryLower.includes("mech")) return "mech";
-    if (industryLower.includes("civil")) return "civil";
-    return "";
-  };
-
-  const handleViewCompany = (companyId: string, companyIndustry: string) => {
-    const requiredDeptLower = getRequiredDept(companyIndustry);
-    const deptLower = user?.department?.toLowerCase() || "";
-    const canManage = deptLower === requiredDeptLower;
+  const handleViewCompany = (companyId: string, companyDepartments?: string[]) => {
+    const canManage = isCompanyManageable(companyDepartments);
 
     if (!canManage) {
-      const requiredDepartment = requiredDeptLower.toUpperCase();
       alert(
-        `You need a ${requiredDepartment} admin account to manage this company.`
+        `You do not have the required admin privileges to manage this company.`
       );
       return;
     }
@@ -197,15 +185,13 @@ const AdminDashboard: React.FC = () => {
     });
   };
 
-  const isCompanyManageable = (companyIndustry: string) => {
+  const isCompanyManageable = (departments?: string[]) => {
     if (!user?.department) return false;
-    const industryLower = companyIndustry?.toLowerCase() || "";
-    const deptLower = user.department.toLowerCase();
-    if (deptLower === "com" && industryLower.includes("com")) return true;
-    if (deptLower === "eee" && (industryLower.includes("elect") || industryLower.includes("eee"))) return true;
-    if (deptLower === "mech" && industryLower.includes("mech")) return true;
-    if (deptLower === "civil" && industryLower.includes("civil")) return true;
-    return false;
+    if (user.department.toUpperCase() === "ALL") return true;
+    if (!departments || departments.length === 0) return false;
+    
+    const adminDeptLower = user.department.toLowerCase();
+    return departments.some(d => d.toLowerCase() === adminDeptLower);
   };
 
   // Department name formatting
@@ -223,13 +209,16 @@ const AdminDashboard: React.FC = () => {
     case "civil":
       deptName = "Civil Engineering";
       break;
+    case "all":
+      deptName = "Super Admin (All Departments)";
+      break;
     default:
       deptName = "";
   }
 
   const sortedCompanies = [...companyProfiles].sort((a, b) => {
-    const aManage = isCompanyManageable(a.industry || "") ? 1 : 0;
-    const bManage = isCompanyManageable(b.industry || "") ? 1 : 0;
+    const aManage = isCompanyManageable(a.departments) ? 1 : 0;
+    const bManage = isCompanyManageable(b.departments) ? 1 : 0;
     return bManage - aManage;
   });
 
@@ -261,7 +250,7 @@ const AdminDashboard: React.FC = () => {
               {isLoading ? (
                 <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin mx-auto" />
               ) : (
-                30
+                companyProfiles.length
               )}
             </h3>
             <p className="text-gray-600 text-xs sm:text-sm">Total Companies</p>
@@ -315,7 +304,7 @@ const AdminDashboard: React.FC = () => {
             <Card className="p-4 sm:p-6 shadow-sm hover:shadow-md transition bg-white">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2 text-base sm:text-lg">
-                  <Building2 className="w-5 h-5 text-blue-600" /> Companies (30)
+                  <Building2 className="w-5 h-5 text-blue-600" /> Companies ({companyProfiles.length})
                 </h3>
                 <div className="flex gap-2">
                   <Button
@@ -362,9 +351,8 @@ const AdminDashboard: React.FC = () => {
                 ) : (
                   filteredCompanies.map((company) => {
                     const canManage = isCompanyManageable(
-                      company.industry || ""
+                      company.departments
                     );
-                    const requiredDeptLower = getRequiredDept(company.industry || "");
                     return (
                       <Card key={company.id} className="p-3 sm:p-4">
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
@@ -412,7 +400,7 @@ const AdminDashboard: React.FC = () => {
                               onClick={() =>
                                 handleViewCompany(
                                   company.id!,
-                                  company.industry || ""
+                                  company.departments
                                 )
                               }
                               title={
@@ -439,9 +427,7 @@ const AdminDashboard: React.FC = () => {
                               <div className="flex items-center justify-center text-xs text-amber-600 w-full sm:w-auto">
                                 <AlertCircle className="w-4 h-4 mr-1 flex-shrink-0" />
                                 <span className="truncate">
-                                  Need{" "}
-                                  {requiredDeptLower.toUpperCase()}{" "}
-                                  admin
+                                  Need relevant department admin
                                 </span>
                               </div>
                             )}
@@ -544,11 +530,13 @@ const AdminDashboard: React.FC = () => {
               <h3 className="font-bold text-gray-900 text-base sm:text-lg">
                 {user?.firstName} {user?.lastName}
               </h3>
-              <p className="text-sm text-gray-600">{user?.department} Admin</p>
+              <p className="text-sm text-gray-600">
+                {user?.department === 'ALL' ? 'Super Admin' : `${user?.department} Admin`}
+              </p>
               <p className="text-xs sm:text-sm text-gray-600 mt-2">
-                You are logged in using a {deptName} Admin account. You have access
-                to add, remove, or manage companies and jobs related to the{" "}
-                {deptName} Department.
+                You are logged in using a {deptName} account. You have access
+                to add, remove, or manage companies and jobs for{" "}
+                {user?.department === 'ALL' ? 'all departments' : `the ${deptName} Department`}.
               </p>
             </Card>
 
@@ -664,9 +652,8 @@ const AdminDashboard: React.FC = () => {
               ) : (
                 filteredCompanies.map((company) => {
                   const canManage = isCompanyManageable(
-                    company.industry || ""
+                    company.departments
                   );
-                  const requiredDeptLower = getRequiredDept(company.industry || "");
                   return (
                     <Card key={company.id} className="p-4">
                       <div className="flex flex-row justify-between items-center gap-3">
@@ -713,7 +700,7 @@ const AdminDashboard: React.FC = () => {
                             onClick={() =>
                               handleViewCompany(
                                 company.id!,
-                                company.industry || ""
+                                company.departments
                               )
                             }
                             title={
@@ -737,9 +724,7 @@ const AdminDashboard: React.FC = () => {
                             <div className="flex items-center justify-center text-xs text-amber-600 w-auto">
                               <AlertCircle className="w-4 h-4 mr-1 flex-shrink-0" />
                               <span className="truncate">
-                                Need{" "}
-                                {requiredDeptLower.toUpperCase()}{" "}
-                                admin
+                                Need relevant department admin
                               </span>
                             </div>
                           )}

@@ -19,6 +19,6 @@ router.get('/getInternshipById/:id', getInternshipById);
 
 
 // PUT /api/internships/:editId
-router.put("/editInternshipById/:editId", editInternshipById);
+router.put("/editInternshipById/:id", editInternshipById);
 
 export default router;
