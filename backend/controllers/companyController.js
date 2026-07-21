@@ -70,7 +70,7 @@ class CompanyController {
 
       const updates = {};
       Object.keys(req.body).forEach(key => {
-        if ((key === "OurValues" || key === "internBenifits" || key === "subfield") && typeof req.body[key] === "string") {
+        if ((key === "OurValues" || key === "internBenifits" || key === "subfield" || key === "departments") && typeof req.body[key] === "string") {
           try { updates[key] = JSON.parse(req.body[key]); } catch(e) { updates[key] = []; }
         } else {
           updates[key] = req.body[key];

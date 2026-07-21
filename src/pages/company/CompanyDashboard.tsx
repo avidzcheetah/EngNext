@@ -1435,16 +1435,16 @@ const CompanyDashboard: React.FC = () => {
         {/* Cover Letter Modal */}
         {coverletter && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white">
-              <h3 className="text-xl font-bold mb-6">Cover Letter</h3>
-              <div className="space-y-4">
+            <Card className="max-w-2xl w-full p-6 rounded-xl shadow-lg bg-white max-h-[90vh] flex flex-col">
+              <h3 className="text-xl font-bold mb-6 flex-shrink-0">Cover Letter</h3>
+              <div className="space-y-4 overflow-y-auto pr-2">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
                   {applications.find(
-                    (app) => String(app.studentId) === String(coverletterstudentID) && String(app._id) === String(coverletterID)
+                    (app) => String(app.studentId) === String(coverletterstudentID) && String(app._id || app.id) === String(coverletterID)
                   )?.coverLetter || "No cover letter submitted"}
                 </p>
               </div>
-              <div className="flex justify-end mt-6">
+              <div className="flex justify-end mt-6 flex-shrink-0">
                 <Button variant="outline" onClick={handleCancelCoverLetter}>
                   Close
                 </Button>
