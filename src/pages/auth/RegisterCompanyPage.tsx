@@ -123,7 +123,7 @@ const RegisterCompanyPage: React.FC = () => {
 
     if (!formData.companyName.trim())
       newErrors.companyName = "Company name is required";
-   // if (!formData.email.trim()) newErrors.email = "Email is required";
+    if (!formData.email.trim()) newErrors.email = "Email is required";
     if (!formData.description.trim())
       newErrors.description = "Company description is required";
 
@@ -134,15 +134,13 @@ const RegisterCompanyPage: React.FC = () => {
       newErrors.website = "Please enter a valid URL";
     }
 
-    if (!isAdminMode) {
-      if (!validatePassword(formData.password)) {
-        newErrors.password =
-          "Password must be at least 8 characters with uppercase, lowercase, and number";
-      }
+    if (!validatePassword(formData.password)) {
+      newErrors.password =
+        "Password must be at least 8 characters with uppercase, lowercase, and number";
+    }
 
-      if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match";
-      }
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -158,17 +156,14 @@ const RegisterCompanyPage: React.FC = () => {
       fd.append("description", formData.description);
       if (formData.website) fd.append("website", formData.website);
 
-      // Append departments as array
-      formData.departments.forEach((dept, index) => {
-        fd.append(`departments[${index}]`, dept);
-      });
+      // Append departments as a JSON string
+      fd.append("departments", JSON.stringify(formData.departments));
 
       if (isAdminMode) {
         fd.append("subfield", formData.subfield || "");
         fd.append("addedByAdmin", "true");
-      } else {
-        fd.append("password", formData.password);
       }
+      fd.append("password", formData.password);
 
       if (Logo) fd.append("logo", Logo);
 
@@ -321,12 +316,12 @@ const RegisterCompanyPage: React.FC = () => {
               <Input
                 name="email"
                 type="email"
-                label="Official Email Address (Optional)"
+                label="Official Email Address"
                 value={formData.email}
                 onChange={handleInputChange}
                 error={errors.email}
                 fullWidth
-               
+                required
               />
 
               <Input
@@ -424,10 +419,8 @@ const RegisterCompanyPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Password fields - Non admin only */}
-              {!isAdminMode && (
-                <>
-                  <div className="relative">
+              {/* Password fields */}
+              <div className="relative">
                     <Input
                       name="password"
                       type={showPassword ? "text" : "password"}
@@ -476,8 +469,6 @@ const RegisterCompanyPage: React.FC = () => {
                       )}
                     </button>
                   </div>
-                </>
-              )}
 
               <Button type="submit" fullWidth loading={loading}>
                 {isAdminMode ? "Add Company" : "Add company"}

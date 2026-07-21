@@ -12,7 +12,8 @@ type CompanyProfile = {
   companyName?: string;
   name?: string;
   industry?:string;
-  location?:string
+  location?:string;
+  departments?: string[];
 };
 
 type CompanyContextType = {

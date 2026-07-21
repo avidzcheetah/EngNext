@@ -24,6 +24,16 @@ class CompanyController {
         try { companyData.internBenifits = JSON.parse(companyData.internBenifits); } catch(e) { companyData.internBenifits = []; }
       }
 
+      if (companyData.departments && typeof companyData.departments === "string") {
+        try { companyData.departments = JSON.parse(companyData.departments); } catch(e) { companyData.departments = []; }
+      }
+
+      if (companyData.subfield && typeof companyData.subfield === "string") {
+        companyData.subfield = [companyData.subfield];
+      }
+
+      delete companyData.addedByAdmin;
+
       companyData.id = Date.now().toString();
 
       const { data: company, error } = await supabase

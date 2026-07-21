@@ -93,12 +93,14 @@ const CompanyDashboard: React.FC = () => {
     __v: number;
     useProfileCV?: boolean;
     cv?: string;
+    profilePicture?: string;
   }
 
   const [applications, setApplications] = useState<Application[]>([]);
   const [Job, setJob] = useState<
     Array<{
       _id?: string;
+      id?: string;
       companyName?: string;
       title?: string;
       description?: string;
@@ -112,8 +114,9 @@ const CompanyDashboard: React.FC = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [editJob, setEditJob] = useState<{
-    _id?: string;
-    companyName?: string;
+      _id?: string;
+      id?: string;
+      companyName?: string;
     title?: string;
     description?: string;
     requirements?: string[];
@@ -137,6 +140,7 @@ const CompanyDashboard: React.FC = () => {
     requirements: [],
     duration: "",
     location: "",
+    industry: "",
   });
 
   // Progress bar animation for success modal
@@ -361,7 +365,7 @@ const CompanyDashboard: React.FC = () => {
   };
 
   const handleEdit = (internshipId: string) => {
-    const foundJob = Job.find((j) => j._id === internshipId);
+    const foundJob = Job.find((j) => (j._id || j.id) === internshipId);
     if (foundJob) {
       setEdit(true);
       setEditId(internshipId);
@@ -372,6 +376,7 @@ const CompanyDashboard: React.FC = () => {
         requirements: foundJob.requirements || [],
         duration: foundJob.duration || "",
         location: foundJob.location || "",
+        industry: foundJob.industry || "",
       });
       setShowJobModal(true);
     } else {
@@ -389,6 +394,7 @@ const CompanyDashboard: React.FC = () => {
       requirements: [],
       duration: "",
       location: "",
+      industry: "",
     });
   };
 
@@ -407,10 +413,11 @@ const CompanyDashboard: React.FC = () => {
           companyId: id,
           companyName: companyProfile?.companyName || "",
           duration: fData.duration || "",
-          requirements: fData.requirements || [],
+          requirements: (fData.requirements || []).map(r => r.trim()).filter(r => r.length > 0),
           description: fData.description || "",
           title: fData.title,
           location: fData.location || "",
+          industry: fData.industry || "",
           departments: companyProfile?.departments || [],
         }),
       });
@@ -426,6 +433,7 @@ const CompanyDashboard: React.FC = () => {
         requirements: [],
         duration: "",
         location: "",
+        industry: "",
       });
     } catch (error) {
       console.error(error);
@@ -450,11 +458,11 @@ const CompanyDashboard: React.FC = () => {
           companyId: id,
           companyName: companyProfile?.companyName || "",
           duration: fData.duration || "",
-          requirements: fData.requirements || [],
+          requirements: (fData.requirements || []).map(r => r.trim()).filter(r => r.length > 0),
           description: fData.description || "",
           title: fData.title,
           location: fData.location || "",
-          industry: companyProfile?.industry || "",
+          industry: fData.industry || "",
         }),
       });
 
@@ -471,6 +479,7 @@ const CompanyDashboard: React.FC = () => {
         requirements: [],
         duration: "",
         location: "",
+        industry: "",
       });
     } catch (error) {
       console.error(error);
@@ -680,7 +689,7 @@ const CompanyDashboard: React.FC = () => {
   };
 
   // Success Modal Component
-  const SuccessModal = () => (
+  const renderSuccessModal = () => (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60 transition-opacity duration-300">
       <Card className="max-w-md w-full p-8 rounded-xl shadow-2xl bg-white text-center animate-fade-in">
         <div className="flex items-center space-x-3 mb-6">
@@ -720,7 +729,7 @@ const CompanyDashboard: React.FC = () => {
   );
 
   // Delete Confirmation Modal Component
-  const DeleteConfirmModal = () => (
+  const renderDeleteConfirmModal = () => (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <Card className="max-w-md w-full p-8 rounded-xl shadow-2xl bg-white text-center">
         <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -829,7 +838,7 @@ const CompanyDashboard: React.FC = () => {
             {
               icon: <Users className="w-6 h-6 text-blue-600" />,
               value: applications.length,
-              label: `Total Applications (${applications.length}/${MAX_COMPANY_APPLICATIONS})`,
+              label: `Total Applications`,
               color: "bg-blue-100",
               isLoading: isLoadingApplications,
             },
@@ -916,9 +925,13 @@ const CompanyDashboard: React.FC = () => {
                   <Card key={forms._id} className="p-6 hover:shadow-lg transition rounded-xl bg-white">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center text-blue-700 font-semibold">
-                          {forms.studentName.split(" ").map((n) => n[0]).join("")}
-                        </div>
+                        {forms.profilePicture ? (
+                          <img src={forms.profilePicture} alt={forms.studentName} className="w-12 h-12 rounded-full object-cover border-2 border-blue-100" />
+                        ) : (
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center text-blue-700 font-semibold">
+                            {forms.studentName.split(" ").map((n) => n[0]).join("")}
+                          </div>
+                        )}
                         <div>
                           <h3 className="text-lg font-semibold text-gray-900">{forms.studentName}</h3>
                           <p className="text-gray-600">{forms.email}</p>
@@ -977,8 +990,8 @@ const CompanyDashboard: React.FC = () => {
                         variant="outline"
                         size="sm"
                         className="hover:scale-105 transition"
-                        onClick={() => handleViewProfile(forms.studentId, forms._id)}
-                        disabled={isUpdatingApplication[forms._id]}
+                        onClick={() => handleViewProfile(forms.studentId, forms._id || forms.id || "")}
+                        disabled={isUpdatingApplication[forms._id || forms.id || ""]}
                       >
                         <Eye className="w-4 h-4 mr-1" /> View Profile
                       </Button>
@@ -987,9 +1000,9 @@ const CompanyDashboard: React.FC = () => {
                         size="sm"
                         className="hover:scale-105 transition"
                         onClick={() => DOWNLOADCV(forms)}
-                        disabled={isUpdatingApplication[forms._id] || downloadingCV[forms._id]}
+                        disabled={isUpdatingApplication[forms._id || forms.id || ""] || downloadingCV[forms._id || forms.id || ""]}
                       >
-                        {downloadingCV[forms._id] ? (
+                        {downloadingCV[forms._id || forms.id || ""] ? (
                           <>
                             <Loader2 className="w-4 h-4 mr-1 animate-spin" />
                             Downloading...
@@ -1004,18 +1017,18 @@ const CompanyDashboard: React.FC = () => {
                         variant="outline"
                         size="sm"
                         className="hover:scale-105 transition"
-                        onClick={() => handleViewCoverletter(forms.studentId, forms._id)}
-                        disabled={isUpdatingApplication[forms._id]}
+                        onClick={() => handleViewCoverletter(forms.studentId, forms._id || forms.id || "")}
+                        disabled={isUpdatingApplication[forms._id || forms.id || ""]}
                       >
                         <Eye className="w-4 h-4 mr-1" /> View Cover Letter
                       </Button>
                       <Button
                         size="sm"
                         className="bg-green-600 hover:bg-green-700 text-white"
-                        onClick={() => handleAccept(forms._id)}
-                        disabled={isUpdatingApplication[forms._id]}
+                        onClick={() => handleAccept(forms._id || forms.id || "")}
+                        disabled={isUpdatingApplication[forms._id || forms.id || ""]}
                       >
-                        {isUpdatingApplication[forms._id] ? (
+                        {isUpdatingApplication[forms._id || forms.id || ""] ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin mr-1" />
                             Accepting...
@@ -1027,10 +1040,10 @@ const CompanyDashboard: React.FC = () => {
                       <Button
                         variant="danger"
                         size="sm"
-                        onClick={() => handleReject(forms._id)}
-                        disabled={isUpdatingApplication[forms._id]}
+                        onClick={() => handleReject(forms._id || forms.id || "")}
+                        disabled={isUpdatingApplication[forms._id || forms.id || ""]}
                       >
-                        {isUpdatingApplication[forms._id] ? (
+                        {isUpdatingApplication[forms._id || forms.id || ""] ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin mr-1" />
                             Rejecting...
@@ -1071,7 +1084,7 @@ const CompanyDashboard: React.FC = () => {
                 </Card>
               ) : (
                 Job.map((internship) => (
-                  <Card key={internship._id} className="p-6 hover:shadow-lg transition bg-white rounded-xl">
+                  <Card key={internship._id || internship.id} className="p-6 hover:shadow-lg transition bg-white rounded-xl">
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <h3 className="text-lg font-semibold mb-1">{internship.title}</h3>
@@ -1099,7 +1112,7 @@ const CompanyDashboard: React.FC = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleEdit(internship._id || "")}
+                        onClick={() => handleEdit(internship._id || internship.id || "")}
                         disabled={isUpdatingJob || isDeletingJob}
                       >
                         <Edit className="w-4 h-4 mr-1" /> Edit
@@ -1107,7 +1120,7 @@ const CompanyDashboard: React.FC = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleViewApplication(internship._id || "")}
+                        onClick={() => handleViewApplication(internship._id || internship.id || "")}
                         disabled={isUpdatingJob || isDeletingJob}
                       >
                         <Eye className="w-4 h-4 mr-1" /> View Applications
@@ -1115,7 +1128,7 @@ const CompanyDashboard: React.FC = () => {
                       <Button
                         variant="danger"
                         size="sm"
-                        onClick={() => handleConfirmDelete(internship._id || "")}
+                        onClick={() => handleConfirmDelete(internship._id || internship.id || "")}
                         disabled={isDeletingJob}
                       >
                         {isDeletingJob ? (
@@ -1353,6 +1366,21 @@ const CompanyDashboard: React.FC = () => {
                   />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium mb-1">Related Department</label>
+                  <select
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
+                    value={fData.industry || ""}
+                    onChange={(e) => setFdata((prev) => ({ ...prev, industry: e.target.value }))}
+                  >
+                    <option value="">Select a department</option>
+                    {(companyProfile?.departments || []).map((dept) => (
+                      <option key={dept} value={dept}>
+                        {dept}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
                   <label className="block text-sm font-medium mb-1">Description</label>
                   <textarea
                     value={fData.description}
@@ -1365,17 +1393,14 @@ const CompanyDashboard: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium mb-1">Requirements</label>
                   <input
-                    value={fData.requirements?.join(", ") || ""}
+                    value={fData.requirements?.join(",") || ""}
                     type="text"
                     placeholder="e.g., JavaScript, React, Node.js"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-blue-500"
                     onChange={(e) =>
                       setFdata((prev) => ({
                         ...prev,
-                        requirements: e.target.value
-                          .split(",")
-                          .map((req) => req.trim())
-                          .filter((req) => req.length > 0),
+                        requirements: e.target.value.split(","),
                       }))
                     }
                   />
@@ -1429,10 +1454,10 @@ const CompanyDashboard: React.FC = () => {
         )}
 
         {/* Success Modal */}
-        {showSuccessModal && <SuccessModal />}
+        {showSuccessModal && renderSuccessModal()}
 
         {/* Delete Confirmation Modal */}
-        {showDeleteConfirmModal && <DeleteConfirmModal />}
+        {showDeleteConfirmModal && renderDeleteConfirmModal()}
 
         <style>{`
           .animate-slide-in {

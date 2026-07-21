@@ -5,7 +5,7 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 
-type AdminDepartment = 'EEE' | 'Com' | 'Mech' | 'Civil';
+type AdminDepartment = 'EEE' | 'Com' | 'Mech' | 'Civil' | 'ALL';
 
 const RegisterAdminPage: React.FC = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -28,6 +28,7 @@ const RegisterAdminPage: React.FC = () => {
   const navigate = useNavigate();
 
   const departments = [
+    { value: 'ALL', label: 'Super Admin (All Departments)', color: 'bg-purple-100 text-purple-800' },
     { value: 'EEE', label: 'Electrical and Electronic Engineering', color: 'bg-blue-100 text-blue-800' },
     { value: 'Com', label: 'Computer Engineering', color: 'bg-green-100 text-green-800' },
     { value: 'Mech', label: 'Mechanical Engineering', color: 'bg-red-100 text-red-800' },
@@ -205,7 +206,7 @@ const RegisterAdminPage: React.FC = () => {
               name="username"
               type="text"
               label="Username"
-              placeholder={formData.department ? `${formData.department.toLowerCase()}_admin` : 'e.g., eee_admin or com_admin'}
+              placeholder={formData.department === 'ALL' ? 'e.g., super_admin' : (formData.department ? `${formData.department.toLowerCase()}_admin` : 'e.g., super_admin or com_admin')}
               value={formData.username}
               onChange={handleInputChange}
               error={errors.username}
