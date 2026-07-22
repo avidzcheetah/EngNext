@@ -500,13 +500,13 @@ const StudentDashboard: React.FC = () => {
       return;
     }
 
-    // Check if the interest level is already used
-    const isInterestLevelUsed = userApplications.some(
-      (app) => app.interestLevel === interestLevel
-    );
-    if (isInterestLevelUsed) {
+    // Check if the interest level is used 2 or more times
+    const interestLevelCount = userApplications.filter(
+      (app) => Number(app.interestLevel) === Number(interestLevel)
+    ).length;
+    if (interestLevelCount >= 2) {
       setError(
-        "You have already used this interest level for another application. Please choose a different interest level."
+        "You have already used this interest level twice across your applications. Each interest level can be used a maximum of 2 times."
       );
       setShowSuccessPopup(true);
       return;
@@ -798,20 +798,7 @@ const StudentDashboard: React.FC = () => {
           </p>
         </div>
 
-        {/* Application Period Notice */}
-        <Card className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
-          <div className="flex items-center">
-            <Info className="w-6 h-6 text-blue-600 mr-3" />
-            <div>
-              <h3 className="text-lg font-semibold text-blue-800">
-                Applications will be opened soon
-              </h3>
-              <p className="text-sm text-blue-700">
-                We are currently preparing for the next application period. Please check back later.
-              </p>
-            </div>
-          </div>
-        </Card>
+
 
         {/* CV Re-upload Notice */}
         <Card className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm">
@@ -1504,7 +1491,7 @@ const StudentDashboard: React.FC = () => {
                               Choose 100% for the position you like the MOST, and 20% for the one you like the LEAST.
                             </p>
                             <p className="mt-1">
-                              Important: You can only use each interest level once across all your applications. You CANNOT use the same level to apply for multiple positions.
+                              Important: You can use each interest level a maximum of 2 times across all your applications.
                             </p>
                           </div>
                         </div>

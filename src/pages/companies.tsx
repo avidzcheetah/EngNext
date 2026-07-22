@@ -8,6 +8,7 @@ import {
   Filter,
   Building2,
   Mail,
+  Loader2,
 } from "lucide-react";
 
 import { useCompany } from "../contexts/CompanyContext";
@@ -35,6 +36,7 @@ const Companies: React.FC = () => {
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [loadings, setLoading] = useState(true);
   const [studentCount, setStudentCount] = useState(0); // State for student count
+  const [isFetchingStudents, setIsFetchingStudents] = useState(true);
   const { companyProfiles, loading } = useCompany();
   const [, setError] = useState<string | null>(null);
 
@@ -49,6 +51,7 @@ const Companies: React.FC = () => {
   // Fetch student count by getting all students
   useEffect(() => {
     const fetchStudentCount = async () => {
+      setIsFetchingStudents(true);
       try {
         const response = await fetch(
           `${baseUrl}/api/studentRoutes/getAllStudents`,
@@ -69,6 +72,8 @@ const Companies: React.FC = () => {
         setError(
           err instanceof Error ? err.message : "Failed to fetch student count"
         );
+      } finally {
+        setIsFetchingStudents(false);
       }
     };
 
@@ -168,20 +173,24 @@ const Companies: React.FC = () => {
           {/* Stats - Display student count */}
           <div className="grid grid-cols-3 gap-2 sm:gap-6 max-w-4xl mx-auto px-4">
             <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 sm:p-4 text-center">
-              <div className="text-xl sm:text-2xl md:text-3xl font-bold">
-                {studentCount}
+              <div className="text-xl sm:text-2xl md:text-3xl font-bold flex justify-center items-center h-8 sm:h-9">
+                {isFetchingStudents ? (
+                  <Loader2 className="w-6 h-6 animate-spin text-blue-100 mx-auto" />
+                ) : (
+                  studentCount
+                )}
               </div>
               <div className="text-blue-100 text-xs sm:text-sm">Students</div>
             </div>
             <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 sm:p-4 text-center">
-              <div className="text-xl sm:text-2xl md:text-3xl font-bold">
+              <div className="text-xl sm:text-2xl md:text-3xl font-bold flex justify-center items-center h-8 sm:h-9">
                 {companyProfiles.length}
               </div>
               <div className="text-blue-100 text-xs sm:text-sm">Companies</div>
             </div>
             <div className="bg-white/10 backdrop-blur-md rounded-lg p-3 sm:p-4 text-center">
-              <div className="text-xl sm:text-2xl md:text-3xl font-bold">
-                {industries.length}
+              <div className="text-xl sm:text-2xl md:text-3xl font-bold flex justify-center items-center h-8 sm:h-9">
+                4
               </div>
               <div className="text-blue-100 text-xs sm:text-sm">
                 Departments
