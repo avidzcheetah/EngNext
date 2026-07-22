@@ -28,8 +28,16 @@ class CompanyController {
         try { companyData.departments = JSON.parse(companyData.departments); } catch(e) { companyData.departments = []; }
       }
 
-      if (companyData.subfield && typeof companyData.subfield === "string") {
-        companyData.subfield = [companyData.subfield];
+      if (typeof companyData.subfield === "string") {
+        try {
+          const parsed = JSON.parse(companyData.subfield);
+          companyData.subfield = Array.isArray(parsed) ? parsed : [parsed];
+        } catch(e) {
+          const trimmed = companyData.subfield.trim();
+          companyData.subfield = trimmed ? [trimmed] : [];
+        }
+      } else if (!companyData.subfield) {
+        companyData.subfield = [];
       }
 
       delete companyData.addedByAdmin;
@@ -70,8 +78,14 @@ class CompanyController {
 
       const updates = {};
       Object.keys(req.body).forEach(key => {
-        if ((key === "OurValues" || key === "internBenifits" || key === "subfield") && typeof req.body[key] === "string") {
-          try { updates[key] = JSON.parse(req.body[key]); } catch(e) { updates[key] = []; }
+        if ((key === "OurValues" || key === "internBenifits" || key === "subfield" || key === "departments") && typeof req.body[key] === "string") {
+          try {
+            const parsed = JSON.parse(req.body[key]);
+            updates[key] = Array.isArray(parsed) ? parsed : [parsed];
+          } catch(e) {
+            const trimmed = req.body[key].trim();
+            updates[key] = trimmed ? [trimmed] : [];
+          }
         } else {
           updates[key] = req.body[key];
         }
