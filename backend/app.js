@@ -33,4 +33,8 @@ if (supabaseUrl && supabaseKey) {
   console.error("Missing Supabase credentials in .env");
 }
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+export default app;
