@@ -29,3 +29,33 @@
     @apply bg-slate-400;
   }
 }
+
+@keyframes shine {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shine-hover {
+  position: relative;
+  display: inline-block;
+  font-weight: 700;
+  color: #38bdf8;
+  transition: all 0.3s ease;
+}
+
+.shine-hover:hover {
+  background: linear-gradient(
+    90deg,
+    #38bdf8 0%,
+    #ffffff 50%,
+    #38bdf8 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 1.5s infinite linear;
+}

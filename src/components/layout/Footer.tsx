@@ -71,12 +71,29 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-t border-slate-800/60 mt-12 pt-8 text-center">
-          <p className="text-sm text-slate-400">
+        <div className="border-t border-slate-800/60 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-400">
+          <p className="text-center sm:text-left">
             © 2026 Faculty of Engineering, University of Jaffna. All rights reserved.
           </p>
-          <p className="text-sm text-slate-400 mt-2">
-            Made with ❤️ by <a href="https://avidzverse.vercel.app" className="text-brand-400 hover:text-brand-300 font-semibold transition-colors">Avidu Witharana</a> & <a href="https://www.linkedin.com/in/aakil29a519311/" className="text-brand-400 hover:text-brand-300 font-semibold transition-colors">Aakil Ahamed</a> 
+          <p className="text-center sm:text-right">
+            Built by{" "}
+            <a
+              href="https://avidz.lk/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shine-hover"
+            >
+              AVIDZ
+            </a>{" "}
+            &{" "}
+            <a
+              href="https://www.linkedin.com/in/aakil29a519311/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shine-hover"
+            >
+              AAKIL
+            </a>
           </p>
         </div>
       </div>
