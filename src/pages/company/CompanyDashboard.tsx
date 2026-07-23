@@ -14,7 +14,6 @@ import {
   AlertTriangle,
   Check,
   Phone,
-  AlertCircle,
 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
@@ -31,7 +30,6 @@ const CompanyDashboard: React.FC = () => {
   console.log("Company ID from state or auth:", id);
 
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
-  const MAX_COMPANY_APPLICATIONS = 27; // Configurable limit
   const [activeTab, setActiveTab] = useState<"applications" | "positions" | "company">("applications");
   const [showJobModal, setShowJobModal] = useState(false);
   const [edit, setEdit] = useState(false);
@@ -775,9 +773,6 @@ const CompanyDashboard: React.FC = () => {
     { value: "Civil", label: "Civil Engineering" },
   ];
 
-  const isApplicationLimitReached = applications.length >= MAX_COMPANY_APPLICATIONS;
-  const isApplicationLimitNear = applications.length >= MAX_COMPANY_APPLICATIONS - 1 && applications.length < MAX_COMPANY_APPLICATIONS;
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -787,34 +782,6 @@ const CompanyDashboard: React.FC = () => {
             <AlertTriangle className="w-5 h-5 text-red-600" />
             <span className="text-red-800">{error}</span>
           </div>
-        )}
-
-        {/* Application Limit Notifications */}
-        {isApplicationLimitReached && (
-          <Card className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm">
-            <div className="flex items-center">
-              <AlertTriangle className="w-6 h-6 text-red-600 mr-3" />
-              <div>
-                <h3 className="text-lg font-semibold text-red-800">Application Limit Reached</h3>
-                <p className="text-sm text-red-700">
-                  You have reached the maximum limit of {MAX_COMPANY_APPLICATIONS} applications. No further applications can be received until some are processed or declined.
-                </p>
-              </div>
-            </div>
-          </Card>
-        )}
-        {isApplicationLimitNear && !isApplicationLimitReached && (
-          <Card className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm">
-            <div className="flex items-center">
-              <AlertCircle className="w-6 h-6 text-yellow-600 mr-3" />
-              <div>
-                <h3 className="text-lg font-semibold text-yellow-800">Approaching Application Limit</h3>
-                <p className="text-sm text-yellow-700">
-                  You have {MAX_COMPANY_APPLICATIONS - applications.length} application slot(s) remaining out of {MAX_COMPANY_APPLICATIONS}. Consider reviewing or declining existing applications.
-                </p>
-              </div>
-            </div>
-          </Card>
         )}
 
         {/* Header */}

@@ -118,11 +118,6 @@ const handleApiError: ApiErrorHandler = (error) => {
     return "There was an issue with your file upload. Please try again.";
   }
 
-  // Handle company application limit error
-  if (errorText.includes("CompanyApplicationLimit")) {
-    return "This company has reached its maximum application limit.";
-  }
-
   // Default fallback for other errors
   return errorText || "Something went wrong. Please try again.";
 };
@@ -440,20 +435,6 @@ const StudentDashboard: React.FC = () => {
   };
 
 
-  const fetchCompanyApplicationCount = async (companyId: string) => {
-    try {
-      const response = await fetch(
-        `${baseUrl}/api/applicationRoutes/fetchByCompanyId/${companyId}`
-      );
-      if (!response.ok) throw new Error("Failed to fetch company applications");
-      const data = await response.json();
-      return data.length;
-    } catch (err) {
-      console.error("Error fetching company application count:", err);
-      throw new Error("CompanyApplicationLimit");
-    }
-  };
-
   const handleSubmitApplication = useCallback(async () => {
     if (!isAuthenticated || !id) {
       setError("Please log in to apply for this position.");
@@ -510,31 +491,6 @@ const StudentDashboard: React.FC = () => {
       );
       setShowSuccessPopup(true);
       return;
-    }
-
-    // Check if the company has reached the application limit
-    const companyId = selectedInternshipData?.companyId;
-    const MAX_COMPANY_APPLICATIONS = 27; // Configurable limit
-    if (companyId) {
-      try {
-        const applicationCount = await fetchCompanyApplicationCount(companyId);
-        if (applicationCount >= MAX_COMPANY_APPLICATIONS) {
-          setError(
-            "This company has reached its maximum application limit of " +
-              MAX_COMPANY_APPLICATIONS +
-              "."
-          );
-          setShowSuccessPopup(true);
-          setShowApplicationModal(false);
-          return;
-        }
-      } catch (err) {
-        console.error("Error checking company application limit:", err);
-        setError(handleApiError(err instanceof Error ? err.message : ""));
-        setShowSuccessPopup(true);
-        setShowApplicationModal(false);
-        return;
-      }
     }
 
     setIsSubmitting(true);
